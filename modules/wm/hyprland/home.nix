@@ -100,11 +100,11 @@ in
 
             # General settings
             general = {
-                "$mod" = "SUPER"; # Main modification button (passed to binds file)
+                "$mod" = "SUPER";           # Main modification button (passed to binds file)
                 layout = "dwindle";
-                gaps_in = 1;
-                gaps_out = 1;
-                border_size = 1;
+                gaps_in = 5;                # Windows inside gaps to make windows smaller
+                gaps_out = 20;              # Window outer gaps
+                border_size = 2;            # Window border thickness
                 resize_on_border = true;
             };
 
