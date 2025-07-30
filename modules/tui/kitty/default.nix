@@ -7,11 +7,10 @@
   ...
 }: 
 {
-    programs.kitty = {
-        enable = true;
+  programs.kitty = {
+    enable = true;
 
-        settings = {
-      shell = "fish";
+    settings = {
       font_family = "monospace";
       font_size = 10;
       enable_audio_bell = true;

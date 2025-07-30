@@ -37,8 +37,11 @@
   services.xserver.xkb = {
     layout = "us,ru,lt";
     variant = ",phonetic,us";
-    options = "terminate:ctrl_alt_bksp";
-    model = "pc104";
+    options = "grp:win_space_toggle,grp:alt_shift_toggle";
+  };
+  services.libinput = {
+    enable = true;
+    touchpad.naturalScrolling = true;
   };
 
   # Audio
@@ -66,13 +69,13 @@
       enable = true;
       user = "astroreen";
     };
+
+    # Defaul session to log in to. Perfect with auto login :)
+    defaultSession = "hyprland";
   };
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   # Desktop Environments
   services.desktopManager.plasma6.enable = true;
@@ -121,7 +124,6 @@
   # Enable CUPS to print documents.
   services.printing.enable = true;
   # Security
-  security.polkit.enable = true;
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.gdm-password.enableGnomeKeyring = true;
   services.gvfs.enable = true; # Enables trash
