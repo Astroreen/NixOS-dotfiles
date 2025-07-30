@@ -63,13 +63,13 @@
 
         waybar.enable = false;
         hyprpaper = {
-            enable = true;
-            wallpaper = ./wallpapers/astronaut.jpg;
+            enable = false;
+            wallpaper = ./astronaut.jpg;
         };
 
         caelestia = {
             enable = true;
-            wallpapers = ./wallpapers;
+            wallpapers = ./astronaut.jpg;
             avatar = ./avatar.jpg;
         };
     };

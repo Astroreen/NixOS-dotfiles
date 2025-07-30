@@ -27,7 +27,7 @@ in
 
             wallpaper = lib.mkOption {
                 type = lib.types.path;
-                default = ./wallpaper;
+                default = ./nixos-wallpaper.png;
                 example = "/absolute/path/to/wallpaper.png or ./relative/path/to/wallpaper.jpg";
                 description = "Path to wallpaper to set main wallpaper on screen";
             };
@@ -43,8 +43,8 @@ in
 
             wallpapers = lib.mkOption {
                 type = lib.types.path;
-                default = ./wallpaper;
-                example = "/absolute/path/to/wallpaper/folder or ./relative/path/to/wallpaper/folder";
+                default = ./nixos-wallpaper.png;
+                example = "/absolute/path/to/wallpaper.png or ./relative/path/to/wallpaper.jpg";
                 description = "Path to wallpaper to set main wallpaper on screen";
             };
 
@@ -99,7 +99,7 @@ in
             ".config/quickshell/caelestia".source = inputs.caelestia-shell;
             ".config/caelestia/shell.json".source = cfg.caelestia.shell-file;
             ".face".source = cfg.caelestia.avatar;
-            "~/Pictures/Wallpapers".source = cfg.caelestia.wallpapers;
+            ".local/state/caelestia/wallpaper/current".source = cfg.caelestia.wallpapers;
         };
 
         # Setup wallpapers
@@ -119,12 +119,29 @@ in
             kdePackages.dolphin
         ]
         ++ lib.optionals cfg.caelestia.enable [
+            # Caelestia
             inputs.app2unit.packages.${pkgs.system}.default
             inputs.quickshell.packages.${pkgs.system}.default
             inputs.caelestia-shell.packages.${pkgs.system}.default 
             inputs.caelestia-cli.packages.${pkgs.system}.default
 
+            # Icons
+            adwaita-icon-theme
+            gnome-icon-theme
+            hicolor-icon-theme
+            kdePackages.breeze-icons
+            material-symbols
+            papirus-icon-theme
 
+            # Packages
+            libnotify
+            dart-sass
+            wl-clipboard
+            wl-screenrec
+            cliphist
+            bluez
+            fuzzel
+            slurp
             fish 
             cava 
             ddcutil 
@@ -135,10 +152,16 @@ in
             pipewire 
             glibc 
             qt6.qtdeclarative 
-            gcc
             qalculate-gtk 
             grim 
             swappy
+            libqalculate
+
+            # Might be the wrong ones
+            gdbuspp
+            libpulseaudio
+            rubyPackages_3_4.glib2
+            gcc
         ];
 
         # Wayland settings
