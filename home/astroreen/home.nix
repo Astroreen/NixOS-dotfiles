@@ -58,5 +58,10 @@
         sensitivity = 0;
     };
 
+    hyprland = {
+        waybar.enable = false;
+        hyprpaper.enable = true;
+    };
+
     home.stateVersion = "25.05";
 }

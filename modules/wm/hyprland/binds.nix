@@ -2,7 +2,7 @@
     
     # Binds without a flag. Just Binds.
     bind = [
-        "$mod, T, exec, [float; size 800 600] $terminal"
+        "$mod, T, exec, [float; size 1200 800] $terminal"
         "$mod, E, exec, $fileManager"
         "$mod, B, exec, $browser"
         "$mod,  , exec, $menu"

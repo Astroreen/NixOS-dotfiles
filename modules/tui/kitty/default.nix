@@ -12,7 +12,7 @@
 
     settings = {
       font_family = "monospace";
-      font_size = 10;
+      font_size = 15;
       enable_audio_bell = true;
 
       # Material You 3 cyan/teal theme
