@@ -4,15 +4,17 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11"; # Keep stable as fallback or for servers
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     flake-utils.url = "github:numtide/flake-utils";
-    nixCats.url = "github:BirdeeHub/nixCats-nvim";
     hyprland.url = "github:hyprwm/Hyprland";
-    quickshell = {
-      url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
+
+    caelestia-shell = {
+      url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

@@ -60,7 +60,16 @@
 
     hyprland = {
         waybar.enable = false;
-        hyprpaper.enable = true;
+        hyprpaper = {
+            enable = true;
+            wallpaper = ./wallpapers/astronaut.jpg;
+        };
+
+        caelestia = {
+            enable = true;
+            wallpapers = ./wallpapers;
+            avatar = ./avatar.jpg;
+        };
     };
 
     home.stateVersion = "25.05";

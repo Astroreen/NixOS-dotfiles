@@ -10,6 +10,7 @@
 let 
     cfg = config.hyprland;
     binds = import ./binds.nix;
+    caelestiaShell = inputs.caelestia-shell.packages.${pkgs.system}.default;
 in
 
 {
@@ -21,11 +22,50 @@ in
             description = "Enable wayland - bar at the top";
         };
 
-        hyprpaper.enable = lib.mkOption {
-            type = lib.types.bool;
-            default = true;
-            example = "true";
-            description = "Set up wallpaper";
+        hyprpaper = {
+            enable = lib.mkOption {
+                type = lib.types.bool;
+                default = true;
+                example = "true";
+                description = "Set up wallpaper";
+            };
+
+            wallpaper = lib.mkOption {
+                type = lib.types.path;
+                default = ./wallpaper;
+                example = "/absolute/path/to/wallpaper.png or ./relative/path/to/wallpaper.jpg";
+                description = "Path to wallpaper to set main wallpaper on screen";
+            };
+        };
+
+        caelestia = {
+            enable = lib.mkOption {
+                type = lib.types.bool;
+                default = true;
+                example = "true";
+                description = "A powerfull and seggsy looking shell";
+            };
+
+            wallpapers = lib.mkOption {
+                type = lib.types.path;
+                default = ./wallpaper;
+                example = "/absolute/path/to/wallpaper/folder or ./relative/path/to/wallpaper/folder";
+                description = "Path to wallpaper to set main wallpaper on screen";
+            };
+
+            avatar = lib.mkOption {
+                type = lib.types.path;
+                default = ./avatar;
+                example = "/absolute/path/to/avatar.png or ./relative/path/to/avatar.jpg";
+                description = "Path to avatar";
+            };
+
+            shell-file = lib.mkOption {
+                type = lib.types.path;
+                default = inputs.caelestia-shell + "/shell.json";
+                example = "/absolute/path/to/shell.json or ./relative/path/to/shell.json";
+                description = "Path to main quickshell configuration file";
+            };
         };
     };
 
@@ -37,12 +77,16 @@ in
             };
         };
 
-        # Configs to apply
+        # Configs always to apply
         home.file = {
-            "Pictures/Wallpapers/nixos-wallpaper.png" = {
-                source = ./wallpaper.png;
+            
+        } 
+        // lib.optionalAttrs cfg.hyprpaper.enable {
+            "Pictures/Wallpapers/wallpaper.png" = {
+                source = cfg.hyprpaper.wallpaper;
             };
-        } // lib.optionalAttrs cfg.waybar.enable {
+        }
+        // lib.optionalAttrs cfg.waybar.enable {
             ".config/waybar" = {
                 source = ./waybar;
                 recursive = true;
@@ -55,6 +99,11 @@ in
                 source = ./waybar/modules/mediaplayer.py;
                 executable = true;
             };
+        }
+        // lib.optionalAttrs cfg.caelestia.enable {
+            ".config/caelestia/shell.json".source = cfg.caelestia.shell-file;
+            ".face".source = cfg.caelestia.avatar;
+            "~/Pictures/Wallpapers".source = cfg.caelestia.wallpapers;
         };
 
         # Setup wallpapers
@@ -62,16 +111,35 @@ in
             enable = cfg.hyprpaper.enable;
             settings = {
                 preload = [
-                    "~/Pictures/Wallpapers/nixos-wallpaper.png"
+                    "~/Pictures/Wallpapers/wallpaper.png"
                 ];
                 wallpaper = [
-                    ", ~/Pictures/Wallpapers/nixos-wallpaper.png"
+                    ", ~/Pictures/Wallpapers/wallpaper.png"
                 ];
             };
         };
 
         home.packages = with pkgs; [
             kdePackages.dolphin
+        ]
+        ++ lib.optionals cfg.caelestia.enable [
+            caelestiaShell  # Shell itself
+
+            fish 
+            cava 
+            ddcutil 
+            brightnessctl 
+            app2unit
+            networkmanager 
+            lm_sensors 
+            aubio
+            pipewire 
+            glibc 
+            qt6.qtdeclarative 
+            gcc
+            qalculate-gtk 
+            grim 
+            swappy
         ];
 
         # Wayland settings
@@ -130,6 +198,9 @@ in
             ]
             ++ lib.optionals cfg.hyprpaper.enable [
                 "hyprpaper"
+            ]
+            ++ lib.optionals cfg.caelestia.enable [
+                "qs -c caelestia" # Enable caelestia shell on start
             ];
 
             # Windows rules
