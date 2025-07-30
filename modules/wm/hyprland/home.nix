@@ -9,26 +9,21 @@
 
 let 
     cfg = config.hyprland;
-    binds = import ./binds.nix;
-    caelestiaShell = inputs.caelestia-shell.packages.${pkgs.system}.default;
 in
 
 {
     options.hyprland = {
-        waybar.enable = lib.mkOption {
-            type = lib.types.bool;
-            default = true;
-            example = "true";
-            description = "Enable wayland - bar at the top";
+        binds = lib.mkOption {
+            type = lib.types.attrs;
+            default = import ./binds.nix;
+            example = "hyprland.binds = import /absolute/path/to/binds.nix or ./relative/path/to/binds.nix";
+            description = "Use this guide for flags: https://wiki.hypr.land/Configuring/Binds/#bind-flags";
         };
 
+        waybar.enable = lib.mkEnableOption "Enable wayland - bar at the top";
+
         hyprpaper = {
-            enable = lib.mkOption {
-                type = lib.types.bool;
-                default = true;
-                example = "true";
-                description = "Set up wallpaper";
-            };
+            enable = lib.mkEnableOption "Set up wallpaper";
 
             wallpaper = lib.mkOption {
                 type = lib.types.path;
@@ -41,7 +36,7 @@ in
         caelestia = {
             enable = lib.mkOption {
                 type = lib.types.bool;
-                default = true;
+                default = false;
                 example = "true";
                 description = "A powerfull and seggsy looking shell";
             };
@@ -77,7 +72,7 @@ in
             };
         };
 
-        # Configs always to apply
+        # Configs to apply
         home.file = {
             
         } 
@@ -101,6 +96,7 @@ in
             };
         }
         // lib.optionalAttrs cfg.caelestia.enable {
+            ".config/quickshell/caelestia".source = inputs.caelestia-shell;
             ".config/caelestia/shell.json".source = cfg.caelestia.shell-file;
             ".face".source = cfg.caelestia.avatar;
             "~/Pictures/Wallpapers".source = cfg.caelestia.wallpapers;
@@ -123,13 +119,16 @@ in
             kdePackages.dolphin
         ]
         ++ lib.optionals cfg.caelestia.enable [
-            caelestiaShell  # Shell itself
+            inputs.app2unit.packages.${pkgs.system}.default
+            inputs.quickshell.packages.${pkgs.system}.default
+            inputs.caelestia-shell.packages.${pkgs.system}.default 
+            inputs.caelestia-cli.packages.${pkgs.system}.default
+
 
             fish 
             cava 
             ddcutil 
             brightnessctl 
-            app2unit
             networkmanager 
             lm_sensors 
             aubio
@@ -175,12 +174,6 @@ in
                 border_size = 2;            # Window border thickness
                 resize_on_border = true;
             };
-
-            # Binds
-            bind = binds.bind;
-            bindm = binds.bindm;
-            bindl = binds.bindl;
-            bindel = binds.bindel;
 
             # Commands to execute once on Hyprland start
             exec-once = [
@@ -263,6 +256,7 @@ in
             gestures = {
                 workspace_swipe = true;
             };
-        };
+        }
+        // cfg.binds; # Adding dynamic bindings
     };
 }

@@ -59,6 +59,8 @@
     };
 
     hyprland = {
+        binds = import ./hyprland-binds.nix;
+
         waybar.enable = false;
         hyprpaper = {
             enable = true;

@@ -3,7 +3,6 @@
     "app2unit": {
       "inputs": {
         "nixpkgs": [
-          "caelestia-shell",
           "nixpkgs"
         ]
       },
@@ -57,6 +56,32 @@
     "caelestia-cli": {
       "inputs": {
         "app2unit": [
+          "app2unit"
+        ],
+        "caelestia-shell": [
+          "caelestia-shell"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1753407718,
+        "narHash": "sha256-VnqE8hpqyIdJ91OBaJatxGyNccev+OC19U/MVZUd/0E=",
+        "owner": "caelestia-dots",
+        "repo": "cli",
+        "rev": "2bde2ddfbf56277fbf93af96fe3a88cb042b6696",
+        "type": "github"
+      },
+      "original": {
+        "owner": "caelestia-dots",
+        "repo": "cli",
+        "type": "github"
+      }
+    },
+    "caelestia-cli_2": {
+      "inputs": {
+        "app2unit": [
           "caelestia-shell",
           "app2unit"
         ],
@@ -84,12 +109,16 @@
     },
     "caelestia-shell": {
       "inputs": {
-        "app2unit": "app2unit",
-        "caelestia-cli": "caelestia-cli",
+        "app2unit": [
+          "app2unit"
+        ],
+        "caelestia-cli": "caelestia-cli_2",
         "nixpkgs": [
           "nixpkgs"
         ],
-        "quickshell": "quickshell"
+        "quickshell": [
+          "quickshell"
+        ]
       },
       "locked": {
         "lastModified": 1753846391,
@@ -851,7 +880,6 @@
     "quickshell": {
       "inputs": {
         "nixpkgs": [
-          "caelestia-shell",
           "nixpkgs"
         ]
       },
@@ -871,13 +899,16 @@
     },
     "root": {
       "inputs": {
+        "app2unit": "app2unit",
+        "caelestia-cli": "caelestia-cli",
         "caelestia-shell": "caelestia-shell",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",
         "hyprland": "hyprland",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-stable": "nixpkgs-stable",
-        "oskars-dotfiles": "oskars-dotfiles"
+        "oskars-dotfiles": "oskars-dotfiles",
+        "quickshell": "quickshell"
       }
     },
     "rust-overlay": {
