@@ -156,6 +156,17 @@ in
             grim 
             swappy
             libqalculate
+            uwsm
+            ibm-plex
+            imagemagick
+            safeeyes
+
+            (python3.withPackages (ps: with ps; [
+                aubio
+                numpy
+                pyaudio
+                inotify
+            ]))
 
             # Might be the wrong ones
             gdbuspp
@@ -228,7 +239,6 @@ in
             # instead of system-level environment.sessionVariables
             env = [
                 "NIXOS_OZONE_WL, 1"
-                "GTK_THEME, Dark-Gruvbox" # required for Nautilus to apply current theme
                 "XDG_SESSION_DESKTOP, Hyprland"
                 "XDG_CURRENT_DESKTOP, Hyprland"
                 "XDG_DESKTOP_DIR, $HOME/Desktop"
@@ -240,6 +250,9 @@ in
                 "XDG_PICTURES_DIR, $HOME/Pictures"
                 "XDG_VIDEOS_DIR, $HOME/Videos"
                 "HYPRSHOT_DIR, $HOME/Pictures/Screenshots"
+            ]
+            ++ lib.optionals cfg.caelestia.enable [
+                "QT_QPA_PLATFORMTHEME, qt6ct" # Caelestia shell - icon fix
             ];
 
             # Style
