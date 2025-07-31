@@ -126,10 +126,10 @@ in
             inputs.caelestia-cli.packages.${pkgs.system}.default
 
             # Icons
-            adwaita-icon-theme
-            gnome-icon-theme
-            hicolor-icon-theme
-            kdePackages.breeze-icons
+            #adwaita-icon-theme
+            #gnome-icon-theme
+            #hicolor-icon-theme
+            #kdePackages.breeze-icons
             material-symbols
             papirus-icon-theme
 
@@ -137,7 +137,9 @@ in
             libnotify
             dart-sass
             wl-clipboard
+            wl-clip-persist
             wl-screenrec
+            ydotool
             cliphist
             bluez
             fuzzel
@@ -160,6 +162,7 @@ in
             ibm-plex
             imagemagick
             safeeyes
+            hyprpicker
 
             (python3.withPackages (ps: with ps; [
                 aubio
@@ -253,7 +256,8 @@ in
             ]
             ++ lib.optionals cfg.caelestia.enable [
                 "QT_QPA_PLATFORMTHEME, qt6ct" # Caelestia shell - icon fix
-            ];
+            ]
+            ;
 
             # Style
             decoration = {

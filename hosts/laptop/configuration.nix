@@ -78,7 +78,7 @@
   services.xserver.enable = true;
 
   # Desktop Environments
-  services.desktopManager.plasma6.enable = true;
+  services.desktopManager.plasma6.enable = false;
   programs = {
     hyprland = {
       enable = true;
@@ -88,26 +88,21 @@
 
   # System wide packages
   environment.systemPackages = with pkgs; [
-    nautilus              # File manager
+    kdePackages.dolphin   # File manager
     kitty                 # Console
-    walker                # App launcher
-    hyprpaper             # Wallapaper
-    seahorse              # Keyring
-    nwg-look              # Theming
-    hyprshot              # Screenshot
     wl-clip-persist       # Clipboard
 
     # System utilities
     brightnessctl         # Brightness controls
     playerctl             # Music player control
     networkmanagerapplet  # Network Manager applet
-    pavucontrol
+    pavucontrol           # Sound control
     tree                  # `tree` command
 
     # Others
-    gnome-calculator      # Calculator
-    gnome-text-editor     # Gnome text editor
     vim                   # Vim text editor
+    intel-vaapi-driver    # VAAPI library Driver
+    vaapi-intel-hybrid    # Intel driver for the VAAPI library with partial HW acceleration
   ];
   
   # Fonts
@@ -128,9 +123,6 @@
   security.pam.services.gdm-password.enableGnomeKeyring = true;
   services.gvfs.enable = true; # Enables trash
   services.power-profiles-daemon.enable = true;
-
-  # Install firefox. Default.
-  programs.firefox.enable = false;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
