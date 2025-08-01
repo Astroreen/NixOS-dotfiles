@@ -120,8 +120,9 @@ in
             caelestia = {
                 Unit = {
                     Description = "Caelestia Shell";
-                    After = [ "graphical-session.target" ];
-                    PartOf = [ "graphical-session.target" ];
+                    After = [ "hyprland-session.target" ];
+                    BindsTo = [ "hyprland-session.target" ];
+                    Requisite = [ "hyprland-session.target" ];
                 };
 
                 Service = {
@@ -138,7 +139,7 @@ in
                 };
 
                 Install = {
-                    WantedBy = [ "graphical-session.target" ];
+                    WantedBy = [ "hyprland-session.target" ];
                 };
             };
         };
