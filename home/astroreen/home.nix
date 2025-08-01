@@ -64,13 +64,16 @@
         waybar.enable = false;
         hyprpaper = {
             enable = false;
-            wallpaper = ./astronaut.jpg;
+            wallpaper = ./assets/astronaut.jpg;
         };
 
         caelestia = {
             enable = true;
-            wallpapers = ./astronaut.jpg;
-            avatar = ./avatar.jpg;
+            wallpapers = ./assets/astronaut.jpg;
+            avatar = ./assets/avatar.jpg;
+
+            # All options could be found in https://github.com/caelestia-dots/shell/tree/main/config
+            shell-file = ./assets/caelestia-shell-config.json
         };
     };
 
