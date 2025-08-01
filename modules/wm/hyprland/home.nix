@@ -126,10 +126,15 @@ in
 
                 Service = {
                     Type = "simple";
-                    ExecStart = "${pkgs.fish}/bin/fish /home/astroreen/.config/quickshell/caelestia/run.fish";
+                    ExecStart = "${inputs.quickshell.packages.${pkgs.system}.default}/bin/qs -c caelestia";
                     Restart = "on-failure";
                     RestartSec = "3s";
                     RestartPreventExitStatus = "0";
+                    # Set environment variables for the service
+                    Environment = [
+                        "QT_QPA_PLATFORMTHEME=qt6ct"
+                        "XDG_RUNTIME_DIR=/run/user/1000"
+                    ];
                 };
 
                 Install = {
@@ -158,6 +163,7 @@ in
 
             # Packages
             libnotify
+            inotify-tools
             dart-sass
             wl-clipboard
             wl-clip-persist
@@ -248,11 +254,7 @@ in
             ]
             ++ lib.optionals cfg.hyprpaper.enable [
                 "hyprpaper"
-            ]
-            #++ lib.optionals cfg.caelestia.enable [
-            #    "caelestia shell" # Enable caelestia shell on start
-            #]
-            ;
+            ];
 
             # Windows rules
             windowrulev2 = [
