@@ -122,7 +122,6 @@ in
                 Unit = {
                     Description = "Caelestia desktop shell";
                     After = [ "hyprland-session.target" ];
-                    WantedBy = [ "hyprland-session.target" ];
                 };
 
                 Service = {
@@ -148,7 +147,6 @@ in
                     RestartPreventExitStatus = "0";
                     # Set environment variables for the service
                     Environment = [
-                        "EnvironmentFile = '%t/env'"
                         "QT_QPA_PLATFORMTHEME=qt6ct"
                         "WAYLAND_DISPLAY=wayland-1"
                         "XDG_RUNTIME_DIR=/run/user/1000"
@@ -156,7 +154,7 @@ in
                 };
 
                 Install = {
-                    WantedBy = [ "graphical-session.target" ];
+                    WantedBy = [ "hyprland-session.target" ];
                 };
             };
         };
@@ -227,7 +225,7 @@ in
         wayland.windowManager.hyprland = {
             enable = true;
             systemd.enable = true;
-            systemd.variables = ["--all"];
+            systemd.variables = [ "--all" ];
         };
 
         # Hyprland settings
