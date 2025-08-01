@@ -152,9 +152,10 @@ in
             lm_sensors 
             aubio
             pipewire 
-            glibc 
+            glibc
+            kdePackages.qt6ct
             qt6.qtdeclarative 
-            qalculate-gtk 
+            libqalculate
             grim 
             swappy
             libqalculate
@@ -196,11 +197,6 @@ in
 
             # Default programs definitions (used in keybinds and other places)
             "$mod" = "SUPER";
-            "$terminal" = "kitty";
-            "$fileManager" = "dolphin";
-            "$menu" = "walker";
-            "$code" = "codium";
-            "$browser" = "vivaldi";
 
             # General settings
             general = {

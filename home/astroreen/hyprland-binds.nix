@@ -6,9 +6,9 @@
     # Regular binds
     bind = [
         # original app binds
-        "$mod, T, exec, [float; size 1200 800] app2unit -- $terminal"
-        "$mod, E, exec, [float; size 1600 800] app2unit -- $fileManager"  
-        "$mod, B, exec, app2unit -- $browser"
+        "$mod, T, exec, [float; size 1200 800] app2unit -- kitty"       # Terminal
+        "$mod, E, exec, [float; size 1600 800] app2unit -- dolphin"     # File manager
+        "$mod, B, exec, app2unit -- vivaldi"                            # Browser
         "$mod, Q, global, caelestia:launcher"
         "$mod, C, killactive,"
         "CTRL ALT, V, exec, app2unit -- pavucontrol"

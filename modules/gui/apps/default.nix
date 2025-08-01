@@ -12,6 +12,7 @@
     # slack                       # Slack desktop client
     # signal-desktop
     # whatsapp-for-mac            # WhatsApp desktop client
+    discord                       # Discord
 
     # Media
     pavucontrol
