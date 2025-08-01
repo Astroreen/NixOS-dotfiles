@@ -72,8 +72,8 @@
     };
 
     home.sessionVariables = {
-        "XCURSOR_THEME, breeze_cursors"
-        "XCURSOR_SIZE, 24"
+        XCURSOR_THEME = "breeze_cursors";
+        XCURSOR_SIZE = "24";
     };
 
     hyprland = {
