@@ -144,14 +144,8 @@
         # "$mod, R, exec, caelestia toggle todo"
     ];
 
-    # Special Caelestia launcher binds
-    # Ignore modefiers (bindi)
-    #bindir = [
-    #    "$mod, $mod_L, global, caelestia:launcher"
-    #];
-
     bindin = [
-        "$mod, catchall, global, caelestia:launcherInterrupt"
+        # "$mod, catchall, global, caelestia:launcherInterrupt"
         "$mod, mouse:272, global, caelestia:launcherInterrupt"
         "$mod, mouse:273, global, caelestia:launcherInterrupt"
         "$mod, mouse:274, global, caelestia:launcherInterrupt"

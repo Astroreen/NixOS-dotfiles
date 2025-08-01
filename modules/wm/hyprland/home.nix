@@ -115,6 +115,29 @@ in
             };
         };
 
+        # Create systemd service to run Caelestia shell
+        systemd.user.services = lib.mkIf cfg.caelestia.enable {
+            caelestia = {
+                Unit = {
+                    Description = "Caelestia Shell";
+                    After = [ "graphical-session.target" ];
+                    PartOf = [ "graphical-session.target" ];
+                };
+
+                Service = {
+                    Type = "simple";
+                    ExecStart = "${pkgs.fish}/bin/fish /home/astroreen/.config/quickshell/caelestia/run.fish";
+                    Restart = "on-failure";
+                    RestartSec = "3s";
+                    RestartPreventExitStatus = "0";
+                };
+
+                Install = {
+                    WantedBy = [ "graphical-session.target" ];
+                };
+            };
+        };
+
         home.packages = with pkgs; [
             kdePackages.dolphin
         ]
@@ -226,9 +249,10 @@ in
             ++ lib.optionals cfg.hyprpaper.enable [
                 "hyprpaper"
             ]
-            ++ lib.optionals cfg.caelestia.enable [
-                "caelestia shell" # Enable caelestia shell on start
-            ];
+            #++ lib.optionals cfg.caelestia.enable [
+            #    "caelestia shell" # Enable caelestia shell on start
+            #]
+            ;
 
             # Windows rules
             windowrulev2 = [
