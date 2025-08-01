@@ -120,26 +120,40 @@ in
             caelestia = {
                 Unit = {
                     Description = "Caelestia Shell";
-                    After = [ "hyprland-session.target" ];
-                    BindsTo = [ "hyprland-session.target" ];
-                    Requisite = [ "hyprland-session.target" ];
+                    After = [ "graphical-session.target" ];
+                    PartOf = [ "graphical-session.target" ];
                 };
 
                 Service = {
                     Type = "simple";
+                    # Wait script to ensure Wayland is ready
+                    ExecStartPre = pkgs.writeShellScript "wait-for-wayland" ''
+                        count=0
+                        while [ ! -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ] && [ $count -lt 30 ]; do
+                            echo "Waiting for Wayland display..."
+                            sleep 1
+                            count=$((count + 1))
+                        done
+                        if [ ! -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; then
+                            echo "Wayland display not found after 30 seconds"
+                            exit 1
+                        fi
+                        echo "Wayland display ready"
+                    '';
                     ExecStart = "${inputs.quickshell.packages.${pkgs.system}.default}/bin/qs -c caelestia";
                     Restart = "on-failure";
-                    RestartSec = "3s";
+                    RestartSec = "5s";
                     RestartPreventExitStatus = "0";
                     # Set environment variables for the service
                     Environment = [
                         "QT_QPA_PLATFORMTHEME=qt6ct"
+                        "WAYLAND_DISPLAY=wayland-1"
                         "XDG_RUNTIME_DIR=/run/user/1000"
                     ];
                 };
 
                 Install = {
-                    WantedBy = [ "hyprland-session.target" ];
+                    WantedBy = [ "graphical-session.target" ];
                 };
             };
         };
