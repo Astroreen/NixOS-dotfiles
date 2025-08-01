@@ -59,4 +59,8 @@
     # CRITICAL: Ensure proper backend selection
     WLR_NO_HARDWARE_CURSORS = "1";  # Sometimes needed for certain hardware
   };
+
+  environment.variables = {
+    QT_QPA_PLATFORMTHEME = "qt6ct";
+  };
 }
