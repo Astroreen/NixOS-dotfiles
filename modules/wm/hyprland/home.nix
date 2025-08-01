@@ -126,20 +126,6 @@ in
 
                 Service = {
                     Type = "exec";
-                    # Wait script to ensure Wayland is ready
-                    ExecStartPre = pkgs.writeShellScript "wait-for-wayland" ''
-                        count=0
-                        while [ ! -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ] && [ $count -lt 30 ]; do
-                            echo "Waiting for Wayland display..."
-                            sleep 1
-                            count=$((count + 1))
-                        done
-                        if [ ! -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY" ]; then
-                            echo "Wayland display not found after 30 seconds"
-                            exit 1
-                        fi
-                        echo "Wayland display ready"
-                    '';
                     ExecStart = "${inputs.quickshell.packages.${pkgs.system}.default}/bin/qs -c caelestia";
                     Restart = "on-failure";
                     Slice = "app-graphical.slice";
@@ -147,17 +133,21 @@ in
                     RestartPreventExitStatus = "0";
                     # Set environment variables for the service
                     Environment = [
+                        "QT_QPA_PLATFORM=wayland"
+                        "XDG_SESSION_TYPE=wayland;xcb"
+                        "XDG_CURRENT_DESKTOP=Hyprland"
+                        "XDG_SESSION_DESKTOP=Hyprland"
                         "QT_QPA_PLATFORMTHEME=qt6ct"
-                        "QT_QPA_PLATFORM=wayland;xcb"
-                        "WAYLAND_DISPLAY=wayland-1"
                         "XDG_RUNTIME_DIR=/run/user/1000"
+                        "WAYLAND_DISPLAY=wayland-1"
                     ];
                     EnvironmentFile = "%t/env";
                 };
-
-                Install = {
-                    WantedBy = [ "default.target" ];
-                };
+                
+                # Starting this in exec-once
+                #Install = {
+                #    WantedBy = [ "default.target" ];
+                #};
             };
         };
 
@@ -262,15 +252,16 @@ in
                 "wl-clip-persist"
                 "power-profiles-daemon"
                 "nm-applet --no-agent"
-
-                # Generate env file from hyprland on startup
-                "printenv > $XDG_RUNTIME_DIR/env"
             ]
             ++ lib.optionals cfg.waybar.enable [
                 "sh ~/.config/waybar/waybar.sh"
             ]
             ++ lib.optionals cfg.hyprpaper.enable [
                 "hyprpaper"
+            ]
+            ++ lib.optionals cfg.caelestia.enable [
+                "printenv > $XDG_RUNTIME_DIR/env"               # Generate file with all env values on startup for caelestia.service
+                "systemctl --user start caelestia.service"      # Start caelestia.service
             ];
 
             # Windows rules
