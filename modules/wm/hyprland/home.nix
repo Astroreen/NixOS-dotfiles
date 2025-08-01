@@ -126,7 +126,7 @@ in
 
                 Service = {
                     Type = "exec";
-                    ExecStart = "${inputs.quickshell.packages.${pkgs.system}.default}/bin/qs -c caelestia";
+                    ExecStart = "${inputs.app2unit.packages.${pkgs.system}.default}/bin/app2unit qs -c caelestia";
                     Restart = "on-failure";
                     Slice = "app-graphical.slice";
                     RestartSec = "5s";

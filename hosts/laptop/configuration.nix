@@ -22,7 +22,14 @@
   users.users.astroreen = {
     isNormalUser = true;
     description = "astroreen";
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
+    extraGroups = [ 
+      "networkmanager" 
+      "wheel" 
+      "video" 
+      "audio" 
+      "input" 
+      "seat" 
+    ];
   };
 
   # Select internationalisation properties.
