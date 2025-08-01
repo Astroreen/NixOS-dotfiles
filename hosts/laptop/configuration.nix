@@ -4,7 +4,7 @@
   imports = [
       ./hardware-configuration.nix  # Required.
       
-      ../../modules/wm/hyprland     # Window managers
+      ../../modules/wm/hyprland     # Window manager
     ];
 
   # Bootloader.
@@ -23,10 +23,6 @@
     isNormalUser = true;
     description = "astroreen";
     extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
-    packages = with pkgs; [
-      kdePackages.kate
-    #  thunderbird
-    ];
   };
 
   # Select internationalisation properties.
@@ -121,7 +117,7 @@
   # Security
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.gdm-password.enableGnomeKeyring = true;
-  services.gvfs.enable = true; # Enables trash
+  services.gvfs.enable = true;  # Enables trash
   services.power-profiles-daemon.enable = true;
 
   # Allow unfree packages
