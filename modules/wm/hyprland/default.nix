@@ -21,6 +21,10 @@
       inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
     ];
     configPackages = [ inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland ];
+    config = {
+      hyprland.default = "xdg-desktop-portal-hyprland";
+      common.default = "xdg-desktop-portal-hyprland";
+    };
   };
 
   # Enable polkit for proper permissions

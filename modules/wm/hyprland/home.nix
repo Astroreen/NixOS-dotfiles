@@ -122,6 +122,7 @@ in
                 Unit = {
                     Description = "Caelestia desktop shell";
                     After = [ "hyprland-session.target" ];
+                    Requires = [ "xdg-desktop-portal.service" ];
                 };
 
                 Service = {

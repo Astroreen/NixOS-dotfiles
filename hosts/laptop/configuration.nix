@@ -46,6 +46,7 @@
     enable = true;
     touchpad.naturalScrolling = true;
   };
+  services.seatd.enable = true;
 
   # Audio
   services.pulseaudio.enable = false;
@@ -82,7 +83,7 @@
   services.xserver.enable = true;
 
   # Desktop Environments
-  services.desktopManager.plasma6.enable = false;
+  services.desktopManager.plasma6.enable = true;
   programs = {
     hyprland = {
       enable = true;
@@ -107,6 +108,9 @@
     vim                   # Vim text editor
     intel-vaapi-driver    # VAAPI library Driver
     vaapi-intel-hybrid    # Intel driver for the VAAPI library with partial HW acceleration
+    xdg-desktop-portal-hyprland
+    xdg-desktop-portal
+    xdg-desktop-portal-wlr
   ];
   
   # Fonts
