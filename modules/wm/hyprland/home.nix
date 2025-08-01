@@ -148,7 +148,7 @@ in
                     RestartPreventExitStatus = "0";
                     # Set environment variables for the service
                     Environment = [
-                        EnvironmentFile = "%t/env"
+                        "EnvironmentFile = '%t/env'"
                         "QT_QPA_PLATFORMTHEME=qt6ct"
                         "WAYLAND_DISPLAY=wayland-1"
                         "XDG_RUNTIME_DIR=/run/user/1000"
