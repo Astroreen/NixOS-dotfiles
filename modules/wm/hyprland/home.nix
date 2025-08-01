@@ -226,7 +226,7 @@ in
                 "hyprpaper"
             ]
             ++ lib.optionals cfg.caelestia.enable [
-                "qs -c caelestia" # Enable caelestia shell on start
+                "caelestia shell" # Enable caelestia shell on start
             ];
 
             # Windows rules
