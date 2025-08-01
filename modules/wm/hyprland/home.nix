@@ -148,13 +148,15 @@ in
                     # Set environment variables for the service
                     Environment = [
                         "QT_QPA_PLATFORMTHEME=qt6ct"
+                        "QT_QPA_PLATFORM=wayland;xcb"
                         "WAYLAND_DISPLAY=wayland-1"
                         "XDG_RUNTIME_DIR=/run/user/1000"
                     ];
+                    EnvironmentFile = "%t/env";
                 };
 
                 Install = {
-                    WantedBy = [ "hyprland-session.target" ];
+                    WantedBy = [ "default.target" ];
                 };
             };
         };
@@ -260,6 +262,9 @@ in
                 "wl-clip-persist"
                 "power-profiles-daemon"
                 "nm-applet --no-agent"
+
+                # Generate env file from hyprland on startup
+                "printenv > $XDG_RUNTIME_DIR/env"
             ]
             ++ lib.optionals cfg.waybar.enable [
                 "sh ~/.config/waybar/waybar.sh"
