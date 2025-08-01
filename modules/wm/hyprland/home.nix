@@ -164,6 +164,7 @@ in
             imagemagick
             safeeyes
             hyprpicker
+            upower
 
             (python3.withPackages (ps: with ps; [
                 aubio
