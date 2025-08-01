@@ -119,13 +119,12 @@ in
         systemd.user.services = lib.mkIf cfg.caelestia.enable {
             caelestia = {
                 Unit = {
-                    Description = "Caelestia Shell";
+                    Description = "Caelestia desktop shell";
                     After = [ "graphical-session.target" ];
-                    PartOf = [ "graphical-session.target" ];
                 };
 
                 Service = {
-                    Type = "simple";
+                    Type = "exec";
                     # Wait script to ensure Wayland is ready
                     ExecStartPre = pkgs.writeShellScript "wait-for-wayland" ''
                         count=0
@@ -142,6 +141,7 @@ in
                     '';
                     ExecStart = "${inputs.quickshell.packages.${pkgs.system}.default}/bin/qs -c caelestia";
                     Restart = "on-failure";
+                    Slice = "app-graphical.slice";
                     RestartSec = "5s";
                     RestartPreventExitStatus = "0";
                     # Set environment variables for the service
