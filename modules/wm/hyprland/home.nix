@@ -116,11 +116,13 @@ in
         };
 
         # Create systemd service to run Caelestia shell
+        systemd.user.enable = true;
         systemd.user.services = lib.mkIf cfg.caelestia.enable {
             caelestia = {
                 Unit = {
                     Description = "Caelestia desktop shell";
-                    After = [ "graphical-session.target" ];
+                    After = [ "hyprland-session.target" ];
+                    WantedBy = [ "hyprland-session.target" ];
                 };
 
                 Service = {
@@ -146,6 +148,7 @@ in
                     RestartPreventExitStatus = "0";
                     # Set environment variables for the service
                     Environment = [
+                        EnvironmentFile = "%t/env"
                         "QT_QPA_PLATFORMTHEME=qt6ct"
                         "WAYLAND_DISPLAY=wayland-1"
                         "XDG_RUNTIME_DIR=/run/user/1000"
@@ -169,6 +172,7 @@ in
             inputs.caelestia-cli.packages.${pkgs.system}.default
 
             # Icons
+            papirus-icon-theme
             material-symbols
 
             # Packages
@@ -222,7 +226,7 @@ in
         # Wayland settings
         wayland.windowManager.hyprland = {
             enable = true;
-            systemd.enable = false;
+            systemd.enable = true;
             systemd.variables = ["--all"];
         };
 
