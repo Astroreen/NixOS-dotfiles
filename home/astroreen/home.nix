@@ -58,6 +58,24 @@
         sensitivity = 0;
     };
 
+    home.packages = with pkgs; [
+        kdePackages.breeze      # For breeze cursor
+    ];
+
+    # Add cursor configuration
+    home.pointerCursor = {
+        name = "breeze_cursors";
+        package = pkgs.kdePackages.breeze;
+        size = 24;
+        gtk.enable = true;
+        x11.enable = true;
+    };
+
+    home.sessionVariables = {
+        "XCURSOR_THEME, breeze_cursors"
+        "XCURSOR_SIZE, 24"
+    };
+
     hyprland = {
         binds = import ./hyprland-binds.nix;
 

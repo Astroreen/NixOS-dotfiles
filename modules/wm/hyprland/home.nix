@@ -154,12 +154,7 @@ in
             inputs.caelestia-cli.packages.${pkgs.system}.default
 
             # Icons
-            #adwaita-icon-theme
-            #gnome-icon-theme
-            #hicolor-icon-theme
-            #kdePackages.breeze-icons
             material-symbols
-            papirus-icon-theme
 
             # Packages
             libnotify
