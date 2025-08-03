@@ -5,45 +5,33 @@
   lib,
   osConfig,
   ...
-}: {
+}: 
+{
     imports = [
+        # Style
+        ../../modules/style/cursor/breeze     # Breeze cursor style
+
         # Apps (gui)
-        ../../modules/gui/apps
+        ../../modules/gui/apps                # Standard apps to install
+        ../../modules/gui/vscode              # VSCode
 
         # Terminal apps (tui)
-        ../../modules/tui/kitty
+        ../../modules/tui/kitty               # Terminal
+        ../../modules/tui/git                 # Git
+        ../../modules/tui/htop                # Htop on steroids
+        ../../modules/tui/bat                 # Cat(1) copy with wings
+        ../../modules/tui/lsd                 # Next gen ls command
 
         # Windows manager (wm)
-        ../../modules/wm/hyprland/home.nix
-    ];
+        ../../modules/wm/hyprland/home.nix    # Hyprland window manager
+    ]
+    
+    ;
 
     home.username = "astroreen";
     home.homeDirectory = "/home/astroreen";
 
-    programs = {
-        git = {
-            enable = true;
-            package = pkgs.git;
-            userName = "astroreen";
-            userEmail = "astroreen@gmail.com";
-
-            #aliases = {
-            #    commit = "commit -m ''";
-            #};
-        };
-
-        vscode = {
-            enable = true;
-            package = pkgs.vscodium;
-        };
-
-        chromium = {
-            enable = true;
-            package = pkgs.chromium;
-        };
-    };
-
-    # Keyboard settings for wayland
+    # Keyboard settings for hyprland
     wayland.windowManager.hyprland.settings.input = {
         kb_layout = "us,ru,lt";
         kb_variant = ",phonetic,us";
@@ -58,24 +46,7 @@
         sensitivity = 0;
     };
 
-    home.packages = with pkgs; [
-        kdePackages.breeze      # For breeze cursor
-    ];
-
-    # Add cursor configuration
-    home.pointerCursor = {
-        name = "breeze_cursors";
-        package = pkgs.kdePackages.breeze;
-        size = 24;
-        gtk.enable = true;
-        x11.enable = true;
-    };
-
-    home.sessionVariables = {
-        XCURSOR_THEME = "breeze_cursors";
-        XCURSOR_SIZE = "24";
-    };
-
+    # Hyprland settings
     hyprland = {
         binds = import ./hyprland-binds.nix;
 
