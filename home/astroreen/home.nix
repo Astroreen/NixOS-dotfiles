@@ -17,6 +17,7 @@
 
         # Terminal apps (tui)
         ../../modules/tui/kitty               # Terminal
+        ../../modules/tui/shell               # Shell settings
         ../../modules/tui/git                 # Git
         ../../modules/tui/htop                # Htop on steroids
         ../../modules/tui/bat                 # Cat(1) copy with wings
