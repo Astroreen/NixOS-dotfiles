@@ -115,6 +115,19 @@ in
             };
         };
 
+        # Clipboard history settings
+        services.cliphist = {
+            enable = true;
+            allowImages = true; # Allow images in clipboard history
+            # Flags to put before command
+            extraOptions = [
+                "-max-dedupe-search"
+                "10"
+                "-max-items"
+                "500"
+            ];
+        };
+
         # Create systemd service to run Caelestia shell
         systemd.user.enable = true;
         systemd.user.services = {
@@ -166,7 +179,9 @@ in
         };
 
         home.packages = with pkgs; [
-            kdePackages.dolphin
+            hyprpicker              # Color picker for Hyprland
+            grim                    # Screenshot tool for wayland
+            uwsm                    # Window manager for wayland
         ]
         ++ lib.optionals cfg.caelestia.enable [
             # Default packages from Caelestia
@@ -180,22 +195,13 @@ in
             material-symbols
 
             # Packages
-            libnotify               # Notifications
             inotify-tools           # Inotify tools
             dart-sass               # Sass compiler
-            wl-clipboard            # Clipboard management fow wayland
-            cliphist                # Clipboard history
-            wl-clip-persist         # Clipboard history daemon
-            wl-screenrec            # Screen recording for wayland
             ydotool                 # Wayland input automation tool
-            bluez                   # Bluetooth management
             fuzzel                  # Fuzzy launcher
             slurp                   # Select a region on the screen
             fish                    # Fish shell
             cava                    # Audio visualizer
-            ddcutil                 # Monitor brightness control
-            brightnessctl           # Monitor brightness control
-            networkmanager          # Network management
             lm_sensors              # Hardware sensors
             aubio                   # Audio analysis library
             pipewire                # PipeWire media server
@@ -204,14 +210,10 @@ in
             kdePackages.qt6ct       # Qt6 configuration tool
             qt6.qtdeclarative       # Qt6 declarative module
             libqalculate            # Calculator library
-            grim                    # Screenshot tool for wayland
             swappy                  # Image editor for screenshots
-            uwsm                    # Window manager for wayland
             ibm-plex                # IBM Plex font
             imagemagick             # Image manipulation tool
             safeeyes                # Eye protection tool
-            hyprpicker              # Color picker for Hyprland
-            upower                  # Power management daemon
 
             # Python packages
             (python3.withPackages (ps: with ps; [
@@ -265,6 +267,9 @@ in
                 "[workspace 4 silent] spotify"
 
                 "wl-clip-persist"
+                "wl-paste --type text --watch cliphist store"    # Store text
+                "wl-paste --type image --watch cliphist store"   # Store images
+
                 "power-profiles-daemon"
                 "nm-applet --no-agent"
             ]
@@ -281,7 +286,15 @@ in
 
             # Windows rules
             windowrulev2 = [
-                # ...
+                # qView floating with specific size
+                "float,class:^(com.interversehq.qView)$"
+                "size 1400 800,class:^(com.interversehq.qView)$"
+                "center,class:^(com.interversehq.qView)$"
+
+                # Nautilus floating with specific size
+                "float,class:^(org.gnome.Nautilus)$"
+                "size 1400 800,class:^(org.gnome.Nautilus)$"
+                "center,class:^(org.gnome.Nautilus)$"
             ];
 
             # Session variables passed to hyprland

@@ -2,9 +2,10 @@
 
 {
     imports = [
-        ./hardware-configuration.nix  # Required.
+        ./hardware-configuration.nix    # Required.
       
-        ../../modules/wm/hyprland     # Window manager
+        ../../modules/gui/nautilus      # Nautilus configuration
+        ../../modules/wm/hyprland       # Window manager Hyprland
         ];
 
     # Bootloader.
@@ -25,7 +26,8 @@
         extraGroups = [ 
             "networkmanager" 
             "wheel" 
-            "video" 
+            "video"
+            "render" 
             "audio" 
             "input" 
             "seat" 
@@ -60,13 +62,23 @@
         graphics = {
             enable = true;
             enable32Bit = true;  # Enable 32-bit graphics support
+            extraPackages = with pkgs; [
+                # Intel VAAPI drivers
+                intel-media-driver      # For newer Intel GPUs (Broadwell+)
+                intel-vaapi-driver      # For older Intel GPUs
+                vaapiVdpau              # VDPAU backend for VAAPI
+                libvdpau-va-gl          # VDPAU driver with OpenGL/VAAPI backend
+      
+                # NVIDIA VAAPI (if you want to use NVIDIA for encoding)
+                nvidia-vaapi-driver
+            ];
         };
 
         nvidia = {
             modesetting.enable = true;
             powerManagement.enable = true;
             powerManagement.finegrained = true;  # Requires offload below
-            open = false;
+            open = false;   # Use proprietary driver
             nvidiaSettings = true;
             package = config.boot.kernelPackages.nvidiaPackages.stable;
 
@@ -120,23 +132,45 @@
 
     # System wide packages
     environment.systemPackages = with pkgs; [
-        kdePackages.dolphin     # File manager
+        # Essential packages
         kitty                   # Console
-        wl-clip-persist         # Clipboard
-
-        # System utilities
-        brightnessctl           # Brightness controls
-        playerctl               # Music player control
+        cliphist                # Clipboard history
+        wl-clipboard            # Clipboard management fow wayland
+        wl-clip-persist         # Clipboard history daemon
+        bluez                   # Bluetooth management
+        ddcutil                 # Monitor brightness control
+        brightnessctl           # Monitor brightness control
+        networkmanager          # Network management
+        wl-screenrec            # Screen recording for wayland
+        upower                  # Power management daemon
+        libnotify               # Notifications
         networkmanagerapplet    # Network Manager applet
         pavucontrol             # Sound control
+
+        # Development tools
+        vim                     # Vim text editor
+
+        # System utilities
+        playerctl               # Music player control
         tree                    # `tree` command
         pciutils                # `lspci` command
+        libva-utils             # VAAPI utilities
+        ffmpeg-full             # FFmpeg with VAAPI support
 
-        # Others
-        vim                     # Vim text editor
-        intel-vaapi-driver      # VAAPI library Driver
-        vaapi-intel-hybrid      # Intel driver for the VAAPI library with partial HW acceleration
+        # Themes
+        adwaita-icon-theme      # Adwaita icon theme
+        adwaita-qt              # Adwaita Qt theme
+        adwaita-qt6             # Adwaita Qt6 theme
+        gnome-themes-extra      # Extra GNOME themes
     ];
+
+    environment.sessionVariables = {
+        LIBVA_DRIVER_NAME = "iHD";  # Use Intel Media Driver
+        
+        # Dark theme
+        GTK_THEME = "Adwaita:dark";
+        QT_STYLE_OVERRIDE = "adwaita-dark";
+    };
   
     # Fonts
     fonts.packages = with pkgs; [

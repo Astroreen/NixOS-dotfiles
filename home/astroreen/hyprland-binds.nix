@@ -7,19 +7,18 @@
     bind = [
         # original app binds
         "$mod, T, exec, [float; size 1200 800] app2unit -- kitty"       # Terminal
-        "$mod, E, exec, [float; size 1600 800] app2unit -- dolphin"     # File manager
+        "$mod, E, exec, [float; size 1400 800] app2unit -- nautilus"    # File manager
         "$mod, B, exec, app2unit -- vivaldi"                            # Browser
-        "$mod, Q, global, caelestia:launcher"
-        "$mod, C, killactive,"
-        "CTRL ALT, V, exec, app2unit -- pavucontrol"
+        "$mod, Q, global, caelestia:launcher"                           # Menu/Launcher
+        "$mod, C, killactive,"                                          # Close active window
 
         # Window resizing
         "$mod, Minus, splitratio, -0.1"
         "$mod, Equal, splitratio, 0.1"
 
         # Window states
-        "$mod, F, fullscreen, 0"        # Fullscreen
-        "$mod ALT, F, fullscreen, 1"    # Fullscreen with borders
+        "$mod, F, fullscreen, 0"                                        # Fullscreen
+        "$mod ALT, F, fullscreen, 1"                                    # Fullscreen with borders
         "$mod ALT, Space, togglefloating"
         "$mod, P, pseudo"
         "$mod ALT, P, pin"
@@ -39,6 +38,7 @@
         # Clipboard and utilities (from Caelestia)
         "$mod, V, exec, pkill fuzzel || caelestia clipboard"
         "$mod ALT, V, exec, pkill fuzzel || caelestia clipboard -d"
+        "CTRL SHIFT ALT, V, exec, sleep 0.5s && ydotool type -d 1 \"$(cliphist list | head -1 | cliphist decode)\"" # Alternate paste
         "$mod, Period, exec, pkill fuzzel || caelestia emoji -p"
 
         # Kill/restart Caelestia
@@ -64,18 +64,6 @@
         "$mod, 9, workspace, 9"
         "$mod, 0, workspace, 10"
 
-        # Workspace group navigation (from Caelestia)
-        "CTRL $mod, 1, exec, $wsaction -g workspace 1"
-        "CTRL $mod, 2, exec, $wsaction -g workspace 2"
-        "CTRL $mod, 3, exec, $wsaction -g workspace 3"
-        "CTRL $mod, 4, exec, $wsaction -g workspace 4"
-        "CTRL $mod, 5, exec, $wsaction -g workspace 5"
-        "CTRL $mod, 6, exec, $wsaction -g workspace 6"
-        "CTRL $mod, 7, exec, $wsaction -g workspace 7"
-        "CTRL $mod, 8, exec, $wsaction -g workspace 8"
-        "CTRL $mod, 9, exec, $wsaction -g workspace 9"
-        "CTRL $mod, 0, exec, $wsaction -g workspace 10"
-
         # Move to workspace (original)
         "$mod SHIFT, 1, movetoworkspace, 1"
         "$mod SHIFT, 2, movetoworkspace, 2"
@@ -87,18 +75,6 @@
         "$mod SHIFT, 8, movetoworkspace, 8"
         "$mod SHIFT, 9, movetoworkspace, 9"
         "$mod SHIFT, 0, movetoworkspace, 10"
-
-        # Move to workspace group (from Caelestia) - using ALT instead of SHIFT for distinction
-        "CTRL $mod ALT, 1, exec, $wsaction -g movetoworkspace 1"
-        "CTRL $mod ALT, 2, exec, $wsaction -g movetoworkspace 2"
-        "CTRL $mod ALT, 3, exec, $wsaction -g movetoworkspace 3"
-        "CTRL $mod ALT, 4, exec, $wsaction -g movetoworkspace 4"
-        "CTRL $mod ALT, 5, exec, $wsaction -g movetoworkspace 5"
-        "CTRL $mod ALT, 6, exec, $wsaction -g movetoworkspace 6"
-        "CTRL $mod ALT, 7, exec, $wsaction -g movetoworkspace 7"
-        "CTRL $mod ALT, 8, exec, $wsaction -g movetoworkspace 8"
-        "CTRL $mod ALT, 9, exec, $wsaction -g movetoworkspace 9"
-        "CTRL $mod ALT, 0, exec, $wsaction -g movetoworkspace 10"
 
         # Workspace mouse navigation (enhanced)
         "$mod, mouse_down, workspace, -1"
@@ -209,9 +185,6 @@
         # Lock restore
         "$mod ALT, L, exec, caelestia shell -d"
         "$mod ALT, L, global, caelestia:lock"
-
-        # Alternate paste
-        "CTRL SHIFT ALT, V, exec, sleep 0.5s && ydotool type -d 1 \"$(cliphist list | head -1 | cliphist decode)\""
 
         # Test notification
         "$mod ALT, f12, exec, notify-send -u low -i dialog-information-symbolic 'Test notification' \"Here's a really long message to test truncation and wrapping\\nYou can middle click or flick this notification to dismiss it!\" -a 'Shell' -A \"Test1=I got it!\" -A \"Test2=Another action\""

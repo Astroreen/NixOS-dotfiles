@@ -14,6 +14,7 @@
         # Apps (gui)
         ../../modules/gui/apps                # Standard apps to install
         ../../modules/gui/vscode              # VSCode
+        # Nautilus (file manager) is imported in hosts/.../configuration.nix
 
         # Terminal apps (tui)
         ../../modules/tui/kitty               # Terminal
@@ -64,7 +65,7 @@
             # or you could take a look at my caelestia shell.json file and tweak it to your liking.
             shell-file = ./assets/caelestia-shell-config.json;
         };
-    };
+    }; 
 
     home.stateVersion = "25.05";
 }
