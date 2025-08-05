@@ -295,6 +295,9 @@ in
                 "float,class:^(org.gnome.Nautilus)$"
                 "size 1400 800,class:^(org.gnome.Nautilus)$"
                 "center,class:^(org.gnome.Nautilus)$"
+
+                # Open Discord always on workspace 3
+                "workspace 3,class:^(discord)$"
             ];
 
             # Session variables passed to hyprland
