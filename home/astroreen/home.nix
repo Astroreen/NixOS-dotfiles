@@ -25,9 +25,7 @@
 
         # Windows manager (wm)
         ../../modules/wm/hyprland/home.nix    # Hyprland window manager
-    ]
-    
-    ;
+    ];
 
     home.username = "astroreen";
     home.homeDirectory = "/home/astroreen";

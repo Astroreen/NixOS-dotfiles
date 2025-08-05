@@ -117,14 +117,13 @@ in
 
         # Create systemd service to run Caelestia shell
         systemd.user.enable = true;
-        systemd.user.services = lib.mkIf cfg.caelestia.enable {
-            caelestia = {
+        systemd.user.services = {
+            caelestia = lib.mkIf cfg.caelestia.enable {
                 Unit = {
                     Description = "Caelestia desktop shell";
                     After = [ "hyprland-session.target" ];
                     Requires = [ "xdg-desktop-portal.service" ];
                 };
-
                 Service = {
                     Type = "exec";
                     ExecStart = "${inputs.app2unit.packages.${pkgs.system}.default}/bin/app2unit qs -c caelestia";
@@ -144,11 +143,25 @@ in
                     ];
                     EnvironmentFile = "%t/env";
                 };
-                
                 # Starting this in exec-once
                 #Install = {
                 #    WantedBy = [ "default.target" ];
                 #};
+            };
+
+            # Fix for Hyprland's xdg-desktop-portal
+            xdg-desktop-portal-hyprland = {
+                Service = {
+                    Environment = "WAYLAND_DISPLAY=wayland-1";
+                    ExecStart = [
+                        ""
+                        "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland}/libexec/xdg-desktop-portal-hyprland"
+                    ];
+                };
+
+                Unit = {
+                    ConditionEnvironment = ""; # clear previous Condition
+                };
             };
         };
 
@@ -156,7 +169,7 @@ in
             kdePackages.dolphin
         ]
         ++ lib.optionals cfg.caelestia.enable [
-            # Caelestia
+            # Default packages from Caelestia
             inputs.app2unit.packages.${pkgs.system}.default
             inputs.quickshell.packages.${pkgs.system}.default
             inputs.caelestia-shell.packages.${pkgs.system}.default 
@@ -167,39 +180,40 @@ in
             material-symbols
 
             # Packages
-            libnotify
-            inotify-tools
-            dart-sass
-            wl-clipboard
-            wl-clip-persist
-            wl-screenrec
-            ydotool
-            cliphist
-            bluez
-            fuzzel
-            slurp
-            fish 
-            cava 
-            ddcutil 
-            brightnessctl 
-            networkmanager 
-            lm_sensors 
-            aubio
-            pipewire 
-            glibc
-            kdePackages.qt6ct
-            qt6.qtdeclarative 
-            libqalculate
-            grim 
-            swappy
-            libqalculate
-            uwsm
-            ibm-plex
-            imagemagick
-            safeeyes
-            hyprpicker
-            upower
+            libnotify               # Notifications
+            inotify-tools           # Inotify tools
+            dart-sass               # Sass compiler
+            wl-clipboard            # Clipboard management fow wayland
+            cliphist                # Clipboard history
+            wl-clip-persist         # Clipboard history daemon
+            wl-screenrec            # Screen recording for wayland
+            ydotool                 # Wayland input automation tool
+            bluez                   # Bluetooth management
+            fuzzel                  # Fuzzy launcher
+            slurp                   # Select a region on the screen
+            fish                    # Fish shell
+            cava                    # Audio visualizer
+            ddcutil                 # Monitor brightness control
+            brightnessctl           # Monitor brightness control
+            networkmanager          # Network management
+            lm_sensors              # Hardware sensors
+            aubio                   # Audio analysis library
+            pipewire                # PipeWire media server
+            glibc                   # GNU C Library
+            glib                    # C library for data structures and utilities
+            kdePackages.qt6ct       # Qt6 configuration tool
+            qt6.qtdeclarative       # Qt6 declarative module
+            libqalculate            # Calculator library
+            grim                    # Screenshot tool for wayland
+            swappy                  # Image editor for screenshots
+            uwsm                    # Window manager for wayland
+            ibm-plex                # IBM Plex font
+            imagemagick             # Image manipulation tool
+            safeeyes                # Eye protection tool
+            hyprpicker              # Color picker for Hyprland
+            upower                  # Power management daemon
 
+            # Python packages
             (python3.withPackages (ps: with ps; [
                 aubio
                 numpy
@@ -207,7 +221,7 @@ in
                 inotify
             ]))
 
-            # Might be the wrong ones
+            # Might be the wrong packages
             gdbuspp
             libpulseaudio
             rubyPackages_3_4.glib2
