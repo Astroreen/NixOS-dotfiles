@@ -17,10 +17,11 @@
         enable = true;
 
         # DO NOT ENABLE THIS — it's for wlroots-based compositors, not Hyprland
-        wlr.enable = true;
+        wlr.enable = false;
 
         extraPortals = [
             inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
+            pkgs.xdg-desktop-portal-gtk # Add GTK portal for fallback
         ];
 
         configPackages = [
@@ -28,8 +29,17 @@
         ];
         
         config = {
-            hyprland.default = "xdg-desktop-portal-hyprland";
-            common.default = "hyprland";
+            common = {
+                default = [ "hyprland" "gtk" ];
+                "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+                "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
+            };
+            hyprland = {
+                default = [ "hyprland" "gtk" ];
+                "org.freedesktop.impl.portal.Screenshot" = [ "hyprland" ];
+                "org.freedesktop.impl.portal.ScreenCast" = [ "hyprland" ];
+                "org.freedesktop.impl.portal.Wallpaper" = [ "hyprland" ];
+            };
         };
     };
 
@@ -48,13 +58,16 @@
         enable = true;
         packages = [
             inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
+            pkgs.xdg-desktop-portal-gtk
         ];
     };
 
     environment.systemPackages = with pkgs; [
         xdg-desktop-portal
+        xdg-desktop-portal-gtk
         inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
         wayland-utils
+        polkit_gnome            # Polkit authentication agent
     ];
 
 

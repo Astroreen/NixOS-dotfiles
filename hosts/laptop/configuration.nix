@@ -31,6 +31,7 @@
             "audio" 
             "input" 
             "seat" 
+            "bluetooth"
         ];
     };
 
@@ -88,9 +89,15 @@
                 nvidiaBusId = "PCI:1:0:0";     # Use lspci to verify
             };
         };
+
+        bluetooth = {
+            enable = true;
+            powerOnBoot = true;
+        };
     };
 
     services.xserver.videoDrivers = [ "nvidia" ];
+    services.blueman.enable = true;
 
     # Audio
     services.pulseaudio.enable = false;

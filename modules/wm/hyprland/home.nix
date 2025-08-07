@@ -144,6 +144,8 @@ in
                     Slice = "app-graphical.slice";
                     RestartSec = "5s";
                     RestartPreventExitStatus = "0";
+                    RuntimeDirectory = "caelestia";
+                    RuntimeDirectoryMode = "0755";
                     # Set environment variables for the service
                     Environment = [
                         "QT_QPA_PLATFORM=wayland"
@@ -153,6 +155,7 @@ in
                         "QT_QPA_PLATFORMTHEME=qt6ct"
                         "XDG_RUNTIME_DIR=/run/user/1000"
                         "WAYLAND_DISPLAY=wayland-1"
+                        "QUICKSHELL_ENABLE_PORTAL=1"
                     ];
                     EnvironmentFile = "%t/env";
                 };
@@ -165,15 +168,22 @@ in
             # Fix for Hyprland's xdg-desktop-portal
             xdg-desktop-portal-hyprland = {
                 Service = {
-                    Environment = "WAYLAND_DISPLAY=wayland-1";
+                    Environment = [
+                        "WAYLAND_DISPLAY=wayland-1"
+                        "XDG_CURRENT_DESKTOP=Hyprland"
+                        "XDG_SESSION_TYPE=wayland"
+                    ];
                     ExecStart = [
                         ""
                         "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland}/libexec/xdg-desktop-portal-hyprland"
                     ];
+                    Restart = "on-failure";
+                    RestartSec = "3s";
                 };
 
                 Unit = {
                     ConditionEnvironment = ""; # clear previous Condition
+                    After = [ "hyprland-session.target" ];
                 };
             };
         };
@@ -297,7 +307,7 @@ in
                 "center,class:^(org.gnome.Nautilus)$"
 
                 # Open Discord always on workspace 3
-                "workspace 3,class:^(discord)$"
+                "workspace 3 silent,class:^(discord)$"
             ];
 
             # Session variables passed to hyprland
@@ -315,9 +325,11 @@ in
                 "XDG_PICTURES_DIR, $HOME/Pictures"
                 "XDG_VIDEOS_DIR, $HOME/Videos"
                 "HYPRSHOT_DIR, $HOME/Pictures/Screenshots"
+                "WAYLAND_DISPLAY, wayland-1"
             ]
             ++ lib.optionals cfg.caelestia.enable [
                 "QT_QPA_PLATFORMTHEME, qt6ct" # Caelestia shell - icon fix
+                "QUICKSHELL_ENABLE_PORTAL, 1"
             ]
             ;
 
@@ -346,13 +358,14 @@ in
 
             # Settings you probably don't want to change
             dwindle = {
-                pseudotile = true; # Master switch for pseudotiling. Enabling is bound to mod + P in the keybinds section below
-                preserve_split = true; # You probably want this
+                pseudotile = true;      # Master switch for pseudotiling. Enabling is bound to mod + P in the keybinds section below
+                preserve_split = true;  # You probably want this
             };
 
             misc = {
-                force_default_wallpaper = 0; # Set to 1 to use the anime mascot wallpapers
-                disable_hyprland_logo = true; # If true disables the random hyprland logo / anime girl background. :(
+                force_default_wallpaper = 0;    # Set to 1 to use the anime mascot wallpapers
+                disable_hyprland_logo = true;   # If true disables the random hyprland logo / anime girl background. :(
+                session_lock_xray = true;       # Enable xray effect on session lock
             };
 
             gestures = {
