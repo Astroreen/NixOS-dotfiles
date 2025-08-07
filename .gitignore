@@ -1,0 +1,25 @@
+# Nix build artifacts
+.result-*
+.cache/
+*.drv
+*.out
+*.swp
+
+# Editor/IDE noise
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+.DS_Store
+
+# Secrets (you may name them differently)
+secrets.nix
+secrets/*
+*.age
+
+# Optional: ignore hardware configuration (can be regenerated)
+hardware-configuration.nix
+
+# Home-Manager build garbage
+home-manager generations/
