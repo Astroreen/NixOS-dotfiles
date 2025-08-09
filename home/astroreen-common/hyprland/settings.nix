@@ -1,0 +1,46 @@
+# Think of this file like of an attribute set of `wayland.windowManager.hyprland.settings`
+
+let
+    binds = import ./binds.nix;
+in
+
+binds // # Added binds to configuration
+{
+    # Keyboard settings for hyprland
+    input = {
+        kb_layout = "us,ru,lt";
+        kb_variant = ",phonetic,us";
+        kb_options = "grp:win_space_toggle,grp:alt_shift_toggle"; # Win + Space to switch layouts
+
+        follow_mouse = 1;
+
+        touchpad = {
+            natural_scroll = true;
+        };
+        
+        sensitivity = 0;
+    };
+
+    exec-once = [
+        # On start up enable apps on certain workspaces
+        "[workspace 2 silent] vivaldi"
+        "[workspace 3 silent] discord"
+        "[workspace 4 silent] spotify"
+    ];
+
+    # Windows rules
+    windowrulev2 = [
+        # qView floating with specific size
+        "float,class:^(com.interversehq.qView)$"
+        "size 1400 800,class:^(com.interversehq.qView)$"
+        "center,class:^(com.interversehq.qView)$"
+
+        # Nautilus floating with specific size
+        "float,class:^(org.gnome.Nautilus)$"
+        "size 1400 800,class:^(org.gnome.Nautilus)$"
+        "center,class:^(org.gnome.Nautilus)$"
+
+        # Open Discord always on workspace 3
+        "workspace 3 silent,class:^(discord)$"
+    ];
+}

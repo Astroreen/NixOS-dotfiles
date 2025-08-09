@@ -6,14 +6,14 @@
       
         ../../modules/gui/nautilus      # Nautilus configuration
         ../../modules/wm/hyprland       # Window manager Hyprland
-        ];
+    ];
 
     # Bootloader.
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
 
     # Enable networking
-    networking.hostName = "laptop"; # Define your hostname.
+    networking.hostName = "server"; # Define your hostname.
     networking.networkmanager.enable = true;
 
     # Set your time zone.

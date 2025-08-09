@@ -31,24 +31,9 @@
     home.username = "astroreen";
     home.homeDirectory = "/home/astroreen";
 
-    # Keyboard settings for hyprland
-    wayland.windowManager.hyprland.settings.input = {
-        kb_layout = "us,ru,lt";
-        kb_variant = ",phonetic,us";
-        kb_options = "grp:win_space_toggle,grp:alt_shift_toggle"; # Win + Space to switch layouts
-
-        follow_mouse = 1;
-
-        touchpad = {
-            natural_scroll = true;
-        };
-        
-        sensitivity = 0;
-    };
-
     # Hyprland settings
     hyprland = {
-        binds = import ./hyprland-binds.nix;
+        settings = import ./hyprland/settings.nix;
 
         waybar.enable = false;
         hyprpaper = {

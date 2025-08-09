@@ -26,14 +26,14 @@
     caelestia-shell = {
       url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.app2unit.follows = "app2unit";
+      # inputs.app2unit.follows = "app2unit";          # Override for a non-existent input 'app2unit'
       inputs.quickshell.follows = "quickshell";
     };
 
     caelestia-cli = {
       url = "github:caelestia-dots/cli";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.app2unit.follows = "app2unit";
+      # inputs.app2unit.follows = "app2unit";          # Override for a non-existent input 'app2unit'
       inputs.caelestia-shell.follows = "caelestia-shell";
     };
 
@@ -79,7 +79,7 @@
             };
 
             # User specific config file
-            home-manager.users.astroreen = import ./home/astroreen/home.nix;
+            home-manager.users.astroreen = import ./home/astroreen-laptop/home.nix;
           }
         ];
       };
@@ -99,7 +99,7 @@
         # Modules
         modules = [
           ./overlays                              # Overlays
-          ./hosts/server-desktop/configuration.nix# Host configuration
+          ./hosts/server/configuration.nix        # Host configuration
           inputs.hyprland.nixosModules.default    # Hyperland default module
           home-manager.nixosModules.home-manager  # Home manager module
           {
@@ -113,7 +113,7 @@
             };
 
             # User specific config file
-            home-manager.users.astroreen = import ./home/astroreen/home.nix;
+            home-manager.users.astroreen = import ./home/astroreen-server/home.nix;
           }
         ];
       };

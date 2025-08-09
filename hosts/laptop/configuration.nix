@@ -6,7 +6,7 @@
       
         ../../modules/gui/nautilus      # Nautilus configuration
         ../../modules/wm/hyprland       # Window manager Hyprland
-        ];
+    ];
 
     # Bootloader.
     boot.loader.systemd-boot.enable = true;

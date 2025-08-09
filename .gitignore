@@ -19,7 +19,7 @@ secrets/*
 *.age
 
 # Optional: ignore hardware configuration (can be regenerated)
-hardware-configuration.nix
+#hardware-configuration.nix
 
 # Home-Manager build garbage
 home-manager generations/

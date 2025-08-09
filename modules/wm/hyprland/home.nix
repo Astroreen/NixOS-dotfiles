@@ -13,10 +13,10 @@ in
 
 {
     options.hyprland = {
-        binds = lib.mkOption {
+        settings = lib.mkOption {
             type = lib.types.attrs;
             default = import ./binds.nix;
-            example = "hyprland.binds = import /absolute/path/to/binds.nix or ./relative/path/to/binds.nix";
+            example = "hyprland.settings = import /absolute/path/to/settings.nix or ./relative/path/to/settings.nix";
             description = "Use this guide for flags: https://wiki.hypr.land/Configuring/Binds/#bind-flags";
         };
 
@@ -192,6 +192,9 @@ in
             hyprpicker              # Color picker for Hyprland
             grim                    # Screenshot tool for wayland
             uwsm                    # Window manager for wayland
+            pipewire                # PipeWire media server
+            lm_sensors              # Hardware sensors
+            inotify-tools           # Inotify tools
         ]
         ++ lib.optionals cfg.caelestia.enable [
             # Default packages from Caelestia
@@ -205,16 +208,13 @@ in
             material-symbols
 
             # Packages
-            inotify-tools           # Inotify tools
             dart-sass               # Sass compiler
             ydotool                 # Wayland input automation tool
             fuzzel                  # Fuzzy launcher
             slurp                   # Select a region on the screen
             fish                    # Fish shell
             cava                    # Audio visualizer
-            lm_sensors              # Hardware sensors
             aubio                   # Audio analysis library
-            pipewire                # PipeWire media server
             glibc                   # GNU C Library
             glib                    # C library for data structures and utilities
             kdePackages.qt6ct       # Qt6 configuration tool
@@ -252,10 +252,7 @@ in
 
             # Monitors
             monitor = [
-                # [Monitor][Resolution@Hz][Virtual Place][Scale]
-                "DP-3,3440x1440@165,0x0,1"
-                "HDMI-A-1,1920x1080@240,auto-left,1,transform,1"
-                "DP-2,1920x1080@60,auto-right,transform,5"
+                ", preferred, auto, 1" # Fallback option
             ];
 
             # Default programs definitions (used in keybinds and other places)
@@ -273,11 +270,6 @@ in
 
             # Commands to execute once on Hyprland start
             exec-once = [
-                # On start up enable apps on certain workspaces
-                "[workspace 2 silent] vivaldi"
-                "[workspace 3 silent] discord"
-                "[workspace 4 silent] spotify"
-
                 "wl-clip-persist"
                 "wl-paste --type text --watch cliphist store"    # Store text
                 "wl-paste --type image --watch cliphist store"   # Store images
@@ -294,22 +286,6 @@ in
             ++ lib.optionals cfg.caelestia.enable [
                 "printenv > $XDG_RUNTIME_DIR/env"               # Generate file with all env values on startup for caelestia.service
                 "systemctl --user start caelestia.service"      # Start caelestia.service
-            ];
-
-            # Windows rules
-            windowrulev2 = [
-                # qView floating with specific size
-                "float,class:^(com.interversehq.qView)$"
-                "size 1400 800,class:^(com.interversehq.qView)$"
-                "center,class:^(com.interversehq.qView)$"
-
-                # Nautilus floating with specific size
-                "float,class:^(org.gnome.Nautilus)$"
-                "size 1400 800,class:^(org.gnome.Nautilus)$"
-                "center,class:^(org.gnome.Nautilus)$"
-
-                # Open Discord always on workspace 3
-                "workspace 3 silent,class:^(discord)$"
             ];
 
             # Session variables passed to hyprland
@@ -374,6 +350,6 @@ in
                 workspace_swipe = true;
             };
         }
-        // cfg.binds; # Adding dynamic bindings
+        // cfg.settings; # Adding dynamic settings
     };
 }
