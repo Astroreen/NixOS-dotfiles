@@ -26,14 +26,14 @@
     caelestia-shell = {
       url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
-      # inputs.app2unit.follows = "app2unit";          # Override for a non-existent input 'app2unit'
+      inputs.app2unit.follows = "app2unit";
       inputs.quickshell.follows = "quickshell";
     };
 
     caelestia-cli = {
       url = "github:caelestia-dots/cli";
       inputs.nixpkgs.follows = "nixpkgs";
-      # inputs.app2unit.follows = "app2unit";          # Override for a non-existent input 'app2unit'
+      inputs.app2unit.follows = "app2unit";
       inputs.caelestia-shell.follows = "caelestia-shell";
     };
 
