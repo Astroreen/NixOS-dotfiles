@@ -84,6 +84,40 @@
         ];
       };
 
+      server = nixpkgs.lib.nixosSystem rec {
+
+        # Arguments
+        system = "x86_64-linux";
+        specialArgs = {
+          inherit inputs;
+          pkgs-stable = import inputs.nixpkgs-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        };
+
+        # Modules
+        modules = [
+          ./overlays                              # Overlays
+          ./hosts/server-desktop/configuration.nix# Host configuration
+          inputs.hyprland.nixosModules.default    # Hyperland default module
+          home-manager.nixosModules.home-manager  # Home manager module
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+
+            # Pass arguments to every home-manager file
+            home-manager.extraSpecialArgs = {
+              inherit inputs;
+              pkgs-stable = inputs.pkgs-stable;
+            };
+
+            # User specific config file
+            home-manager.users.astroreen = import ./home/astroreen/home.nix;
+          }
+        ];
+      };
+
       # Another configurations
       # default = ...
       # desktop = ...

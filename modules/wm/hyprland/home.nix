@@ -252,8 +252,10 @@ in
 
             # Monitors
             monitor = [
-                # [Monitor][Resolution@Hz]0x0[Scale]
-                "eDP-1,2560x1440@165,0x0,1"
+                # [Monitor][Resolution@Hz][Virtual Place][Scale]
+                "DP-3,3440x1440@165,0x0,1"
+                "HDMI-A-1,1920x1080@240,auto-left,1,transform,1"
+                "DP-2,1920x1080@60,auto-right,transform,5"
             ];
 
             # Default programs definitions (used in keybinds and other places)
