@@ -32,6 +32,7 @@
             "input" 
             "seat" 
             "bluetooth"
+            "docker"
         ];
     };
 
@@ -89,6 +90,7 @@
                 nvidiaBusId = "PCI:1:0:0";     # Use lspci to verify
             };
         };
+        nvidia-container-toolkit.enable = true;
 
         bluetooth = {
             enable = true;
@@ -184,6 +186,15 @@
         nerd-fonts.jetbrains-mono                                                                     
         font-awesome
     ];
+
+    virtualisation.docker = {
+        enable = true;
+        enableOnBoot = false;
+        rootless = {
+            enable = false;
+            setSocketVariable = false;
+        };
+    };
 
     # List services that you want to enable:
 
