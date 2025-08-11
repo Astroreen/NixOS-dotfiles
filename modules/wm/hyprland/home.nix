@@ -157,7 +157,6 @@ in
                         "WAYLAND_DISPLAY=wayland-1"
                         "QUICKSHELL_ENABLE_PORTAL=1"
                     ];
-                    EnvironmentFile = "%t/env";
                 };
                 # Starting this in exec-once
                 #Install = {
@@ -248,11 +247,11 @@ in
         };
 
         # Hyprland settings
-        wayland.windowManager.hyprland.settings = {
+        wayland.windowManager.hyprland.settings = lib.recursiveUpdate {
 
             # Monitors
             monitor = [
-                ", preferred, auto, 1" # Fallback option
+                ", preferred, auto, 1"      # Fallback option
             ];
 
             # Default programs definitions (used in keybinds and other places)
@@ -284,7 +283,6 @@ in
                 "hyprpaper"
             ]
             ++ lib.optionals cfg.caelestia.enable [
-                "printenv > $XDG_RUNTIME_DIR/env"               # Generate file with all env values on startup for caelestia.service
                 "systemctl --user start caelestia.service"      # Start caelestia.service
             ];
 
@@ -350,6 +348,31 @@ in
                 workspace_swipe = true;
             };
         }
-        // cfg.settings; # Adding dynamic settings
+        (cfg.settings // {
+            # Special handling for lists that should be concatenated instead of replaced
+            exec-once = (cfg.settings.exec-once or []) ++ [
+                "wl-clip-persist"
+                "wl-paste --type text --watch cliphist store"
+                "wl-paste --type image --watch cliphist store"
+                "power-profiles-daemon"
+                "nm-applet --no-agent"
+            ]
+            ++ lib.optionals cfg.waybar.enable [
+                "sh ~/.config/waybar/waybar.sh"
+            ]
+            ++ lib.optionals cfg.hyprpaper.enable [
+                "hyprpaper"
+            ]
+            ++ lib.optionals cfg.caelestia.enable [
+                "systemctl --user start caelestia.service"
+            ];
+            
+            env = (cfg.settings.env or []) ++ [
+                "NIXOS_OZONE_WL, 1"
+                "XDG_SESSION_DESKTOP, Hyprland"
+                "XDG_CURRENT_DESKTOP, Hyprland"
+                # ... rest of env vars
+            ];
+        });
     };
 }

@@ -20,48 +20,6 @@
         "type": "github"
       }
     },
-    "app2unit_2": {
-      "inputs": {
-        "nixpkgs": [
-          "caelestia-cli",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1754708301,
-        "narHash": "sha256-rtgEwE5YkFJnKca1pfI89oNlXNQChmDakpAfPCn0NAc=",
-        "owner": "soramanew",
-        "repo": "app2unit",
-        "rev": "dc998d8d4ff10265aa845b7eed63cca74bf7e6e3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "soramanew",
-        "repo": "app2unit",
-        "type": "github"
-      }
-    },
-    "app2unit_3": {
-      "inputs": {
-        "nixpkgs": [
-          "caelestia-shell",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1754708301,
-        "narHash": "sha256-rtgEwE5YkFJnKca1pfI89oNlXNQChmDakpAfPCn0NAc=",
-        "owner": "soramanew",
-        "repo": "app2unit",
-        "rev": "dc998d8d4ff10265aa845b7eed63cca74bf7e6e3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "soramanew",
-        "repo": "app2unit",
-        "type": "github"
-      }
-    },
     "aquamarine": {
       "inputs": {
         "hyprutils": [
@@ -97,7 +55,9 @@
     },
     "caelestia-cli": {
       "inputs": {
-        "app2unit": "app2unit_2",
+        "app2unit": [
+          "app2unit"
+        ],
         "caelestia-shell": [
           "caelestia-shell"
         ],
@@ -149,7 +109,9 @@
     },
     "caelestia-shell": {
       "inputs": {
-        "app2unit": "app2unit_3",
+        "app2unit": [
+          "app2unit"
+        ],
         "caelestia-cli": "caelestia-cli_2",
         "nixpkgs": [
           "nixpkgs"

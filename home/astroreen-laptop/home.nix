@@ -13,7 +13,8 @@
 
     # Host specific settings
 
-    hyprland.settings = # Not overriding but merging 
-        import ../astroreen-common/hyprland/settings.nix //
-        import ./hyprland-settings.nix;
+    hyprland.settings = lib.mkMerge [ # Not overriding but merging
+      (import ../astroreen-common/hyprland/settings.nix)
+      (import ./hyprland-settings.nix)
+    ];
 }
