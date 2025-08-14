@@ -12,7 +12,7 @@
     monitor = [
         # [Monitor][Resolution@Hz][Virtual Place][Scale]
         "DP-3,3440x1440@165,0x0,1"
-        "HDMI-A-1,1920x1080@240,-1080x0,1,transform,1"
-        "DP-2,1920x1080@60,3440x0,1,transform,3"
+        "HDMI-A-1,1920x1080@240,-1080x-480,1,transform,1"
+        "DP-2,1920x1080@60,3440x-480,1,transform,3"
     ];
 }

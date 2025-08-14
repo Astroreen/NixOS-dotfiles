@@ -3,6 +3,8 @@
 {
     imports = [
         ./hardware-configuration.nix    # Required.
+
+        ./services.nix                  # Services configuration
       
         ../../modules/gui/nautilus      # Nautilus configuration
         ../../modules/wm/hyprland       # Window manager Hyprland
@@ -15,6 +17,15 @@
     # Enable networking
     networking.hostName = "laptop"; # Define your hostname.
     networking.networkmanager.enable = true;
+    networking.firewall = {
+        allowedTCPPorts = [
+            53317   # Localsend port 
+        ];
+    
+        allowedUDPPorts = [
+            53317   # Localsend port
+        ];
+    };
 
     # Set your time zone.
     time.timeZone = "Europe/Vilnius";
@@ -38,18 +49,6 @@
     # Select internationalisation properties.
     i18n.defaultLocale = "en_US.UTF-8";
     i18n.extraLocales = [ "ru_RU.UTF-8/UTF-8" "lt_LT.UTF-8/UTF-8" ];
-
-    # Configure keymap in X11
-    services.xserver.xkb = {
-        layout = "us,ru,lt";
-        variant = ",phonetic,us";
-        options = "grp:win_space_toggle,grp:alt_shift_toggle";
-    };
-    services.libinput = {
-        enable = true;
-        touchpad.naturalScrolling = true;
-    };
-    services.seatd.enable = true;
 
     # Drivers for hardware
     hardware = {
@@ -95,47 +94,6 @@
             powerOnBoot = true;
         };
     };
-
-    services.xserver.videoDrivers = [ "nvidia" ];
-    services.blueman.enable = true;
-
-    # Audio
-    services.pulseaudio.enable = false;
-    security.rtkit.enable = true;
-    services.pipewire = {
-        enable = true;
-        alsa.enable = true;
-        alsa.support32Bit = true;
-        pulse.enable = true;
-        jack.enable = true;
-        wireplumber.enable = true;
-    };
-
-    # Display manager
-    services.displayManager = {
-        # CAUTION: DO NOT ENABLE BOTH!
-        sddm.enable = false;
-        gdm = {
-            enable = true;
-            wayland = true;
-        };
-
-        # Enable automatic login for the user.
-        autoLogin = {
-            enable = true;
-            user = "astroreen";
-        };
-
-        # Defaul session to log in to. Perfect with auto login :)
-        defaultSession = "hyprland";
-    };
-
-    # Enable the X11 windowing system.
-    # You can disable this if you're only using the Wayland session.
-    services.xserver.enable = true;
-
-    # Desktop Environments
-    services.desktopManager.plasma6.enable = true;
 
     # System wide packages
     environment.systemPackages = with pkgs; [
@@ -184,19 +142,6 @@
         nerd-fonts.jetbrains-mono                                                                     
         font-awesome
     ];
-
-    # List services that you want to enable:
-
-    # Enable the OpenSSH daemon.
-    # services.openssh.enable = true;
-
-    # Enable CUPS to print documents.
-    services.printing.enable = true;
-    # Security
-    services.gnome.gnome-keyring.enable = true;
-    security.pam.services.gdm-password.enableGnomeKeyring = true;
-    services.gvfs.enable = true;  # Enables trash
-    services.power-profiles-daemon.enable = true; # Enable power profiles
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;

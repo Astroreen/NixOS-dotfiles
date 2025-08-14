@@ -42,5 +42,10 @@ binds // # Added binds to configuration
 
         # Open Discord always on workspace 3
         "workspace 3 silent,class:^(discord)$"
+
+        # LocalSend always floating with specific size
+        "float,class:^(localsend_app)$"
+        "size 1400 800,class:^(localsend_app)$"
+        "center,class:^(localsend_app)$"
     ];
 }
