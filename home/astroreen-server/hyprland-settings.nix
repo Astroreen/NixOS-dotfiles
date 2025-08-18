@@ -15,4 +15,9 @@
         "HDMI-A-1,1920x1080@240,-1080x-480,1,transform,1"
         "DP-2,1920x1080@60,3440x-480,1,transform,3"
     ];
+
+    exec-once = [
+        # Start whisper server for voice transcription
+        "whisper-server -m /home/astroreen/apps/whisper.cpp/models/ggml-large-v3-turbo-q5_0.bin --host 0.0.0.0 --port 7777 --language auto &"
+    ];
 }

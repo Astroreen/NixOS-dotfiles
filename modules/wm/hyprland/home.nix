@@ -247,132 +247,114 @@ in
         };
 
         # Hyprland settings
-        wayland.windowManager.hyprland.settings = lib.recursiveUpdate {
+        wayland.windowManager.hyprland.settings = let
+            # Base settings from the module
+            baseSettings = {
+                # Monitors
+                monitor = [
+                    ", preferred, auto, 1"      # Fallback option
+                ];
 
-            # Monitors
-            monitor = [
-                ", preferred, auto, 1"      # Fallback option
-            ];
+                # Default programs definitions
+                "$mod" = "SUPER";
 
-            # Default programs definitions (used in keybinds and other places)
-            "$mod" = "SUPER";
-
-            # General settings
-            general = {
-                "$mod" = "SUPER";           # Main modification button (passed to binds file)
-                layout = "dwindle";
-                gaps_in = 5;                # Windows inside gaps to make windows smaller
-                gaps_out = 20;              # Window outer gaps
-                border_size = 2;            # Window border thickness
-                resize_on_border = true;
-            };
-
-            # Commands to execute once on Hyprland start
-            exec-once = [
-                "wl-clip-persist"
-                "wl-paste --type text --watch cliphist store"    # Store text
-                "wl-paste --type image --watch cliphist store"   # Store images
-
-                "power-profiles-daemon"
-                "nm-applet --no-agent"
-            ]
-            ++ lib.optionals cfg.waybar.enable [
-                "sh ~/.config/waybar/waybar.sh"
-            ]
-            ++ lib.optionals cfg.hyprpaper.enable [
-                "hyprpaper"
-            ]
-            ++ lib.optionals cfg.caelestia.enable [
-                "systemctl --user start caelestia.service"      # Start caelestia.service
-            ];
-
-            # Session variables passed to hyprland
-            # instead of system-level environment.sessionVariables
-            env = [
-                "NIXOS_OZONE_WL, 1"
-                "XDG_SESSION_DESKTOP, Hyprland"
-                "XDG_CURRENT_DESKTOP, Hyprland"
-                "XDG_DESKTOP_DIR, $HOME/Desktop"
-                "XDG_DOWNLOAD_DIR, $HOME/Downloads"
-                "XDG_TEMPLATES_DIR, $HOME/Templates"
-                "XDG_PUBLICSHARE_DIR, $HOME/Public"
-                "XDG_DOCUMENTS_DIR, $HOME/Documents"
-                "XDG_MUSIC_DIR, $HOME/Music"
-                "XDG_PICTURES_DIR, $HOME/Pictures"
-                "XDG_VIDEOS_DIR, $HOME/Videos"
-                "HYPRSHOT_DIR, $HOME/Pictures/Screenshots"
-                "WAYLAND_DISPLAY, wayland-1"
-            ]
-            ++ lib.optionals cfg.caelestia.enable [
-                "QT_QPA_PLATFORMTHEME, qt6ct" # Caelestia shell - icon fix
-                "QUICKSHELL_ENABLE_PORTAL, 1"
-            ]
-            ;
-
-            # Style
-            decoration = {
-                rounding = 5;
-
-                active_opacity = 1.0;
-                inactive_opacity = 0.99;
-
-                shadow = {
-                    enabled = true;
-                    range = 4;
-                    render_power = 3;
-                    color = "rgba(1a1a1aee)";
+                # General settings
+                general = {
+                    "$mod" = "SUPER";
+                    layout = "dwindle";
+                    gaps_in = 5;
+                    gaps_out = 20;
+                    border_size = 2;
+                    resize_on_border = true;
                 };
 
-                blur = {
-                    enabled = true;
-                    size = 3;
-                    passes = 1;
-                    vibrancy = 0.1696;
+                # Base exec-once commands
+                exec-once = [
+                    "wl-clip-persist"
+                    "wl-paste --type text --watch cliphist store"
+                    "wl-paste --type image --watch cliphist store"
+                    "power-profiles-daemon"
+                    "nm-applet --no-agent"
+                ]
+                ++ lib.optionals cfg.waybar.enable [
+                    "sh ~/.config/waybar/waybar.sh"
+                ]
+                ++ lib.optionals cfg.hyprpaper.enable [
+                    "hyprpaper"
+                ]
+                ++ lib.optionals cfg.caelestia.enable [
+                    "systemctl --user start caelestia.service"
+                ];
+
+                # Base env vars
+                env = [
+                    "NIXOS_OZONE_WL, 1"
+                    "XDG_SESSION_DESKTOP, Hyprland"
+                    "XDG_CURRENT_DESKTOP, Hyprland"
+                    "XDG_DESKTOP_DIR, $HOME/Desktop"
+                    "XDG_DOWNLOAD_DIR, $HOME/Downloads"
+                    "XDG_TEMPLATES_DIR, $HOME/Templates"
+                    "XDG_PUBLICSHARE_DIR, $HOME/Public"
+                    "XDG_DOCUMENTS_DIR, $HOME/Documents"
+                    "XDG_MUSIC_DIR, $HOME/Music"
+                    "XDG_PICTURES_DIR, $HOME/Pictures"
+                    "XDG_VIDEOS_DIR, $HOME/Videos"
+                    "HYPRSHOT_DIR, $HOME/Pictures/Screenshots"
+                    "WAYLAND_DISPLAY, wayland-1"
+                ]
+                ++ lib.optionals cfg.caelestia.enable [
+                    "QT_QPA_PLATFORMTHEME, qt6ct"
+                    "QUICKSHELL_ENABLE_PORTAL, 1"
+                ];
+
+                # Style
+                decoration = {
+                    rounding = 5;
+                    active_opacity = 1.0;
+                    inactive_opacity = 0.99;
+                    shadow = {
+                        enabled = true;
+                        range = 4;
+                        render_power = 3;
+                        color = "rgba(1a1a1aee)";
+                    };
+                    blur = {
+                        enabled = true;
+                        size = 3;
+                        passes = 1;
+                        vibrancy = 0.1696;
+                    };
+                };
+
+                animations = import ./animations.nix;
+
+                dwindle = {
+                    pseudotile = true;
+                    preserve_split = true;
+                };
+
+                misc = {
+                    force_default_wallpaper = 0;
+                    disable_hyprland_logo = true;
+                    session_lock_xray = true;
+                };
+
+                gestures = {
+                    workspace_swipe = true;
                 };
             };
-            animations = import ./animations.nix;
 
-            # Settings you probably don't want to change
-            dwindle = {
-                pseudotile = true;      # Master switch for pseudotiling. Enabling is bound to mod + P in the keybinds section below
-                preserve_split = true;  # You probably want this
-            };
-
-            misc = {
-                force_default_wallpaper = 0;    # Set to 1 to use the anime mascot wallpapers
-                disable_hyprland_logo = true;   # If true disables the random hyprland logo / anime girl background. :(
-                session_lock_xray = true;       # Enable xray effect on session lock
-            };
-
-            gestures = {
-                workspace_swipe = true;
-            };
-        }
-        (cfg.settings // {
-            # Special handling for lists that should be concatenated instead of replaced
-            exec-once = (cfg.settings.exec-once or []) ++ [
-                "wl-clip-persist"
-                "wl-paste --type text --watch cliphist store"
-                "wl-paste --type image --watch cliphist store"
-                "power-profiles-daemon"
-                "nm-applet --no-agent"
-            ]
-            ++ lib.optionals cfg.waybar.enable [
-                "sh ~/.config/waybar/waybar.sh"
-            ]
-            ++ lib.optionals cfg.hyprpaper.enable [
-                "hyprpaper"
-            ]
-            ++ lib.optionals cfg.caelestia.enable [
-                "systemctl --user start caelestia.service"
-            ];
-            
-            env = (cfg.settings.env or []) ++ [
-                "NIXOS_OZONE_WL, 1"
-                "XDG_SESSION_DESKTOP, Hyprland"
-                "XDG_CURRENT_DESKTOP, Hyprland"
-                # ... rest of env vars
-            ];
-        });
+            # Custom merge function for lists
+            mergeSettings = base: custom: 
+                lib.recursiveUpdate base (custom // {
+                # Special handling for lists that should be concatenated
+                exec-once = (base.exec-once or []) ++ (custom.exec-once or []);
+                env = (base.env or []) ++ (custom.env or []);
+                monitor = (base.monitor or []) ++ (custom.monitor or []);
+                workspace = (base.workspace or []) ++ (custom.workspace or []);
+                windowrulev2 = (base.windowrulev2 or []) ++ (custom.windowrulev2 or []);
+                # Add other list attributes as needed
+            });
+        in mergeSettings baseSettings cfg.settings;
     };
 }

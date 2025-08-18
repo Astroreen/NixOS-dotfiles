@@ -20,12 +20,15 @@
     networking.firewall = {
         allowedTCPPorts = [       
             8573    # Pi-hole web interface
-            53317   # Localsend port 
+            53317   # Localsend port
+            11434   # Ollama API port
+            7777    # Whisper-cpp server port
         ];
     
         allowedUDPPorts = [ 
             53      # DNS queries
             53317   # Localsend port
+            7777    # Whisper-cpp server port
         ];
     
         # Allow specific interfaces if needed
