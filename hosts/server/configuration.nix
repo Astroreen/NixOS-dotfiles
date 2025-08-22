@@ -20,27 +20,39 @@
         networkmanager.enable = true;
         interfaces.enp5s0.wakeOnLan = {
             enable = true;
-            policy = [ "magic" "unicast" "broadcast" "multicast" ];
+            policy = [ "magic" "broadcast" "multicast" "unicast" ];
+        };
+
+        firewall = {
+            allowedTCPPorts = [       
+                8573    # Pi-hole web interface
+                53317   # Localsend port
+                11434   # Ollama API port
+                7777    # Whisper-cpp server port
+                27124   # Obsidian API server port
+            ];
+    
+            allowedUDPPorts = [ 
+                53      # DNS queries
+                53317   # Localsend port
+                7777    # Whisper-cpp server port
+                9       # Wake-on-LAN
+            ];
+    
+            # Allow all traffic on docker interfaces
+            trustedInterfaces = [ "docker0" ];
         };
     };
-    networking.firewall = {
-        allowedTCPPorts = [       
-            8573    # Pi-hole web interface
-            53317   # Localsend port
-            11434   # Ollama API port
-            7777    # Whisper-cpp server port
-            27124   # Obsidian API server port
-        ];
-    
-        allowedUDPPorts = [ 
-            53      # DNS queries
-            53317   # Localsend port
-            7777    # Whisper-cpp server port
-            9       # Wake-on-LAN
-        ];
-    
-        # Allow all traffic on docker interfaces
-        trustedInterfaces = [ "docker0" ];
+
+    systemd.services.wol-enable = {
+        description = "Enable Wake-on-LAN";
+        after = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = "${pkgs.ethtool}/bin/ethtool -s enp5s0 wol g";
+        };
     };
 
     # Set your time zone.
@@ -146,6 +158,11 @@
         pciutils                # `lspci` command
         libva-utils             # VAAPI utilities
         ffmpeg-full             # FFmpeg with VAAPI support
+        ethtool                 # Ethernet tool
+        iproute2                # Networking tools
+        gnugrep                 # GNU grep
+        gawk                    # GNU Awk
+        coreutils               # GNU Core Utilities
 
         # Themes
         adwaita-icon-theme      # Adwaita icon theme
