@@ -15,28 +15,32 @@
     boot.loader.efi.canTouchEfiVariables = true;
 
     # Enable networking
-    networking.hostName = "server"; # Define your hostname.
-    networking.networkmanager.enable = true;
+    networking = {
+        hostName = "server"; # Define your hostname.
+        networkmanager.enable = true;
+        interfaces.enp5s0.wakeOnLan = {
+            enable = true;
+            policy = [ "magic" "unicast" "broadcast" "multicast" ];
+        };
+    };
     networking.firewall = {
         allowedTCPPorts = [       
             8573    # Pi-hole web interface
             53317   # Localsend port
             11434   # Ollama API port
             7777    # Whisper-cpp server port
+            27124   # Obsidian API server port
         ];
     
         allowedUDPPorts = [ 
             53      # DNS queries
             53317   # Localsend port
             7777    # Whisper-cpp server port
+            9       # Wake-on-LAN
         ];
     
-        # Allow specific interfaces if needed
-        interfaces = {
-            # Allow all traffic on docker interfaces
-            docker0.allowedTCPPorts = [ 53 80 443 8573 ];
-            docker0.allowedUDPPorts = [ 53 67 547 ];
-        };
+        # Allow all traffic on docker interfaces
+        trustedInterfaces = [ "docker0" ];
     };
 
     # Set your time zone.
@@ -107,6 +111,13 @@
             enable = true;
             powerOnBoot = true;
         };
+    };
+
+    # Mount configuration
+    fileSystems."/mnt/nextcloud_storage" = {
+        device = "/dev/disk/by-uuid/be83c981-ab7e-40fb-b0fc-836eaaf07324";
+        fsType = "ext4";
+        options = [ "defaults" ];
     };
 
     # System wide packages
