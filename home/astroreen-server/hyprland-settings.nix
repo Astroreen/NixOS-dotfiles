@@ -18,6 +18,7 @@
 
     exec-once = [
         # Start whisper server for voice transcription
-        "whisper-server -m /home/astroreen/apps/whisper.cpp/models/ggml-large-v3-turbo-q5_0.bin --host 0.0.0.0 --port 7777 --language auto &"
+        # ggml-tiny.bin ggml-base.bin ggml-large-v3-turbo-q5_0.bin
+        "whisper-server -m /home/astroreen/apps/whisper.cpp/models/ggml-base.bin --host 0.0.0.0 --port 7777 --language auto &"
     ];
 }
