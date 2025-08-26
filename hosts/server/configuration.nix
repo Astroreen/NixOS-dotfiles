@@ -30,6 +30,7 @@
                 11434   # Ollama API port
                 7777    # Whisper.cpp server port
                 27124   # Obsidian API server port
+                9167    # KitchenOwl port
             ];
     
             allowedUDPPorts = [ 
