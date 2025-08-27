@@ -28,12 +28,12 @@
         ", PRINT, global, caelestia:screenshotFreeze"
         "CTRL, PRINT, global, caelestia:screenshot"
         "SHIFT, PRINT, exec, caelestia screenshot"
-        "$mod SHIFT, C, exec, hyprpicker -a"  # Color picker (just like from powertoys)
+        "$mod SHIFT, C, exec, hyprpicker -a"                            # Color picker (just like from powertoys)
 
         # Screen recording (from Caelestia)
-        "$mod ALT, R, exec, caelestia record -s"  # Record with sound
-        "CTRL ALT, R, exec, caelestia record"  # Record screen
-        "$mod SHIFT ALT, R, exec, caelestia record -r"  # Record region
+        "$mod ALT, R, exec, caelestia record -s"                        # Record with sound
+        "CTRL ALT, R, exec, caelestia record"                           # Record screen
+        "$mod SHIFT ALT, R, exec, caelestia record -r"                  # Record region
 
         # Clipboard and utilities (from Caelestia)
         "$mod, V, exec, pkill fuzzel || caelestia clipboard"

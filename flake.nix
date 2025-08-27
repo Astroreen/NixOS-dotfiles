@@ -69,6 +69,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
 
             # Pass arguments to every home-manager file
             home-manager.extraSpecialArgs = {
@@ -103,6 +104,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
 
             # Pass arguments to every home-manager file
             home-manager.extraSpecialArgs = {
