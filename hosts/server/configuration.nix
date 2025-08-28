@@ -107,10 +107,11 @@
         nvidia = {
             modesetting.enable = true;
             powerManagement.enable = true;
-            powerManagement.finegrained = true;  # Requires offload below
-            open = false;   # Use proprietary driver
+            powerManagement.finegrained = true; # Requires offload below
+            open = false;                       # Use proprietary driver
             nvidiaSettings = true;
             package = config.boot.kernelPackages.nvidiaPackages.stable;
+            nvidiaPersistenced = false;
 
             prime = {
                 offload.enable = true;
