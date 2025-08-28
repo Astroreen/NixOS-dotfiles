@@ -26,6 +26,10 @@
 
         # Windows manager (wm)
         ../../modules/wm/hyprland/home.nix    # Hyprland window manager
+
+        # Languages
+        ../../modules/lang/java
+        ../../modules/lang/javascript
     ];
 
     home.username = "astroreen";
