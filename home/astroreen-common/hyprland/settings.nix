@@ -47,5 +47,10 @@ binds // # Added binds to configuration
         "float,class:^(localsend_app)$"
         "size 1400 800,class:^(localsend_app)$"
         "center,class:^(localsend_app)$"
+
+        # Postman always floating with specific size
+        "float,class:^(Postman)$"
+        "size 1400 800,class:^(Postman)$"
+        "center,class:^(Postman)$"
     ];
 }

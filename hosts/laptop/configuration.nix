@@ -15,16 +15,22 @@
     boot.loader.efi.canTouchEfiVariables = true;
 
     # Enable networking
-    networking.hostName = "laptop"; # Define your hostname.
-    networking.networkmanager.enable = true;
-    networking.firewall = {
-        allowedTCPPorts = [
-            53317   # Localsend port 
-        ];
+    networking = {
+        hostName = "laptop"; # Define your hostname.
+        networkmanager.enable = true;
+
+        firewall = {
+            allowedTCPPorts = [       
+                53317   # Localsend port
+            ];
     
-        allowedUDPPorts = [
-            53317   # Localsend port
-        ];
+            allowedUDPPorts = [
+                53317   # Localsend port
+            ];
+    
+            # Allow all traffic on docker interfaces
+            trustedInterfaces = [ "docker0" ];
+        };
     };
 
     # Set your time zone.
@@ -43,6 +49,7 @@
             "input" 
             "seat" 
             "bluetooth"
+            "docker"
         ];
     };
 
@@ -77,16 +84,18 @@
         nvidia = {
             modesetting.enable = true;
             powerManagement.enable = true;
-            powerManagement.finegrained = true;  # Requires offload below
-            open = false;   # Use proprietary driver
+            powerManagement.finegrained = true; # Requires offload below
+            open = false;                       # Use proprietary driver
             nvidiaSettings = true;
             package = config.boot.kernelPackages.nvidiaPackages.stable;
+            nvidiaPersistenced = false;
 
             prime = {
                 offload.enable = true;
                 intelBusId = "PCI:0:2:0";      # Use lspci to verify
                 nvidiaBusId = "PCI:1:0:0";     # Use lspci to verify
             };
+            nvidia-container-toolkit.enable = true;
         };
 
         bluetooth = {
@@ -121,6 +130,11 @@
         pciutils                # `lspci` command
         libva-utils             # VAAPI utilities
         ffmpeg-full             # FFmpeg with VAAPI support
+        ethtool                 # Ethernet tool
+        iproute2                # Networking tools
+        gnugrep                 # GNU grep
+        gawk                    # GNU Awk
+        coreutils               # GNU Core Utilities
 
         # Themes
         adwaita-icon-theme      # Adwaita icon theme
@@ -135,6 +149,16 @@
         # Dark theme
         GTK_THEME = "Adwaita:dark";
         QT_STYLE_OVERRIDE = "adwaita-dark";
+    };
+
+    virtualisation.docker = {
+        enable = true;
+        enableOnBoot = true;
+        enableNvidia = true;  # Enable NVIDIA support
+        rootless = {
+            enable = false;
+            setSocketVariable = false;
+        };
     };
   
     # Fonts
