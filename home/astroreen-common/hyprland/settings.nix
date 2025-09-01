@@ -26,10 +26,20 @@ binds // # Added binds to configuration
         "[workspace 2 silent] vivaldi"
         "[workspace 3 silent] discord"
         "[workspace 4 silent] spotify"
+        "[workspace 5 silent] obsidian"
     ];
 
     # Windows rules
     windowrulev2 = [
+        # Maximize auto-started programs
+        "maximize,class:^(Vivaldi-stable)$"
+        "maximize,class:^(discord)$"
+        "maximize,class:^(spotify)$"
+        "maximize,class:^(obsidian)$"
+
+        # Always open Discord on workspace 3
+        "workspace 3 silent,class:^(discord)$"
+
         # qView floating with specific size
         "float,class:^(com.interversehq.qView)$"
         "size 1400 800,class:^(com.interversehq.qView)$"
@@ -39,9 +49,6 @@ binds // # Added binds to configuration
         "float,class:^(org.gnome.Nautilus)$"
         "size 1400 800,class:^(org.gnome.Nautilus)$"
         "center,class:^(org.gnome.Nautilus)$"
-
-        # Open Discord always on workspace 3
-        "workspace 3 silent,class:^(discord)$"
 
         # LocalSend always floating with specific size
         "float,class:^(localsend_app)$"

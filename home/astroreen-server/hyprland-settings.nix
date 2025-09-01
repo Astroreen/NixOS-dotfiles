@@ -4,6 +4,7 @@
         "2, monitor:DP-3"       # Browser
         "3, monitor:DP-2"       # Discord
         "4, monitor:HDMI-A-1"   # Spotify
+        "5, monitor:DP-3"       # Obsidian
 
         # Any other workspace will be created in the focused monitor
         # (where is the mouse, there will be created a new workspace)
