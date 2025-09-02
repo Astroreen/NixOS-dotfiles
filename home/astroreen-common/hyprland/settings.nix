@@ -31,11 +31,11 @@ binds // # Added binds to configuration
 
     # Windows rules
     windowrulev2 = [
-        # Maximize auto-started programs
-        "maximize,class:^(Vivaldi-stable)$"
-        "maximize,class:^(discord)$"
-        "maximize,class:^(spotify)$"
-        "maximize,class:^(obsidian)$"
+        # Fullscreen auto-started programs
+        "fullscreen,class:^(Vivaldi-stable)$"
+        "fullscreen,class:^(discord)$"
+        "fullscreen,class:^(spotify)$"
+        "fullscreen,class:^(obsidian)$"
 
         # Always open Discord on workspace 3
         "workspace 3 silent,class:^(discord)$"

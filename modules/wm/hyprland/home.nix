@@ -139,6 +139,7 @@ in
                 };
                 Service = {
                     Type = "exec";
+                    ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
                     ExecStart = "${inputs.app2unit.packages.${pkgs.system}.default}/bin/app2unit qs -c caelestia";
                     Restart = "on-failure";
                     Slice = "app-graphical.slice";
