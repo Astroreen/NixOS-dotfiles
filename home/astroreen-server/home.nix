@@ -33,8 +33,6 @@ in
 
         ../../modules/tui/ollama
         ../../modules/tui/whisper.cpp
-        ../../modules/gui/blender
-        ../../modules/gui/obs
     ];
 
     # Host specific settings - properly merged

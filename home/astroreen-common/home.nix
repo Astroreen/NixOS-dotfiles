@@ -14,6 +14,7 @@
         # Apps (gui)
         ../../modules/gui/apps                # Standard apps to install
         ../../modules/gui/vscode              # VSCode
+        ../../modules/gui/obs                 # OBS Studio
         # Nautilus (file manager) is imported in hosts/.../configuration.nix
 
         # Terminal apps (tui)
