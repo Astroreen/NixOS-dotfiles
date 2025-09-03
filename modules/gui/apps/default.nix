@@ -14,8 +14,6 @@
         telegram-desktop                # Telegram
         viber                           # Viber
         caprine                         # Facebook Messenger
-        rustdesk-flutter                # Remote desktop software
-        anydesk                         # Remote desktop software
 
         # Media
         spotify                         # Music service
