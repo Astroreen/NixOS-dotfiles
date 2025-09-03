@@ -95,8 +95,8 @@
                 intelBusId = "PCI:0:2:0";      # Use lspci to verify
                 nvidiaBusId = "PCI:1:0:0";     # Use lspci to verify
             };
-            nvidia-container-toolkit.enable = true;
         };
+        nvidia-container-toolkit.enable = true;
 
         bluetooth = {
             enable = true;
