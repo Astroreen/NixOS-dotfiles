@@ -31,14 +31,6 @@
                 7777    # Whisper.cpp server port
                 27124   # Obsidian API server port
                 9167    # KitchenOwl port
-
-                # RustDesk - signal, relay, 
-                21114   # Pro, API
-                21115   # WebSocket port
-                21116   # WebSocket port
-                21117   #
-                21118   # WebSocket port
-                21119   # WebSocket port
             ];
     
             allowedUDPPorts = [ 
@@ -46,7 +38,6 @@
                 53317   # Localsend port
                 7777    # Whisper.cpp server port
                 9       # Wake-on-LAN
-                21116   # RustDesk
             ];
     
             # Allow all traffic on docker interfaces
