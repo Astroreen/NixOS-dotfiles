@@ -5,8 +5,10 @@
         ./hardware-configuration.nix    # Required.
 
         ./services.nix                  # Services configuration
-      
+        ../certificates.nix             # Import certificates
+
         ../../modules/gui/nautilus      # Nautilus configuration
+        ../../modules/tui/openvpn       # Open VPN configuration
         ../../modules/wm/hyprland       # Window manager Hyprland
     ];
 
@@ -31,6 +33,8 @@
                 7777    # Whisper.cpp server port
                 27124   # Obsidian API server port
                 9167    # KitchenOwl port
+
+                25565   # Minecraft server port
             ];
     
             allowedUDPPorts = [ 
@@ -187,6 +191,7 @@
         font-awesome
     ];
 
+    # Docker settings
     virtualisation.docker = {
         enable = true;
         enableOnBoot = true;

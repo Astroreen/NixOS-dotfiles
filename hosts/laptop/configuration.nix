@@ -5,8 +5,10 @@
         ./hardware-configuration.nix    # Required.
 
         ./services.nix                  # Services configuration
+        ../certificates.nix             # Import certificates
       
         ../../modules/gui/nautilus      # Nautilus configuration
+        ../../modules/tui/openvpn       # Open VPN configuration
         ../../modules/wm/hyprland       # Window manager Hyprland
     ];
 
@@ -151,6 +153,7 @@
         QT_STYLE_OVERRIDE = "adwaita-dark";
     };
 
+    # Docker settings
     virtualisation.docker = {
         enable = true;
         enableOnBoot = true;
@@ -160,6 +163,14 @@
             setSocketVariable = false;
         };
     };
+
+    # Certificates
+    security.pki.certificateFiles = [
+        #"/home/astroreen/.local/share/nixos/hosts/laptop/aktkc.ca.cert.pem"
+        #"/home/astroreen/.local/share/nixos/hosts/laptop/aktkc.intermediate.cert.pem"
+        "/home/astroreen/Downloads/aktkc.ca.cert.pem"
+        "/home/astroreen/Downloads/aktkc.intermediate.cert.pem"
+    ];
   
     # Fonts
     fonts.packages = with pkgs; [

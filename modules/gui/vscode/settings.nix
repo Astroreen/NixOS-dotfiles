@@ -19,7 +19,7 @@
 
     # Disable the code map on the right
     "editor.scrollbar.horizontal" = "hidden";
-    "editor.scrollbar.vertical" = "hidden";
+    "editor.scrollbar.vertical" = "visible";
     "editor.minimap.enabled" = false;
     "editor.matchBrackets" = "always";
     "editor.occurrencesHighlight" = "off";
@@ -74,4 +74,7 @@
     "git.autofetch" = true;
     "github.copilot.nextEditSuggestions.enabled" = true;
     "git.confirmSync" = false;
+
+    # Startup settings
+    "workbench.startupEditor" = "welcomePageInEmptyWorkbench";
 }

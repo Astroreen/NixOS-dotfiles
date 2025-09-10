@@ -17,6 +17,7 @@
 secrets.nix
 secrets/*
 *.age
+*.ovpn
 
 # Optional: ignore hardware configuration (can be regenerated)
 #hardware-configuration.nix

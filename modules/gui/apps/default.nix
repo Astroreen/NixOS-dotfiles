@@ -7,13 +7,15 @@
 }: 
 {
     home.packages = with pkgs; [
-        prismlauncher
+        # Games
+        prismlauncher                   # Minecraft launcher
 
         # Communication
         discord                         # Discord
         telegram-desktop                # Telegram
         viber                           # Viber
         caprine                         # Facebook Messenger
+        mattermost-desktop              # Mattermost
 
         # Media
         spotify                         # Music service
@@ -35,7 +37,8 @@
         # Development
         # github-desktop                # GitHub desktop client
         postman                         # API development environment
-        warp-terminal                   # AI warp termianla
+        warp-terminal                   # AI warp terminal
+        jetbrains.idea-ultimate         # IntelliJ IDEA Ultimate
 
         # File management
         localsend                       # Cross-platform file transfer
