@@ -48,6 +48,7 @@ in
     };
 
     home.sessionVariables = {
+        JAVA_HOME = "${java-package}/lib/openjdk";
         GRADLE_USER_HOME = "$HOME/${gradle-home}";
     };
 }

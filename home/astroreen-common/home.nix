@@ -21,9 +21,10 @@
         ../../modules/tui/kitty               # Terminal
         ../../modules/tui/shell               # Shell settings
         ../../modules/tui/git                 # Git
-        ../../modules/tui/htop                # Htop on steroids
+        #../../modules/tui/htop                # Htop on steroids
         ../../modules/tui/bat                 # Cat(1) copy with wings
         ../../modules/tui/lsd                 # Next gen ls command
+        ../../modules/tui/devenv              # DevEnv for project scripts
 
         # Windows manager (wm)
         ../../modules/wm/hyprland/home.nix    # Hyprland window manager
