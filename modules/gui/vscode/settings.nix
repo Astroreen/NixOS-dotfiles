@@ -76,5 +76,5 @@
     "git.confirmSync" = false;
 
     # Startup settings
-    "workbench.startupEditor" = "welcomePageInEmptyWorkbench";
+    "workbench.startupEditor" = "welcomePage";
 }

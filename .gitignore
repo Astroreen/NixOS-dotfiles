@@ -24,3 +24,13 @@ secrets/*
 
 # Home-Manager build garbage
 home-manager generations/
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
