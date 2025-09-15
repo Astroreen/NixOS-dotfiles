@@ -164,14 +164,6 @@
             setSocketVariable = false;
         };
     };
-
-    # Certificates
-    security.pki.certificateFiles = [
-        #"/home/astroreen/.local/share/nixos/hosts/laptop/aktkc.ca.cert.pem"
-        #"/home/astroreen/.local/share/nixos/hosts/laptop/aktkc.intermediate.cert.pem"
-        "/home/astroreen/Downloads/aktkc.ca.cert.pem"
-        "/home/astroreen/Downloads/aktkc.intermediate.cert.pem"
-    ];
   
     # Fonts
     fonts.packages = with pkgs; [
