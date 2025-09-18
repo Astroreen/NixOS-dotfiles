@@ -45,7 +45,6 @@
                 } | sudo tee /etc/resolv.conf > /dev/null
     
                 echo "DNS configured for VPN (Primary: $COMPANY_DNS)"
-                sudo openvpn --config $OPENVPN_CONFIG
             '';
         };
 
