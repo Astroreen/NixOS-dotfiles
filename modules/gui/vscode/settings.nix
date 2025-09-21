@@ -77,4 +77,7 @@
 
     # Startup settings
     "workbench.startupEditor" = "welcomePage";
+
+    # Terminal settings
+    "terminal.integrated.defaultProfile.linux" = "bash";
 }

@@ -1,8 +1,8 @@
 { pkgs, lib, config, ... }:
 let 
-    java-package = pkgs.jdk;            # OpenJDK 21
+    java-package = pkgs.jdk21;            # OpenJDK
     gradle-package = pkgs.gradle_8;     # Wrapped Gradle 8
-    gradle-home = ".gradle";
+    gradle-home = "${config.home.homeDirectory}/.gradle";
 
     settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
     
@@ -14,13 +14,47 @@ let
       
     # Java-specific settings to add
     javaSettings = {
+        "java.configuration.detectJdksAtStart" = false;
         "java.configuration.updateBuildConfiguration" = "automatic";
         "java.compile.nullAnalysis.mode" = "automatic";
-        "java.jdt.ls.java.home" = "${java-package}";
+        "java.completion.enabled" = true;
+        
+        # "java.jdt.ls.java.home" = "${java-package}";
+        # "java.import.gradle.java.home" = "${java-package}";
+
         "java.import.gradle.enabled" = true;
         "java.import.gradle.wrapper.enabled" = true;
+
+        "java.server.launchMode" = "Standard";
+        "java.gradle.buildServer.enabled" = "on";
+
         "gradle.nestedProjects" = true;
-        "gradle.autoDetect" = "on";
+        "gradle.autoDetect" = "off";
+
+  
+        # Auto-import settings
+        "java.autobuild.enabled" = true;
+        "java.completion.importOrder" = ["java" "javax" "com" "org"];
+        "java.completion.favoriteStaticMembers" = [
+            "org.junit.Assert.*"
+            "org.junit.Assume.*"
+            "org.junit.jupiter.api.Assertions.*"
+        ];
+        "java.completion.filteredTypes" = [
+            "java.awt.*"
+            "com.sun.*"
+        ];
+
+        # Auto-import on save
+        "editor.codeActionsOnSave" = {
+            "source.organizeImports" = "explicit";
+        };
+
+        # Enable parameter hints
+        "editor.parameterHints.enabled" = true;
+        "editor.suggest.snippetsPreventQuickSuggestions" = false;
+        "editor.hover.enabled" = true;
+        "editor.hover.delay" = 300;
     };
 in
 {
@@ -33,7 +67,7 @@ in
         gradle = {
             enable = true;
             package = gradle-package;
-            # home = "${gradle-home}";
+            home = "${gradle-home}";
             settings = {
                 "org.gradle.caching" = true;
                 "org.gradle.parallel" = true;
@@ -47,8 +81,8 @@ in
         };
     };
 
-    home.sessionVariables = {
-        JAVA_HOME = "${java-package}/lib/openjdk";
-        GRADLE_USER_HOME = "$HOME/${gradle-home}";
-    };
+    # home.sessionVariables = {
+    #     JAVA_HOME = "${java-package}/lib/openjdk";
+    #     GRADLE_USER_HOME = "$HOME/${gradle-home}";
+    # };
 }

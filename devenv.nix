@@ -23,6 +23,11 @@
             description = "Switch to the new NixOS laptop configuration";
         };
 
+        delete-garbage = {
+            exec = "nix-collect-garbage --delete-older-than 7d";
+            description = "Delete old NixOS generations and unused packages";
+        };
+
         add-work-dns = {
             description = "Add work DNS server";
             exec = ''
@@ -103,6 +108,7 @@
         "nixos:update-flake" = {
             exec = "update-flake";
             description = "Update the Nix flake";
+            before = [ "nixos:switch-server" "nixos:switch-laptop" ];
         };
 
         "nixos:switch-server" = {
@@ -113,6 +119,12 @@
         "nixos:switch-laptop" = {
             exec = "switch-laptop";
             description = "Switch to the new NixOS laptop configuration";
+        };
+
+        "nixos:delete-garbage" = {
+            exec = "delete-garbage";
+            description = "Delete old NixOS generations and unused packages";
+            after = [ "nixos:switch-server" "nixos:switch-laptop" ];
         };
     };
 }
