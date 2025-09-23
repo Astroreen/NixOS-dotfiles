@@ -1,6 +1,6 @@
 { pkgs, lib, config, ... }:
 let 
-    java-package = pkgs.jdk21;            # OpenJDK
+    java-package = pkgs.jdk21;          # OpenJDK
     gradle-package = pkgs.gradle_8;     # Wrapped Gradle 8
     gradle-home = "${config.home.homeDirectory}/.gradle";
 
@@ -18,9 +18,24 @@ let
         "java.configuration.updateBuildConfiguration" = "automatic";
         "java.compile.nullAnalysis.mode" = "automatic";
         "java.completion.enabled" = true;
+
+        # Projects can use different Java versions
+        "java.configuration.runtimes" = [
+            {
+                "name" = "JavaSE-11";
+                "path" = "${pkgs.jdk11}/lib/openjdk";
+                "default" = true;
+            }
+            {
+                "name" = "JavaSE-21";
+                "path" = "${pkgs.jdk21}/lib/openjdk";
+            }
+        ];
         
-        # "java.jdt.ls.java.home" = "${java-package}";
-        # "java.import.gradle.java.home" = "${java-package}";
+        "java.jdt.ls.java.home" = "${java-package}/lib/openjdk";
+        "java.import.gradle.java.home" = "${java-package}/lib/openjdk";
+        "java.home" = "${java-package}/lib/openjdk";                    # Depricated, but still used by some extensions
+        "gradle.java.home" = "${java-package}/lib/openjdk";
 
         "java.import.gradle.enabled" = true;
         "java.import.gradle.wrapper.enabled" = true;
@@ -58,6 +73,12 @@ let
     };
 in
 {
+    # List of all Java versions I want to change between
+    home.packages = with pkgs; [
+        jdk11
+        jdk21
+    ];
+
     programs = {
         java = {
             enable = true;
@@ -82,7 +103,7 @@ in
     };
 
     # home.sessionVariables = {
-    #     JAVA_HOME = "${java-package}/lib/openjdk";
-    #     GRADLE_USER_HOME = "$HOME/${gradle-home}";
+    #     lib.mkDefault JAVA_HOME = "${java-package}"; # /lib/openjdk
+    #     lib.mkDefault GRADLE_USER_HOME = "${gradle-home}";
     # };
 }
