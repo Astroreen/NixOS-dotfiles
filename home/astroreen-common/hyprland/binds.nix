@@ -5,20 +5,20 @@
 
     # Regular binds
     bind = [
-        # original app binds
-        "$mod, T, exec, [float; size 1200 800] app2unit -- kitty"       # Terminal
-        "$mod, E, exec, [float; size 1400 800] app2unit -- nautilus"    # File manager
-        "$mod, B, exec, app2unit -- vivaldi"                            # Browser
-        "$mod, Q, global, caelestia:launcher"                           # Menu/Launcher
-        "$mod, C, killactive,"                                          # Close active window
+        # Original app binds
+        "$mod, T, exec, [float; size 1200 800] app2unit -- kitty"           # Terminal
+        "$mod, E, exec, [float; size 1400 800] app2unit -- nautilus"        # File manager
+        "$mod, B, exec, app2unit -- vivaldi"                                # Browser
+        "$mod, Q, global, caelestia:launcher"                               # Menu/Launcher
+        "$mod, C, killactive,"                                              # Close active window
 
         # Window resizing
         "$mod, Minus, splitratio, -0.1"
         "$mod, Equal, splitratio, 0.1"
 
         # Window states
-        "$mod, F, fullscreen, 0"                                        # Fullscreen
-        "$mod ALT, F, fullscreen, 1"                                    # Fullscreen with borders
+        "$mod, F, fullscreen, 0"                                            # Fullscreen
+        "$mod ALT, F, fullscreen, 1"                                        # Fullscreen with borders
         "$mod ALT, Space, togglefloating"
         "$mod, P, pseudo"
         "$mod ALT, P, pin"
@@ -28,12 +28,12 @@
         ", PRINT, global, caelestia:screenshotFreeze"
         "CTRL, PRINT, global, caelestia:screenshot"
         "SHIFT, PRINT, exec, caelestia screenshot"
-        "$mod SHIFT, C, exec, hyprpicker -a"                            # Color picker (just like from powertoys)
+        "$mod SHIFT, C, exec, hyprpicker -a"                                # Color picker (just like from powertoys)
 
         # Screen recording (from Caelestia)
-        "$mod ALT, R, exec, caelestia record -s"                        # Record with sound
-        "CTRL ALT, R, exec, caelestia record"                           # Record screen
-        "$mod SHIFT ALT, R, exec, caelestia record -r"                  # Record region
+        "$mod ALT, R, exec, caelestia record -s"                            # Record with sound
+        "CTRL ALT, R, exec, caelestia record"                               # Record screen
+        "$mod SHIFT ALT, R, exec, caelestia record -r"                      # Record region
 
         # Clipboard and utilities (from Caelestia)
         "$mod, V, exec, pkill fuzzel || caelestia clipboard"
@@ -42,8 +42,8 @@
         "$mod, Period, exec, pkill fuzzel || caelestia emoji -p"
 
         # Kill/restart Caelestia
-        "CTRL $mod SHIFT, R, exec, qs -c caelestia kill"
-        "CTRL $mod ALT, R, exec, qs -c caelestia kill; caelestia shell -d"
+        # "CTRL $mod SHIFT, R, exec, qs -c caelestia kill"                  # Unnecessary
+        "CTRL $mod SHIFTR, R, exec, systemctl --user restart caelestia"  # Old command: qs -c caelestia kill; caelestia shell -d
 
         # Caelestia shell integration
         "$mod, K, global, caelestia:showall"
@@ -94,7 +94,7 @@
         # Window positioning (from Caelestia)
         "CTRL $mod, Backslash, centerwindow, 1"
         "CTRL $mod ALT, Backslash, resizeactive, exact 55% 70%"
-        "$mod ALT, Backslash, exec, caelestia pip"  # Picture-in-picture mode
+        "$mod ALT, Backslash, exec, caelestia pip"                          # Picture-in-picture mode
 
         # Window groups (from Caelestia)
         "ALT, Tab, cyclenext, activewindow"
@@ -154,7 +154,7 @@
     bindm = [
         "$mod, mouse:272, movewindow"
         "$mod, mouse:273, resizewindow"
-        "$mod, Z, movewindow"           # Better for touchpad on laptops
+        "$mod, Z, movewindow"                                               # Better for touchpad on laptops
     ];
 
     # Locked binds (media and system)
