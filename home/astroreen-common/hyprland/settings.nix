@@ -40,6 +40,9 @@ binds // # Added binds to configuration
         # Always open Discord on workspace 3
         "workspace 3 silent,class:^(discord)$"
 
+        # Always center VSCode notifications
+        "center,class:^(Code)$"
+
         # qView floating with specific size
         "float,class:^(com.interversehq.qView)$"
         "size 1400 800,class:^(com.interversehq.qView)$"

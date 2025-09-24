@@ -1,7 +1,6 @@
 { config, pkgs, ... }:
 {
     security.pki.certificates = [
-        # Aktkc
         "-----BEGIN CERTIFICATE-----
 MIIFezCCA2OgAwIBAgIUZVMEyPlRSUeecV/qj2JiTtX29jowDQYJKoZIhvcNAQEL
 BQAwRTEQMA4GA1UEAwwHUm9vdCBDQTELMAkGA1UEBhMCTFQxEDAOBgNVBAgMB1Zp
@@ -35,7 +34,6 @@ Hz3t5jYOR7zYr5efIfsOYiXdvunev9w9OCulBiOt5hl8rrEEICTs+khF5Yj1m+bY
 dpiNUMaJpE2ukfg3Q31y
 -----END CERTIFICATE-----"
 
-    # Aktkc intermediate
     "-----BEGIN CERTIFICATE-----
 MIIFmjCCA4KgAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwRTEQMA4GA1UEAwwHUm9v
 dCBDQTELMAkGA1UEBhMCTFQxEDAOBgNVBAgMB1ZpbG5pdXMxEjAQBgNVBAoMCVVB
