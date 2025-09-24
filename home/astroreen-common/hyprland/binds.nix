@@ -43,7 +43,7 @@
 
         # Kill/restart Caelestia
         # "CTRL $mod SHIFT, R, exec, qs -c caelestia kill"                  # Unnecessary
-        "CTRL $mod SHIFTR, R, exec, systemctl --user restart caelestia"  # Old command: qs -c caelestia kill; caelestia shell -d
+        "CTRL $mod SHIFT, R, exec, systemctl --user restart caelestia"  # Old command: qs -c caelestia kill; caelestia shell -d
 
         # Caelestia shell integration
         "$mod, K, global, caelestia:showall"
