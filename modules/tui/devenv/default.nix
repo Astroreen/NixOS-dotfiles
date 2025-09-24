@@ -13,6 +13,7 @@ let
     direnvSettings = {
         # Direnv integration
         "direnv.restart.automatic" = true;
+        "direnv.path.executable" = "${pkgs.direnv}/bin/direnv";
     };
 in
 {
@@ -23,6 +24,7 @@ in
     programs = {
         direnv = {
             enable = true;
+            package = pkgs.direnv;
             enableBashIntegration = true;
             enableFishIntegration = false;
             enableZshIntegration = false;

@@ -38,6 +38,7 @@ let
         "java.jdt.ls.java.home" = "${java-package}/lib/openjdk";
         "java.import.gradle.java.home" = "${java-package}/lib/openjdk";
         "gradle.java.home" = "${java-package}/lib/openjdk";
+        "sonarlint.ls.javaHome" = "${java-package}";
 
         "java.import.gradle.enabled" = true;
         "java.import.gradle.wrapper.enabled" = true;
@@ -103,7 +104,6 @@ in
     home.sessionVariables = {
         # JAVA_HOME = "${java-package}/lib/openjdk";
         VSCODE_JAVA_HOME = "${java-package}/lib/openjdk";
-        PATH = "${java-package}/bin:$PATH";
 
         # GRADLE_USER_HOME = "${gradle-home}";
         # GRADLE_HOME = "${gradle-package}";
