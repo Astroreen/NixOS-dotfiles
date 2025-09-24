@@ -224,6 +224,7 @@ in
             ibm-plex                # IBM Plex font
             imagemagick             # Image manipulation tool
             safeeyes                # Eye protection tool
+            gpu-screen-recorder     # Screen recorder that uses GPU for encoding
 
             # Python packages
             (python3.withPackages (ps: with ps; [
@@ -340,9 +341,10 @@ in
                     session_lock_xray = true;
                 };
 
-                gestures = {
-                    workspace_swipe = true;
-                };
+                # Causes errors in the newer versions
+                # gestures = {
+                #     workspace_swipe = true;
+                # };
             };
 
             # Custom merge function for lists
