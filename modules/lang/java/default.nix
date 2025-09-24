@@ -1,53 +1,52 @@
 { pkgs, lib, config, ... }:
 let 
-    java-package = pkgs.jdk21;          # OpenJDK
-    gradle-package = pkgs.gradle_8;     # Wrapped Gradle 8
-    gradle-home = "${config.home.homeDirectory}/.gradle";
+    java-package = pkgs.jdk21;
+    gradle-package = pkgs.gradle_8;
+    gradle-home = ".gradle";
 
     settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
     
-    # Read existing settings if they exist
     existingSettings = 
         if builtins.pathExists settingsPath
         then builtins.fromJSON (builtins.readFile settingsPath)
         else {};
       
-    # Java-specific settings to add
     javaSettings = {
-        "java.configuration.detectJdksAtStart" = false;
-        "java.configuration.updateBuildConfiguration" = "automatic";
-        "java.compile.nullAnalysis.mode" = "automatic";
-        "java.completion.enabled" = true;
-
-        # Projects can use different Java versions
         "java.configuration.runtimes" = [
             {
                 "name" = "JavaSE-11";
                 "path" = "${pkgs.jdk11}/lib/openjdk";
-                "default" = true;
+                "default" = false;
+            }
+            {
+                "name" = "JavaSE-17";
+                "path" = "${pkgs.jdk17}/lib/openjdk";
+                "default" = false;
             }
             {
                 "name" = "JavaSE-21";
                 "path" = "${pkgs.jdk21}/lib/openjdk";
+                "default" = true;
             }
         ];
+
+        "java.configuration.detectJdksAtStart" = false;
+        "java.configuration.updateBuildConfiguration" = "automatic";
+        "java.compile.nullAnalysis.mode" = "automatic";
+        "java.completion.enabled" = true;
         
         "java.jdt.ls.java.home" = "${java-package}/lib/openjdk";
         "java.import.gradle.java.home" = "${java-package}/lib/openjdk";
-        "java.home" = "${java-package}/lib/openjdk";                    # Depricated, but still used by some extensions
         "gradle.java.home" = "${java-package}/lib/openjdk";
 
         "java.import.gradle.enabled" = true;
         "java.import.gradle.wrapper.enabled" = true;
-
-        "java.server.launchMode" = "Standard";
         "java.gradle.buildServer.enabled" = "on";
-
+        "gradle.autoDetect" = "on";
         "gradle.nestedProjects" = true;
-        "gradle.autoDetect" = "off";
-
-  
-        # Auto-import settings
+        "java.import.gradle.arguments" = "--no-daemon";
+        
+        "java.server.launchMode" = "Standard";
         "java.autobuild.enabled" = true;
         "java.completion.importOrder" = ["java" "javax" "com" "org"];
         "java.completion.favoriteStaticMembers" = [
@@ -60,12 +59,10 @@ let
             "com.sun.*"
         ];
 
-        # Auto-import on save
         "editor.codeActionsOnSave" = {
             "source.organizeImports" = "explicit";
         };
 
-        # Enable parameter hints
         "editor.parameterHints.enabled" = true;
         "editor.suggest.snippetsPreventQuickSuggestions" = false;
         "editor.hover.enabled" = true;
@@ -73,15 +70,9 @@ let
     };
 in
 {
-    # List of all Java versions I want to change between
-    home.packages = with pkgs; [
-        jdk11
-        jdk21
-    ];
-
     programs = {
         java = {
-            enable = true;
+            enable = true;                                 # Avoid conflicts with home.packages
             package = java-package;
         };
 
@@ -92,18 +83,29 @@ in
             settings = {
                 "org.gradle.caching" = true;
                 "org.gradle.parallel" = true;
-                "org.gradle.java.home" = "${java-package}";
+                "org.gradle.java.home" = "${java-package}/lib/openjdk";
+                # Disable daemon for multi-project compatibility
+                "org.gradle.daemon" = false;
+                "org.gradle.configureondemand" = true;
             };
         };
 
         vscode = {
-            # Merge existing settings with Java settings
             profiles.default.userSettings = existingSettings // javaSettings;
         };
     };
 
-    # home.sessionVariables = {
-    #     lib.mkDefault JAVA_HOME = "${java-package}"; # /lib/openjdk
-    #     lib.mkDefault GRADLE_USER_HOME = "${gradle-home}";
-    # };
+    # CRITICAL: Override JDT Language Server to use JDK17
+    home.packages = with pkgs; [
+        (jdt-language-server.override { jdk = jdk17; })     # This fixes the version mismatch
+    ];
+
+    home.sessionVariables = {
+        # JAVA_HOME = "${java-package}/lib/openjdk";
+        VSCODE_JAVA_HOME = "${java-package}/lib/openjdk";
+        PATH = "${java-package}/bin:$PATH";
+
+        # GRADLE_USER_HOME = "${gradle-home}";
+        # GRADLE_HOME = "${gradle-package}";
+    };
 }
