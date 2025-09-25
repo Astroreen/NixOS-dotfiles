@@ -35,7 +35,7 @@ let
         "java.compile.nullAnalysis.mode" = "automatic";
         "java.completion.enabled" = true;
         
-        "java.jdt.ls.java.home" = "${java-package}/lib/openjdk";
+        "java.jdt.ls.java.home" = "${pkgs.jdk21}";
         "java.import.gradle.java.home" = "${java-package}/lib/openjdk";
         "gradle.java.home" = "${java-package}/lib/openjdk";
         "sonarlint.ls.javaHome" = "${java-package}";
