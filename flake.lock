@@ -106,9 +106,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "quickshell": [
-          "quickshell"
-        ]
+        "quickshell": "quickshell"
       },
       "locked": {
         "lastModified": 1758687544,
@@ -933,6 +931,7 @@
     "quickshell": {
       "inputs": {
         "nixpkgs": [
+          "caelestia-shell",
           "nixpkgs"
         ]
       },
@@ -960,8 +959,7 @@
         "hyprland": "hyprland",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-stable": "nixpkgs-stable",
-        "oskars-dotfiles": "oskars-dotfiles",
-        "quickshell": "quickshell"
+        "oskars-dotfiles": "oskars-dotfiles"
       }
     },
     "systems": {

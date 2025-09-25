@@ -199,7 +199,6 @@ in
         ++ lib.optionals cfg.caelestia.enable [
             # Default packages from Caelestia
             inputs.app2unit.packages.${pkgs.system}.default
-            inputs.quickshell.packages.${pkgs.system}.default
             inputs.caelestia-shell.packages.${pkgs.system}.default 
             inputs.caelestia-cli.packages.${pkgs.system}.default
 
