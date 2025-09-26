@@ -83,7 +83,6 @@
   "[nix]" = {
     "editor.defaultFormatter" = "jnoortheen.nix-ide";
     "editor.tabSize" = 4;
-    "editor.insertSpaces" = true;
   };
   "editor.tabSize" = 4;
   "prettier.tabWidth" = 4;
