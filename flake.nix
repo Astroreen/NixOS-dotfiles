@@ -36,86 +36,87 @@
     };
   };
 
-  outputs = { nixpkgs, home-manager, ... } @ inputs: # Put everything else inside of 'inputs' argument  
-  {
+  outputs =
+    { nixpkgs, home-manager, ... }@inputs: # Put everything else inside of 'inputs' argument
+    {
 
-    # Host configurations
-    nixosConfigurations = {
-      # Host laptop
-      laptop = nixpkgs.lib.nixosSystem rec {
+      # Host configurations
+      nixosConfigurations = {
+        # Host laptop
+        laptop = nixpkgs.lib.nixosSystem rec {
 
-        # Arguments
-        system = "x86_64-linux";
-        specialArgs = {
-          inherit inputs;
-          pkgs-stable = import inputs.nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
+          # Arguments
+          system = "x86_64-linux";
+          specialArgs = {
+            inherit inputs;
+            pkgs-stable = import inputs.nixpkgs-stable {
+              inherit system;
+              config.allowUnfree = true;
             };
-        };
-
-        # Modules
-        modules = [
-          ./overlays                              # Overlays
-          ./hosts/laptop/configuration.nix        # Host configuration
-          inputs.hyprland.nixosModules.default    # Hyperland default module
-          home-manager.nixosModules.home-manager  # Home manager module
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "backup";
-
-            # Pass arguments to every home-manager file
-            home-manager.extraSpecialArgs = {
-              inherit inputs;
-              pkgs-stable = inputs.pkgs-stable;
-            };
-
-            # User specific config file
-            home-manager.users.astroreen = import ./home/astroreen-laptop/home.nix;
-          }
-        ];
-      };
-
-      server = nixpkgs.lib.nixosSystem rec {
-
-        # Arguments
-        system = "x86_64-linux";
-        specialArgs = {
-          inherit inputs;
-          pkgs-stable = import inputs.nixpkgs-stable {
-            inherit system;
-            config.allowUnfree = true;
           };
+
+          # Modules
+          modules = [
+            ./overlays # Overlays
+            ./hosts/laptop/configuration.nix # Host configuration
+            inputs.hyprland.nixosModules.default # Hyperland default module
+            home-manager.nixosModules.home-manager # Home manager module
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "backup";
+
+              # Pass arguments to every home-manager file
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                pkgs-stable = inputs.pkgs-stable;
+              };
+
+              # User specific config file
+              home-manager.users.astroreen = import ./home/astroreen-laptop/home.nix;
+            }
+          ];
         };
 
-        # Modules
-        modules = [
-          ./overlays                              # Overlays
-          ./hosts/server/configuration.nix        # Host configuration
-          inputs.hyprland.nixosModules.default    # Hyperland default module
-          home-manager.nixosModules.home-manager  # Home manager module
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "backup";
+        server = nixpkgs.lib.nixosSystem rec {
 
-            # Pass arguments to every home-manager file
-            home-manager.extraSpecialArgs = {
-              inherit inputs;
-              pkgs-stable = inputs.pkgs-stable;
+          # Arguments
+          system = "x86_64-linux";
+          specialArgs = {
+            inherit inputs;
+            pkgs-stable = import inputs.nixpkgs-stable {
+              inherit system;
+              config.allowUnfree = true;
             };
+          };
 
-            # User specific config file
-            home-manager.users.astroreen = import ./home/astroreen-server/home.nix;
-          }
-        ];
+          # Modules
+          modules = [
+            ./overlays # Overlays
+            ./hosts/server/configuration.nix # Host configuration
+            inputs.hyprland.nixosModules.default # Hyperland default module
+            home-manager.nixosModules.home-manager # Home manager module
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "backup";
+
+              # Pass arguments to every home-manager file
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                pkgs-stable = inputs.pkgs-stable;
+              };
+
+              # User specific config file
+              home-manager.users.astroreen = import ./home/astroreen-server/home.nix;
+            }
+          ];
+        };
+
+        # Another configurations
+        # default = ...
+        # desktop = ...
+        # server  = ...
       };
-
-      # Another configurations
-      # default = ...
-      # desktop = ...
-      # server  = ...
     };
-  };
 }

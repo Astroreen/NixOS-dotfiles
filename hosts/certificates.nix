@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 {
-    security.pki.certificates = [
-        "-----BEGIN CERTIFICATE-----
+  security.pki.certificates = [
+    "-----BEGIN CERTIFICATE-----
 MIIFezCCA2OgAwIBAgIUZVMEyPlRSUeecV/qj2JiTtX29jowDQYJKoZIhvcNAQEL
 BQAwRTEQMA4GA1UEAwwHUm9vdCBDQTELMAkGA1UEBhMCTFQxEDAOBgNVBAgMB1Zp
 bG5pdXMxEjAQBgNVBAoMCVVBQiBBS1RLQzAeFw0yNTA0MTgxMjM0MDZaFw0zNTA0
@@ -66,5 +66,5 @@ zaeN83tOvRWsvO2zGaFjhMe414EklrKLjWrjYMrIrRS8yESpcyZe2Z52tR9D3VDW
 TY1aZCN4/jIyomKOygWjOTzeoPol4aQg7wpOzx3K2Ga7wSgR0RbZnepy6FlPdGO+
 IQg2WU/EwVd5kDiS872XQs5g8daar59EjleMwNB29VAZZWC8ydgYpysxYQgxtw==
 -----END CERTIFICATE-----"
-    ];
+  ];
 }

@@ -5,7 +5,7 @@
   lib,
   osConfig,
   ...
-}: 
+}:
 {
   programs.kitty = {
     enable = true;

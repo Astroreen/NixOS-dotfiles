@@ -1,13 +1,13 @@
 { pkgs, ... }:
 {
-    programs.git = {
-        enable = true;
-        package = pkgs.git;
-        userName = "astroreen";
-        userEmail = "astroreen@gmail.com";
+  programs.git = {
+    enable = true;
+    package = pkgs.git;
+    userName = "astroreen";
+    userEmail = "astroreen@gmail.com";
 
-        #aliases = {
-        #    commit = "commit -m ''";
-        #};
-    };
+    #aliases = {
+    #    commit = "commit -m ''";
+    #};
+  };
 }

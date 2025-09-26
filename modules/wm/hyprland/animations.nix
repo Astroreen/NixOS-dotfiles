@@ -1,6 +1,6 @@
 {
   enabled = true;
-  
+
   bezier = [
     "linear, 0.0, 0.0, 1.0, 1.0"
     "md3_standard, 0.2, 0.0, 0, 1.0"
