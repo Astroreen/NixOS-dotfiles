@@ -58,7 +58,7 @@
 
     # Select internationalisation properties.
     i18n.defaultLocale = "en_US.UTF-8";
-    i18n.extraLocales = [ "ru_RU.UTF-8/UTF-8" "lt_LT.UTF-8/UTF-8" ];
+    i18n.extraLocales = [ "ru_RU.UTF-8/UTF-8" ]; # No more lithuanian locale "lt_LT.UTF-8/UTF-8"...
 
     # Drivers for hardware
     hardware = {
