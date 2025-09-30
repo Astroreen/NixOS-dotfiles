@@ -12,27 +12,27 @@
     ../../modules/style/cursor/breeze # Breeze cursor style
 
     # Apps (gui)
-    ../../modules/gui/apps # Standard apps to install
-    ../../modules/gui/vscode # VSCode
-    ../../modules/gui/obs # OBS Studio
+    ../../modules/gui/apps.nix # Standard apps to install
+    ../../modules/gui/vscode/vscode.nix # VSCode
+    ../../modules/gui/obs.nix # OBS Studio
     # Nautilus (file manager) is imported in hosts/.../configuration.nix
 
     # Terminal apps (tui)
-    ../../modules/tui/kitty # Terminal
-    ../../modules/tui/shell # Shell settings
-    ../../modules/tui/git # Git
-    ../../modules/tui/htop # Htop on steroids
-    ../../modules/tui/bat # Cat(1) copy with wings
-    ../../modules/tui/lsd # Next gen ls command
-    ../../modules/tui/devenv # DevEnv for project scripts
+    ../../modules/tui/kitty.nix # Terminal
+    ../../modules/tui/shell.nix # Shell settings
+    ../../modules/tui/git.nix # Git
+    ../../modules/tui/htop.nix # Htop on steroids
+    ../../modules/tui/bat.nix # Cat(1) copy with wings
+    ../../modules/tui/lsd.nix # Next gen ls command
+    ../../modules/tui/devenv.nix # DevEnv for project scripts
 
     # Windows manager (wm)
-    ../../modules/wm/hyprland/home.nix # Hyprland window manager
+    ../../modules/wm/hyprland/hyprland.nix # Hyprland window manager
 
     # Languages
-    ../../modules/lang/java
-    ../../modules/lang/javascript
-    ../../modules/lang/flutter
+    ../../modules/lang/java.nix
+    ../../modules/lang/javascript.nix
+    ../../modules/lang/flutter.nix
   ];
 
   home.username = "astroreen";

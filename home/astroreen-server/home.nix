@@ -35,8 +35,8 @@ in
   imports = [
     ../astroreen-common/home.nix # All the common settings
 
-    ../../modules/tui/ollama
-    ../../modules/tui/whisper.cpp
+    ../../modules/tui/ollama.nix
+    ../../modules/tui/whisper.nix
   ];
 
   # Host specific settings - properly merged

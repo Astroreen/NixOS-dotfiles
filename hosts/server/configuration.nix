@@ -7,9 +7,9 @@
     ./services.nix # Services configuration
     ../certificates.nix # Import certificates
 
-    ../../modules/gui/nautilus # Nautilus configuration
-    ../../modules/tui/openvpn # Open VPN configuration
-    ../../modules/wm/hyprland # Window manager Hyprland
+    ../../modules/gui/nautilus.nix # Nautilus configuration
+    ../../modules/tui/openvpn/openvpn.nix # Open VPN configuration
+    ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
   ];
 
   # Bootloader.
