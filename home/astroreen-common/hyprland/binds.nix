@@ -8,7 +8,6 @@
     # Original app binds
     "$mod, T, exec, [float; size 1200 800] app2unit -- kitty" # Terminal
     "$mod, E, exec, [float; size 1400 800] app2unit -- nautilus" # File manager
-    "$mod, B, exec, app2unit -- vivaldi" # Browser
     "$mod, Q, global, caelestia:launcher" # Menu/Launcher
     "$mod, C, killactive," # Close active window
 
@@ -18,32 +17,18 @@
 
     # Window states
     "$mod, F, fullscreen, 0" # Fullscreen
-    "$mod ALT, F, fullscreen, 1" # Fullscreen with borders
-    "$mod ALT, Space, togglefloating"
-    "$mod, P, pseudo"
-    "$mod ALT, P, pin"
-    "$mod, J, togglesplit"
+    "$mod ALT, Space, togglefloating" # Makes window float above others
+    "$mod, P, pseudo" # Reserve space for full window, but enable resize
+    "$mod ALT, P, pin" # Makes window traggable and pins at one spot
+    "$mod, J, togglesplit" # Make windows stack vertically/horizontally
 
-    # Screenshots (enhanced from original)
-    ", PRINT, global, caelestia:screenshotFreeze"
-    "CTRL, PRINT, global, caelestia:screenshot"
-    "SHIFT, PRINT, exec, caelestia screenshot"
-    "$mod SHIFT, C, exec, hyprpicker -a" # Color picker (just like from powertoys)
-
-    # Screen recording (from Caelestia)
-    "$mod ALT, R, exec, caelestia record -s" # Record with sound
-    "CTRL ALT, R, exec, caelestia record" # Record screen
-    "$mod SHIFT ALT, R, exec, caelestia record -r" # Record region
-
-    # Clipboard and utilities (from Caelestia)
-    "$mod, V, exec, pkill fuzzel || caelestia clipboard"
-    "$mod ALT, V, exec, pkill fuzzel || caelestia clipboard -d"
-    "CTRL SHIFT ALT, V, exec, sleep 0.5s && ydotool type -d 1 \"$(cliphist list | head -1 | cliphist decode)\"" # Alternate paste
-    "$mod, Period, exec, pkill fuzzel || caelestia emoji -p"
-
-    # Kill/restart Caelestia
-    # "CTRL $mod SHIFT, R, exec, qs -c caelestia kill"                  # Unnecessary
-    "CTRL $mod SHIFT, R, exec, systemctl --user restart caelestia" # Old command: qs -c caelestia kill; caelestia shell -d
+    # Caelestia utilities
+    "$mod, V, exec, pkill fuzzel || caelestia clipboard" # Clipboard menu
+    "$mod ALT, V, exec, pkill fuzzel || caelestia clipboard -d" # Delete from history
+    "$mod, Period, exec, pkill fuzzel || caelestia emoji -p" # Emoji picker
+    "CTRL $mod SHIFT, R, exec, systemctl --user restart caelestia" # Kill/restart Caelestia shell
+    ", PRINT, global, caelestia:screenshotFreeze" # Screenshots (enhanced from original)
+    "$mod SHIFT, C, exec, hyprpicker -a" # Color picker (just like from powertoys on windows)
 
     # Caelestia shell integration
     "$mod, K, global, caelestia:showall"
@@ -92,9 +77,9 @@
     "CTRL $mod SHIFT, down, movetoworkspace, e+0"
 
     # Window positioning (from Caelestia)
-    "CTRL $mod, Backslash, centerwindow, 1"
-    "CTRL $mod ALT, Backslash, resizeactive, exact 55% 70%"
-    "$mod ALT, Backslash, exec, caelestia pip" # Picture-in-picture mode
+    # "CTRL $mod, Backslash, centerwindow, 1"
+    # "CTRL $mod ALT, Backslash, resizeactive, exact 55% 70%"
+    # "$mod ALT, Backslash, exec, caelestia pip" # Picture-in-picture mode
 
     # Window groups (from Caelestia)
     "ALT, Tab, cyclenext, activewindow"
@@ -114,10 +99,6 @@
     "$mod SHIFT, right, movewindow, r"
     "$mod SHIFT, up, movewindow, u"
     "$mod SHIFT, down, movewindow, d"
-
-    # "CTRL SHIFT, Escape, exec, caelestia toggle sysmon"
-    # "$mod, D, exec, caelestia toggle communication"
-    # "$mod, R, exec, caelestia toggle todo"
   ];
 
   bindin = [
@@ -142,12 +123,6 @@
     "$mod, Page_Down, workspace, +1"
     "$mod SHIFT, Page_Up, movetoworkspace, -1"
     "$mod SHIFT, Page_Down, movetoworkspace, +1"
-  ];
-
-  # Released binds
-  bindr = [
-    "CTRL $mod SHIFT, R, exec, qs -c caelestia kill"
-    "CTRL $mod ALT, R, exec, qs -c caelestia kill; caelestia shell -d"
   ];
 
   # Mouse binds
