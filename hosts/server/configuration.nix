@@ -16,6 +16,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  nixpkgs.config = {
+    android_sdk.accept_license = true;
+  };
+
   # Enable networking
   networking = {
     hostName = "server"; # Define your hostname.
@@ -84,6 +88,7 @@
       "docker"
     ];
   };
+  
   nix.settings.trusted-users = [
     "root"
     "astroreen"
