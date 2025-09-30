@@ -45,4 +45,11 @@ in
       profiles.default.userSettings = existingSettings // direnvSettings;
     };
   };
+
+  home.shellAliases = {
+    # Alias to open the current directory in a Devenv shell
+    dshell = "devenv shell";
+    ds = "devenv shell";
+    dv = "devenv";
+  };
 }
