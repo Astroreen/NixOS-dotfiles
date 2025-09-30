@@ -32,6 +32,7 @@
     # Languages
     ../../modules/lang/java
     ../../modules/lang/javascript
+    ../../modules/lang/flutter
   ];
 
   home.username = "astroreen";
