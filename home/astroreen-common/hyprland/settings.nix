@@ -63,5 +63,11 @@ binds
     "float,class:^(Postman)$"
     "size 1400 800,class:^(Postman)$"
     "center,class:^(Postman)$"
+
+    # Console kitty floating with specific size
+    "float,class:^(kitty)$"
+    "size 1200 800,class:^(kitty)$"
+    "center,class:^(kitty)$"
+
   ];
 }
