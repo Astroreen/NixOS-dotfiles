@@ -18,8 +18,7 @@
     # Window states
     "$mod, F, fullscreen, 0" # Fullscreen
     "$mod ALT, Space, togglefloating" # Makes window float above others
-    "$mod, P, pseudo" # Reserve space for full window, but enable resize
-    "$mod ALT, P, pin" # Makes window traggable and pins at one spot
+    "$mod, P, pseudo" # Reserve space for full window, but enable resizе
     "$mod, J, togglesplit" # Make windows stack vertically/horizontally
 
     # Caelestia utilities
