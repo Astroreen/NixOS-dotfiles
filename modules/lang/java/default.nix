@@ -42,8 +42,8 @@ let
     "java.completion.enabled" = true;
 
     "java.jdt.ls.java.home" = "${pkgs.jdk21}";
-    "java.import.gradle.java.home" = "${java-package}/lib/openjdk";
-    "gradle.java.home" = "${java-package}/lib/openjdk";
+    "java.import.gradle.java.home" = "${java-package}";
+    "gradle.java.home" = "${java-package}";
     "sonarlint.ls.javaHome" = "${java-package}";
 
     "java.import.gradle.enabled" = true;
@@ -51,7 +51,6 @@ let
     "java.gradle.buildServer.enabled" = "on";
     "gradle.autoDetect" = "on";
     "gradle.nestedProjects" = true;
-    "java.import.gradle.arguments" = "--no-daemon";
 
     "java.server.launchMode" = "Standard";
     "java.autobuild.enabled" = true;
@@ -101,7 +100,7 @@ in
       settings = {
         "org.gradle.caching" = true;
         "org.gradle.parallel" = true;
-        "org.gradle.java.home" = "${java-package}/lib/openjdk";
+        "org.gradle.java.home" = "${java-package}";
         # Disable daemon for multi-project compatibility
         "org.gradle.daemon" = false;
         "org.gradle.configureondemand" = true;
@@ -113,14 +112,9 @@ in
     };
   };
 
-  # CRITICAL: Override JDT Language Server to use JDK17
-  home.packages = with pkgs; [
-    (jdt-language-server.override { jdk = jdk17; }) # This fixes the version mismatch
-  ];
-
   home.sessionVariables = {
     # JAVA_HOME = "${java-package}/lib/openjdk";
-    VSCODE_JAVA_HOME = "${java-package}/lib/openjdk";
+    VSCODE_JAVA_HOME = "${java-package}";
 
     # GRADLE_USER_HOME = "${gradle-home}";
     # GRADLE_HOME = "${gradle-package}";
