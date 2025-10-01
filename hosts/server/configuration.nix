@@ -53,6 +53,24 @@
         9 # Wake-on-LAN
       ];
 
+      # Open TCP ports
+      allowedTCPPortRanges = [
+        # for KDE Connect
+        {
+          from = 1714;
+          to = 1764;
+        }
+      ];
+
+      # Open UDP ports
+      allowedUDPPortRanges = [
+        # for KDE Connect
+        {
+          from = 1714;
+          to = 1764;
+        }
+      ];
+
       # Allow all traffic on docker interfaces
       trustedInterfaces = [ "docker0" ];
     };
@@ -88,7 +106,7 @@
       "docker"
     ];
   };
-  
+
   nix.settings.trusted-users = [
     "root"
     "astroreen"

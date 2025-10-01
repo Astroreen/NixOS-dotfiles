@@ -59,5 +59,11 @@
     };
   };
 
+  services.kdeconnect = {
+    enable = true;
+    indicator = true;
+    package = pkgs.kdePackages.kdeconnect-kde;
+  };
+
   home.stateVersion = "25.05";
 }

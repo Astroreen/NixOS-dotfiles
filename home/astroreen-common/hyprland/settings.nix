@@ -68,5 +68,21 @@ binds
     "float,class:^(kitty)$"
     "size 1200 800,class:^(kitty)$"
 
+    # KDE Connect daemon window
+    "fullscreenstate 0 3,class:^(org.kde.kdeconnect.daemon)$"
+    "float,class:^(org.kde.kdeconnect.daemon)$"
+    "size 100% 100%,class:^(org.kde.kdeconnect.daemon)$"
+    "center,class:^(org.kde.kdeconnect.daemon)$"
+    "noblur,class:^(org.kde.kdeconnect.daemon)$"
+    "noanim,class:^(org.kde.kdeconnect.daemon)$"
+    "noborder,class:^(org.kde.kdeconnect.daemon)$"
+    "nodim,class:^(org.kde.kdeconnect.daemon)$"
+    "nofocus,class:^(org.kde.kdeconnect.daemon)$"
+    "noshadow,class:^(org.kde.kdeconnect.daemon)$"
+    "norounding,class:^(org.kde.kdeconnect.daemon)$"
+    "nofollowmouse,class:^(org.kde.kdeconnect.daemon)$"
+    "bordersize 0,class:^(org.kde.kdeconnect.daemon)$"
+    "rounding 0,class:^(org.kde.kdeconnect.daemon)$"
+
   ];
 }
