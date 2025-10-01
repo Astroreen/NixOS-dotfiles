@@ -67,7 +67,6 @@ binds
     # Console kitty floating with specific size
     "float,class:^(kitty)$"
     "size 1200 800,class:^(kitty)$"
-    "center,class:^(kitty)$"
 
   ];
 }

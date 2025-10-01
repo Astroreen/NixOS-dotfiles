@@ -17,9 +17,19 @@
 
     # Window states
     "$mod, F, fullscreen, 0" # Fullscreen
-    "$mod ALT, Space, togglefloating" # Makes window float above others
+    "CTRL $mod, Space, togglefloating" # Makes window float above others
     "$mod, P, pseudo" # Reserve space for full window, but enable resizе
     "$mod, J, togglesplit" # Make windows stack vertically/horizontally
+
+    "$mod, Tab, cyclenext, activewindow"
+    "$mod, Tab, bringactivetotop"
+
+    # Caelestia shell integration
+    "$mod, K, global, caelestia:showall"
+    "$mod, L, global, caelestia:lock"
+    "$mod SHIFT, L, exec, systemctl suspend-then-hibernate"
+    "CTRL ALT, Delete, global, caelestia:session"
+    "$mod, M, exit,"
 
     # Caelestia utilities
     "$mod, V, exec, pkill fuzzel || caelestia clipboard" # Clipboard menu
@@ -28,13 +38,6 @@
     "CTRL $mod SHIFT, R, exec, systemctl --user restart caelestia" # Kill/restart Caelestia shell
     ", PRINT, global, caelestia:screenshotFreeze" # Screenshots (enhanced from original)
     "$mod SHIFT, C, exec, hyprpicker -a" # Color picker (just like from powertoys on windows)
-
-    # Caelestia shell integration
-    "$mod, K, global, caelestia:showall"
-    "$mod, L, global, caelestia:lock"
-    "$mod SHIFT, L, exec, systemctl suspend-then-hibernate"
-    "CTRL ALT, Delete, global, caelestia:session"
-    "$mod, M, exit,"
 
     # Workspace navigation (original)
     "$mod, 1, workspace, 1"
@@ -60,44 +63,19 @@
     "$mod SHIFT, 9, movetoworkspace, 9"
     "$mod SHIFT, 0, movetoworkspace, 10"
 
-    # Workspace mouse navigation (enhanced)
-    "$mod, mouse_down, workspace, -1"
-    "$mod, mouse_up, workspace, +1"
-    "$mod SHIFT, mouse_down, movetoworkspace, -1"
-    "$mod SHIFT, mouse_up, movetoworkspace, +1"
-    "CTRL $mod, mouse_down, workspace, -10"
-    "CTRL $mod, mouse_up, workspace, +10"
-    "CTRL $mod SHIFT, mouse_down, movetoworkspace, -10"
-    "CTRL $mod SHIFT, mouse_up, movetoworkspace, +10"
-
     # Special workspaces (from Caelestia)
     "$mod, S, exec, caelestia toggle specialws"
-    "CTRL $mod SHIFT, up, movetoworkspace, special:special"
-    "CTRL $mod SHIFT, down, movetoworkspace, e+0"
-
-    # Window positioning (from Caelestia)
-    # "CTRL $mod, Backslash, centerwindow, 1"
-    # "CTRL $mod ALT, Backslash, resizeactive, exact 55% 70%"
-    # "$mod ALT, Backslash, exec, caelestia pip" # Picture-in-picture mode
-
-    # Window groups (from Caelestia)
-    "ALT, Tab, cyclenext, activewindow"
-    "CTRL ALT, Tab, changegroupactive, f"
-    "$mod, Comma, togglegroup"
-    "$mod SHIFT, Comma, lockactivegroup, toggle"
-
-    "$mod, left, movefocus, l"
-    "$mod, right, movefocus, r"
-    "$mod, up, movefocus, u"
-    "$mod, down, movefocus, d"
-    "$mod, Tab, cyclenext"
-    "$mod, Tab, bringactivetotop"
-
+    "CTRL $mod, up, movetoworkspace, special:special"
+    "CTRL $mod, down, movetoworkspace, e+0"
     # Enhanced window movement from Caelestia
     "$mod SHIFT, left, movewindow, l"
     "$mod SHIFT, right, movewindow, r"
     "$mod SHIFT, up, movewindow, u"
     "$mod SHIFT, down, movewindow, d"
+    "$mod, left, movefocus, l"
+    "$mod, right, movefocus, r"
+    "$mod, up, movefocus, u"
+    "$mod, down, movefocus, d"
   ];
 
   bindin = [
@@ -112,22 +90,10 @@
     "$mod, mouse_down, global, caelestia:launcherInterrupt"
   ];
 
-  # Repeated binds
-  binde = [
-    "CTRL $mod, left, workspace, -1"
-    "CTRL $mod, right, workspace, +1"
-    "CTRL $mod SHIFT, right, movetoworkspace, +1"
-    "CTRL $mod SHIFT, left, movetoworkspace, -1"
-    "$mod, Page_Up, workspace, -1"
-    "$mod, Page_Down, workspace, +1"
-    "$mod SHIFT, Page_Up, movetoworkspace, -1"
-    "$mod SHIFT, Page_Down, movetoworkspace, +1"
-  ];
-
   # Mouse binds
   bindm = [
-    "$mod, mouse:272, movewindow"
-    "$mod, mouse:273, resizewindow"
+    "$mod, mouse:272, movewindow" # Left click + drag to move window
+    "$mod, mouse:273, resizewindow" # Right click + drag to resize window
     "$mod, Z, movewindow" # Better for touchpad on laptops
   ];
 

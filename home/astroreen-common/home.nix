@@ -27,7 +27,7 @@
     ../../modules/tui/devenv.nix # DevEnv for project scripts
 
     # Windows manager (wm)
-    ../../modules/wm/hyprland/hyprland.nix # Hyprland window manager
+    ../../modules/wm/hyprland/hyprland-home.nix # Hyprland window manager
 
     # Languages
     ../../modules/lang/java.nix
