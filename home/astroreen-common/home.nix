@@ -25,6 +25,7 @@
     ../../modules/tui/bat.nix # Cat(1) copy with wings
     ../../modules/tui/lsd.nix # Next gen ls command
     ../../modules/tui/devenv.nix # DevEnv for project scripts
+    ../../modules/tui/ranger.nix # Terminal file manager
 
     # Windows manager (wm)
     ../../modules/wm/hyprland/hyprland-home.nix # Hyprland window manager
