@@ -11,7 +11,7 @@
     enable = true;
 
     settings = {
-      font_family = "monospace";
+      font_family = "JetBrainsMono Nerd Font";
       font_size = 15;
       enable_audio_bell = true;
 

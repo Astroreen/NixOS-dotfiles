@@ -33,7 +33,7 @@ in
       package = pkgs.direnv;
       enableBashIntegration = true;
       enableFishIntegration = false;
-      enableZshIntegration = false;
+      enableZshIntegration = true;
       enableNushellIntegration = false;
       silent = true;
       nix-direnv.enable = true;
