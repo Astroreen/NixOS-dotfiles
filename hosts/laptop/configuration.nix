@@ -7,6 +7,7 @@
     ./services.nix # Services configuration
     ../certificates.nix # Import certificates
 
+    ../../modules/tui/shell/zsh.nix # Zsh configuration
     ../../modules/gui/nautilus.nix # Nautilus configuration
     ../../modules/tui/openvpn/openvpn.nix # Open VPN configuration
     ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
@@ -75,8 +76,10 @@
       "bluetooth"
       "docker"
     ];
+
+    shell = pkgs.zsh;
   };
-  
+
   nix.settings.trusted-users = [
     "root"
     "astroreen"

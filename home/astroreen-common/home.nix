@@ -19,7 +19,7 @@
 
     # Terminal apps (tui)
     ../../modules/tui/kitty.nix # Terminal
-    ../../modules/tui/zshell.nix # Shell settings
+    ../../modules/tui/shell/shell.nix # Shell settings
     ../../modules/tui/git.nix # Git
     ../../modules/tui/htop.nix # Htop on steroids
     ../../modules/tui/bat.nix # Cat(1) copy with wings

@@ -68,7 +68,7 @@
   "workbench.startupEditor" = "welcomePage";
 
   # Terminal settings
-  "terminal.integrated.defaultProfile.linux" = "bash";
+  "terminal.integrated.defaultProfile.linux" = "zsh";
 
   ##############
   # Extensions #
@@ -82,7 +82,7 @@
   "nix.formatterPath" = "nixfmt";
   "[nix]" = {
     "editor.defaultFormatter" = "jnoortheen.nix-ide";
-    "editor.tabSize" = 4;
+    "editor.tabSize" = 2;
   };
   "editor.tabSize" = 4;
   "prettier.tabWidth" = 4;
