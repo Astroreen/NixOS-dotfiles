@@ -1,18 +1,55 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
-  # You can use this file to setup your shell however you like
-  programs.bash.enable = true; # Enable just to apply changes from home.shellAliases = {...};
-  home.shell.enableShellIntegration = true;
+  programs.bash.enable = true;
+
+  home.packages = with pkgs; [
+    zsh-powerlevel10k
+    meslo-lgs-nf # Meslo Nerd Font patched for Powerlevel10k
+  ];
 
   programs.zsh = {
     enable = true;
-    oh-my-zsh = {
-        enable = true;
-        theme = "powerlevel10k/powerlevel10k";
+    enableCompletion = true;
+    autosuggestion.enable = true;
+    syntaxHighlighting.enable = true;
+    history = {
+      size = 10000;
+      append = true;
+      expireDuplicatesFirst = true;
+      ignoreAllDups = true;
     };
+
+    # List of paths to autocomplete
+    cdpath = [
+      "${config.home.homeDirectory}/.local/share/nixos"
+      "${config.home.homeDirectory}/Downloads"
+      "${config.home.homeDirectory}/Documents"
+    ];
+
+    initContent = ''
+      # Powerlevel10k theme
+      source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
+
+      # Load p10k config (place your p10k.zsh in ~/.config/home-manager/)
+      [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+      # Enable Powerlevel10k instant prompt
+      if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
+        source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
+      fi
+
+      # Uncomment to customize LS_COLORS
+      #LS_COLORS='...'
+      #export LS_COLORS
+    '';
+
+    # Equivalent to .profile
+    profileExtra = ''
+      # Login shell init
+    '';
   };
 
   home.shellAliases = {
-    nixconfig = "cd ~/.local/share/nixos";
+    nixconfig = "cd ${config.home.homeDirectory}/.local/share/nixos";
   };
 }

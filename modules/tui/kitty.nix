@@ -10,6 +10,8 @@
   programs.kitty = {
     enable = true;
 
+    shellIntegration.enableZshIntegration = true;
+
     settings = {
       font_family = "JetBrainsMono Nerd Font";
       font_size = 15;
