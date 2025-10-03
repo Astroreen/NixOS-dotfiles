@@ -3,13 +3,10 @@
   programs.bat = {
     enable = true;
     package = pkgs.bat;
+    extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
   };
 
   home.shellAliases = {
     cat = "bat";
-  };
-
-  home.sessionVariables = {
-    MANPAGER = "sh -c 'sed -u -e \"s/\\x1B\[[0-9;]*m//g; s/.\\x08//g\" | bat -p -lman'";
   };
 }

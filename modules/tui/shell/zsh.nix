@@ -1,43 +1,115 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
-  environment.systemPackages = with pkgs; [
+  home.packages = with pkgs; [
     zsh-powerlevel10k
     meslo-lgs-nf
+    fzf
+    zoxide
   ];
 
-  environment.etc."powerlevel10k/p10k.zsh".source = ./p10k.zsh;
+  # Copy p10k.zsh to home directory
+  home.file.".config/powerlevel10k/p10k.zsh".source = ./p10k.zsh;
 
   programs.zsh = {
     enable = true;
     enableCompletion = true;
-    enableBashCompletion = true;
-    autosuggestions.enable = true;
-    syntaxHighlighting.enable = true;
-    histSize = 10000;
-    promptInit = ''
-      # this act as your ~/.zshrc but for all users (/etc/zshrc)
-      source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
-      source /etc/powerlevel10k/p10k.zsh
 
+    autosuggestion = {
+      enable = true;
+      strategy = [
+        "history"
+        "completion"
+      ];
+    };
+
+    syntaxHighlighting = {
+      enable = true;
+      highlighters = [
+        "main"
+        "brackets"
+        "pattern"
+        "regexp"
+        "root"
+      ];
+      styles = {
+        command = "fg=cyan,bold";
+        alias = "fg=magenta,bold";
+        builtin = "fg=cyan";
+        comment = "fg=green";
+        condition = "fg=yellow";
+        constant = "fg=yellow";
+        error = "fg=red,bold";
+        function = "fg=blue,bold";
+        keyword = "fg=magenta,bold";
+        "local-variable" = "fg=blue";
+        parameter = "fg=blue";
+        path = "fg=green";
+        "single-quoted-argument" = "fg=yellow";
+        "double-quoted-argument" = "fg=yellow";
+        "back-quoted-argument" = "fg=yellow";
+        redirection = "fg=yellow,bold";
+        globbing = "fg=cyan,bold";
+        "history-expansion" = "fg=magenta";
+        "assign" = "fg=blue";
+      };
+      patterns = {
+        "rm -rf /" = "fg=white,bold,bg=red";
+      };
+    };
+
+    history = {
+      size = 10000;
+      save = 10000;
+      path = "${config.home.homeDirectory}/.zsh_history";
+      ignoreDups = true;
+      ignoreAllDups = true;
+      ignoreSpace = true;
+      share = true;
+    };
+
+    # Keybindings
+    defaultKeymap = "emacs";
+
+    initContent = ''
       # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-      # Initialization code that may require console input (password prompts, [y/n]
-      # confirmations, etc.) must go above this block; everything else may go below.
-      # double single quotes to escape the dollar char
-      if [[ -r "''${XDG_CACHE_HOME:-''$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
-        source "''${XDG_CACHE_HOME:-''$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
+      if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
+        source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
       fi
 
-      # uncomment if you want to customize your LS_COLORS
-      # https://manpages.ubuntu.com/manpages/plucky/en/man5/dir_colors.5.html
-      #LS_COLORS='...'
-      #export LS_COLORS
+      ZINIT_HOME="''${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
+      if [[ ! -d $ZINIT_HOME ]]; then
+        mkdir -p "$(dirname $ZINIT_HOME)"
+        git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+      fi
+
+      source "''${ZINIT_HOME}/zinit.zsh"
+
+      # Add in zsh plugins
+      zinit light Aloxaf/fzf-tab
+
+      zinit cdreplay -q # replay all cached completions
+
+      source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
+      source ${config.home.homeDirectory}/.config/powerlevel10k/p10k.zsh
+
+      # Keybindings
+      bindkey '^p' history-search-backward
+      bindkey '^n' history-search-forward
+
+      # Completion styling
+      zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+      zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+      zstyle ':completion:*' menu no
+      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
+      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'lsd $realpath'
+
+      # Shell integrations
+      eval "$(fzf --zsh)"
+      eval "$(zoxide init --cmd cd zsh)"
     '';
   };
 
-  system.userActivationScripts.zshrc = "touch .zshrc"; # to avoid being prompted to generate the config for first time
-  environment.shells = [ pkgs.zsh ]; # https://wiki.nixos.org/wiki/Zsh#GDM_does_not_show_user_when_zsh_is_the_default_shell
-  environment.loginShellInit = ''
-    # equivalent to .profile
-    # https://search.nixos.org/options?show=environment.loginShellInit
-  '';
+  # Optional: Set zsh as default shell
+  # Note: On NixOS, you still need system config: users.users.yourname.shell = pkgs.zsh;
+  # On non-NixOS: run `chsh -s $(which zsh)` manually
 }

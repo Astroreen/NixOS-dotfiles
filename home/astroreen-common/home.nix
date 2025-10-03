@@ -19,6 +19,7 @@
 
     # Terminal apps (tui)
     ../../modules/tui/kitty.nix # Terminal
+    ../../modules/tui/shell/zsh.nix # Zsh configuration
     ../../modules/tui/shell/shell.nix # Shell settings
     ../../modules/tui/git.nix # Git
     ../../modules/tui/htop.nix # Htop on steroids

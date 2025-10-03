@@ -4,5 +4,6 @@
     enable = true;
     package = pkgs.lsd;
     enableBashIntegration = true;
+    enableZshIntegration = true;
   };
 }
