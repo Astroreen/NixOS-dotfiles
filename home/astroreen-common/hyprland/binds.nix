@@ -107,7 +107,7 @@
     ", XF86AudioStop, global, caelestia:mediaStop"
 
     # Enhanced media with Caelestia
-    "CTRL $mod, Space, global, caelestia:mediaToggle"
+    "CTRL $mod, S, global, caelestia:mediaToggle"
     "CTRL $mod, Equal, global, caelestia:mediaNext"
     "CTRL $mod, Minus, global, caelestia:mediaPrev"
 

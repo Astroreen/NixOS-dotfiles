@@ -4,7 +4,7 @@
       enable = true;
       extraConfig = ''
         set preview_images true
-        set preview_images_method kittay
+        set preview_images_method kitty
         set show_hidden true
         map <C-h> move left
         map <C-l> move right
