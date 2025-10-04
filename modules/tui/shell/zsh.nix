@@ -32,21 +32,21 @@
         "root"
       ];
       styles = {
-        command = "fg=cyan,bold";
-        alias = "fg=magenta,bold";
+        command = "fg=blue,bold";
+        alias = "fg=blue,italic";
         builtin = "fg=cyan";
-        comment = "fg=green";
+        comment = "fg=8";
         condition = "fg=yellow";
         constant = "fg=yellow";
         error = "fg=red,bold";
         function = "fg=blue,bold";
-        keyword = "fg=magenta,bold";
+        keyword = "fg=blue,bold";
         "local-variable" = "fg=blue";
         parameter = "fg=blue";
-        path = "fg=green";
-        "single-quoted-argument" = "fg=yellow";
-        "double-quoted-argument" = "fg=yellow";
-        "back-quoted-argument" = "fg=yellow";
+        path = "fg=grey";
+        "single-quoted-argument" = "fg=green";
+        "double-quoted-argument" = "fg=green";
+        "back-quoted-argument" = "fg=green";
         redirection = "fg=yellow,bold";
         globbing = "fg=cyan,bold";
         "history-expansion" = "fg=magenta";
@@ -101,6 +101,7 @@
       zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
       zstyle ':completion:*' menu no
       zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
+      zstyle ':fzf-tab:complete:ls:*' fzf-preview 'lsd $realpath'
       zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'lsd $realpath'
 
       # Shell integrations
