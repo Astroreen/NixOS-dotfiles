@@ -77,6 +77,7 @@
     ];
 
     shell = pkgs.zsh;
+    ignoreShellProgramCheck = true;
   };
 
   nix.settings.trusted-users = [
