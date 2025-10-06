@@ -36,6 +36,7 @@
 
     firewall = {
       allowedTCPPorts = [
+        22 # SSH
         8573 # Pi-hole web interface
         53317 # Localsend port
         11434 # Ollama API port
@@ -76,6 +77,25 @@
     };
   };
 
+  # Enable SSH server
+  services.openssh = {
+    enable = true;
+
+    settings = {
+      # Use key-based auth only
+      PasswordAuthentication = false;
+      PermitRootLogin = "prohibit-password";
+    };
+
+    # Change default port
+    ports = [ 22 ];
+
+    # Restrict to specific IPs
+    # listenAddresses = [
+    #   { addr = "0.0.0.0"; port = 22; }
+    # ];
+  };
+
   systemd.services.wol-enable = {
     description = "Enable Wake-on-LAN";
     after = [ "network.target" ];
@@ -108,6 +128,10 @@
 
     shell = pkgs.zsh;
     ignoreShellProgramCheck = true;
+
+    openssh.authorizedKeys.keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILc4D5faB+mNx6yN2Wzzp3UTNDvKqu1/NB72/wlsrS7a u0_a345@localhost"
+    ];
   };
 
   nix.settings.trusted-users = [
