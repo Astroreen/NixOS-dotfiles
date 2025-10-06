@@ -114,8 +114,8 @@ in
 
   # Remove the JRE that comes bundled with the Red Hat Java extension to avoid conflicts
   home.activation.deleteVscodeJre = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if [ -d $HOME/.vscode/extensions/redhat.java-*/jre ]; then
-      $DRY_RUN_CMD rm -rf $HOME/.vscode/extensions/redhat.java-*/jre
+    if [ -d ${config.home.homeDirectory}/.vscode/extensions/redhat.java-*/jre ]; then
+      $DRY_RUN_CMD rm -rf ${config.home.homeDirectory}/.vscode/extensions/redhat.java-*/jre
     fi
   '';
 
