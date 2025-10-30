@@ -3,8 +3,10 @@
   programs.git = {
     enable = true;
     package = pkgs.git;
-    userName = "astroreen";
-    userEmail = "astroreen@gmail.com";
+    settings = {
+      user.name = "astroreen";
+      user.email = "astroreen@gmail.com";
+    };
 
     #aliases = {
     #    commit = "commit -m ''";

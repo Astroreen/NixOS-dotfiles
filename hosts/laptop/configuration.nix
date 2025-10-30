@@ -105,7 +105,7 @@
         # Intel VAAPI drivers
         intel-media-driver # For newer Intel GPUs (Broadwell+)
         intel-vaapi-driver # For older Intel GPUs
-        vaapiVdpau # VDPAU backend for VAAPI
+        libva-vdpau-driver # VDPAU backend for VAAPI
         libvdpau-va-gl # VDPAU driver with OpenGL/VAAPI backend
 
         # NVIDIA VAAPI (if you want to use NVIDIA for encoding)
