@@ -96,13 +96,13 @@
     # ];
   };
 
-  systemd.services.wol-enable = {
-    description = "Enable Wake-on-LAN";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
+  # Service to enable Wake-on-LAN before shutdown
+  systemd.services.wol-enable-shutdown = {
+    description = "Re-enable Wake-on-LAN before shutdown";
+    before = [ "shutdown.target" ];
+    wantedBy = [ "shutdown.target" ];
     serviceConfig = {
       Type = "oneshot";
-      RemainAfterExit = true;
       ExecStart = "${pkgs.ethtool}/bin/ethtool -s enp5s0 wol g";
     };
   };
