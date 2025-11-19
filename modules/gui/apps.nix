@@ -19,8 +19,8 @@
 
     # Media
     spotify # Music service
-    mpv
-    celluloid # Media player with frontend
+    mpv # Media player
+    celluloid # MPV's frontend
 
     # Graphics & Design
     # gimp                          # GNU Image Manipulation Program
@@ -38,8 +38,7 @@
     # Development
     # github-desktop                # GitHub desktop client
     postman # API development environment
-    warp-terminal # AI warp terminal
-    jetbrains.idea-ultimate # IntelliJ IDEA Ultimate
+    wireshark # Network protocol analyzer
 
     # File management
     localsend # Cross-platform file transfer

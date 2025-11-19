@@ -17,6 +17,5 @@
     nautilus-open-any-terminal # Open terminal in current directory
     sushi # File previewer
     code-nautilus # Open files in VSCode from Nautilus
-    turtle # Graphical interface for version control
   ];
 }
