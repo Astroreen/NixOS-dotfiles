@@ -24,15 +24,15 @@
   networking = {
     hostName = "server"; # Define your hostname.
     networkmanager.enable = true;
-    interfaces.enp5s0.wakeOnLan = {
-      enable = true;
-      policy = [
-        "magic"
-        "broadcast"
-        "multicast"
-        "unicast"
-      ];
-    };
+    # interfaces.enp5s0.wakeOnLan = {
+    #   enable = true;
+    #   policy = [
+    #     "magic"
+    #     "broadcast"
+    #     "multicast"
+    #     "unicast"
+    #   ];
+    # };
 
     firewall = {
       allowedTCPPorts = [
