@@ -7,6 +7,7 @@
         },
         "font": {
             "family": {
+                "clock": "Rubik",
                 "material": "Material Symbols Rounded",
                 "mono": "CaskaydiaCove NF",
                 "sans": "Rubik"
@@ -33,7 +34,9 @@
     "general": {
         "apps": {
             "terminal": ["kitty"],
-            "audio": ["pavucontrol"]
+            "audio": ["pavucontrol"],
+            "playback": ["celluloid"],
+            "explorer": ["nautilus"]
         },
         "battery": {
             "warnLevels": [
@@ -60,6 +63,7 @@
             "criticalLevel": 3
         },
         "idle": {
+            "lockBeforeSleep": true,
             "inhibitWhenAudio": true,
             "timeouts": [
                 {
@@ -80,10 +84,11 @@
     },
     "background": {
         "desktopClock": {
-            "enabled": false
+            "enabled": true
         },
         "enabled": true,
         "visualiser": {
+            "blur": false,
             "enabled": true,
             "autoHide": true,
             "rounding": 1,
@@ -134,6 +139,11 @@
             }
         ],
         "persistent": true,
+        "popouts": {
+            "activeWindow": true,
+            "statusIcons": true,
+            "tray": true
+        },
         "scrollActions": {
             "brightness": true,
             "workspaces": true,
@@ -151,6 +161,7 @@
         },
         "tray": {
             "background": false,
+            "compact": true,
             "iconSubs": [],
             "recolour": false
         },
@@ -163,7 +174,13 @@
             "occupiedLabel": "󰮯",
             "perMonitorWorkspaces": true,
             "showWindows": true,
-            "shown": 5
+            "shown": 5,
+            "specialWorkspaceIcons": [
+                {
+                    "name": "steam",
+                    "icon": "sports_esports"
+                }
+            ]
         }
     },
     "border": {
@@ -323,6 +340,7 @@
     },
     "services": {
         "audioIncrement": 0.1,
+        "maxVolume": 1.0,
         "defaultPlayer": "Spotify",
         "gpuType": "NVIDIA",
         "playerAliases": [{ "from": "com.github.th_ch.youtube_music", "to": "YT Music" }],
@@ -358,7 +376,20 @@
             "configLoaded": true,
             "dndChanged": true,
             "gameModeChanged": true,
-            "numLockChanged": true
+            "kbLayoutChanged": true,
+            "numLockChanged": true,
+            "vpnChanged": true,
+            "nowPlaying": false
+        },
+        "vpn": {
+            "enabled": false,
+            "provider": [
+                {
+                    "name": "wireguard",
+                    "interface": "your-connection-name",
+                    "displayName": "Wireguard (Your VPN)"
+                }
+            ]
         }
     }
 }
