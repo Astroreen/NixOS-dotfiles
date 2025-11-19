@@ -84,7 +84,7 @@
     },
     "background": {
         "desktopClock": {
-            "enabled": true
+            "enabled": false
         },
         "enabled": true,
         "visualiser": {
@@ -343,7 +343,9 @@
         "maxVolume": 1.0,
         "defaultPlayer": "Spotify",
         "gpuType": "NVIDIA",
-        "playerAliases": [{ "from": "com.github.th_ch.youtube_music", "to": "YT Music" }],
+        "playerAliases": [
+            { "from": "com.github.th_ch.youtube_music", "to": "YT Music" }
+        ],
         "weatherLocation": "54.7005722,25.0878896",
         "useFahrenheit": false,
         "useTwelveHourClock": false,
