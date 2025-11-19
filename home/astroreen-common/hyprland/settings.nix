@@ -11,7 +11,7 @@ binds
   input = {
     kb_layout = "us,ru";
     kb_variant = ",phonetic";
-    kb_options = "grp:win_space_toggle,grp:alt_shift_toggle"; # Win + Space to switch layouts
+    kb_options = "grp:win_space_toggle"; # Win + Space to switch layouts
 
     follow_mouse = 1;
 
@@ -49,10 +49,16 @@ binds
     "size 1400 800,class:^(com.interversehq.qView)$"
     "center,class:^(com.interversehq.qView)$"
 
-    # Nautilus floating with specific size
+    # File Manager floating with specific size
     "float,class:^(org.gnome.Nautilus)$"
     "size 1400 800,class:^(org.gnome.Nautilus)$"
     "center,class:^(org.gnome.Nautilus)$"
+    "float,class:^(org.gnome.NautilusPreviewer)$"
+    "size 1400 800,class:^(org.gnome.NautilusPreviewer)$"
+    "center,class:^(org.gnome.NautilusPreviewer)$"
+    "float,class:^(xdg-desktop-portal-gtk)$"
+    "size 1400 800,class:^(xdg-desktop-portal-gtk)$"
+    "center,class:^(xdg-desktop-portal-gtk)$"
 
     # LocalSend always floating with specific size
     "float,class:^(localsend_app)$"
