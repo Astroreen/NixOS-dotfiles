@@ -38,7 +38,7 @@
     # Development
     # github-desktop                # GitHub desktop client
     postman # API development environment
-    wireshark # Network protocol analyzer
+    thonny # Python IDE
 
     # File management
     localsend # Cross-platform file transfer

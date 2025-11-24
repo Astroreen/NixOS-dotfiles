@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -8,6 +13,8 @@
     ../certificates.nix # Import certificates
 
     ../../modules/gui/nautilus.nix # Nautilus configuration
+    ../../modules/gui/wireshark.nix # Wireshark configuration
+
     ../../modules/tui/openvpn/openvpn.nix # Open VPN configuration
     ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
   ];
@@ -74,6 +81,8 @@
       "seat"
       "bluetooth"
       "docker"
+      "wireshark"
+      "dialout"
     ];
 
     shell = pkgs.zsh;
@@ -167,6 +176,9 @@
     gnugrep # GNU grep
     gawk # GNU Awk
     coreutils # GNU Core Utilities
+    openal # OpenAL library
+    mesa # Mesa 3D Graphics Library
+    mesa-demos # Mesa demo programs
 
     # Themes
     adwaita-icon-theme # Adwaita icon theme
@@ -177,6 +189,7 @@
 
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # Use Intel Media Driver
+    LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib";
 
     # Dark theme
     GTK_THEME = "Adwaita:dark";

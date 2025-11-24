@@ -281,7 +281,7 @@
                 "icon": "exit_to_app",
                 "description": "Log out of the current session",
                 "command": ["loginctl", "terminate-user", ""],
-                "enabled": true,
+                "enabled": false,
                 "dangerous": true
             },
             {
