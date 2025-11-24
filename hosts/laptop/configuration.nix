@@ -89,10 +89,17 @@
     ignoreShellProgramCheck = true;
   };
 
-  nix.settings.trusted-users = [
-    "root"
-    "astroreen"
-  ];
+  nix.settings = {
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+
+    trusted-users = [
+      "root"
+      "astroreen"
+    ];
+  };
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
