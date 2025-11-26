@@ -86,6 +86,7 @@
   };
   "editor.tabSize" = 4;
   "prettier.tabWidth" = 4;
+  "prettier.printWidth" = 150;
 
   # Disable telemetry
   "telemetry.telemetryLevel" = "off";
