@@ -89,7 +89,5 @@ binds
     "nofollowmouse,class:^(org.kde.kdeconnect.daemon)$"
     "bordersize 0,class:^(org.kde.kdeconnect.daemon)$"
     "rounding 0,class:^(org.kde.kdeconnect.daemon)$"
-
-    "workspace 1,class:^(portal2_linux)$"
   ];
 }
