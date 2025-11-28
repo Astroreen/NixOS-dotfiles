@@ -15,9 +15,11 @@
     ../../modules/gui/apps.nix # Standard apps to install
     ../../modules/gui/vscode/vscode.nix # VSCode
     ../../modules/gui/obs.nix # OBS Studio
+    ../../modules/gui/lutris.nix # Lutris game manager
     # Nautilus (file manager) is imported in hosts/.../configuration.nix
 
     # Terminal apps (tui)
+    ../../modules/tui/wine.nix # Wine configuration
     ../../modules/tui/kitty.nix # Terminal
     ../../modules/tui/shell/zsh.nix # Zsh configuration
     ../../modules/tui/shell/shell.nix # Shell settings

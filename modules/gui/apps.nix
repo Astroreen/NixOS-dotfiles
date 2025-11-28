@@ -31,10 +31,6 @@
     libreoffice # Office suite
     obsidian # Note-taking app
 
-    # System utilities
-    # gnome.gnome-system-monitor    # System monitor
-    # gnome.gnome-disk-utility      # Disk utility
-
     # Development
     # github-desktop                # GitHub desktop client
     postman # API development environment

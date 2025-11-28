@@ -4,7 +4,7 @@
   services.xserver.xkb = {
     layout = "us,ru,lt";
     variant = ",phonetic,us";
-    options = "grp:win_space_toggle,grp:alt_shift_toggle";
+    options = "grp:alt_shift_toggle"; # Alt + Shift to switch layouts, use "grp:win_space_toggle," to add Win + Space combination
   };
   services.libinput = {
     enable = true;

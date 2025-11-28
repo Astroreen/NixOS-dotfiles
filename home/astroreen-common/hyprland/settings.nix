@@ -11,7 +11,7 @@ binds
   input = {
     kb_layout = "us,ru";
     kb_variant = ",phonetic";
-    kb_options = "grp:win_space_toggle"; # Win + Space to switch layouts
+    kb_options = "grp:alt_shift_toggle"; # Alt + Shift to switch layouts
 
     follow_mouse = 1;
 
@@ -90,5 +90,6 @@ binds
     "bordersize 0,class:^(org.kde.kdeconnect.daemon)$"
     "rounding 0,class:^(org.kde.kdeconnect.daemon)$"
 
+    "workspace 1,class:^(portal2_linux)$"
   ];
 }

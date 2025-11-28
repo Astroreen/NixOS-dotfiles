@@ -12,6 +12,7 @@
     ./services.nix # Services configuration
     ../certificates.nix # Import certificates
 
+    ../../modules/gui/steam.nix # Steam configuration
     ../../modules/gui/nautilus.nix # Nautilus configuration
     ../../modules/gui/wireshark.nix # Wireshark configuration
 
