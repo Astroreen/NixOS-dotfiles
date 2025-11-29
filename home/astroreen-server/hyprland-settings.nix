@@ -19,6 +19,8 @@
   ];
 
   exec-once = [
+    # Set primary monitor
+    "xrandr --output DP-3 --primary"
     # Move mouse to main monitor
     "hyprctl dispatch workspace 1"
     # Start whisper server for voice transcription
