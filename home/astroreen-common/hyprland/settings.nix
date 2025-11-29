@@ -26,7 +26,7 @@ binds
     # On start up enable apps on certain workspaces
     "[workspace 2 silent] vivaldi"
     "[workspace 3 silent] discord"
-    "[workspace 4 silent] spotify"
+    "[workspace 4 silent] sleep 7 && spotify"
     "[workspace 5 silent] obsidian"
   ];
 
