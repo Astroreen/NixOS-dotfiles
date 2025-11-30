@@ -39,6 +39,22 @@
     ../../modules/lang/flutter.nix
   ];
 
+  # Use dark theme
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Adwaita-dark"; # Or another dark theme you prefer
+      package = pkgs.gnome-themes-extra;
+    };
+  };
+  xdg.configFile."gtk-4.0/settings.ini".text = ''
+    [Settings]
+    gtk-cursor-theme-name=breeze_cursors
+    gtk-cursor-theme-size=24
+    gtk-theme-name=Adwaita-dark
+    gtk-application-prefer-dark-theme=1
+  '';
+
   home.username = "astroreen";
   home.homeDirectory = "/home/astroreen";
 
