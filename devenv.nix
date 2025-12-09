@@ -27,7 +27,11 @@
     };
 
     delete-garbage = {
-      exec = "nix-collect-garbage --delete-older-than 7d";
+      exec = ''
+        nix-collect-garbage --delete-older-than 7d
+        nix-store --gc
+        nix-store --optimize
+      '';
       description = "Delete old NixOS generations and unused packages";
     };
 
