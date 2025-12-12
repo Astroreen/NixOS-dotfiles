@@ -5,6 +5,10 @@
     package = pkgs.steam; # Use the default Steam package
     remotePlay.openFirewall = true;
     protontricks.enable = true;
+    extraCompatPackages = with pkgs; [
+      proton-ge-bin
+    ];
+
     gamescopeSession = {
       enable = true;
       args = [
@@ -14,7 +18,12 @@
     };
   };
 
-  # Micro-compositor for games. 
+  environment.systemPackages = with pkgs; [
+    steam-run
+    steamcmd
+  ];
+
+  # Micro-compositor for games.
   # It can force games to run at specific resolutions and on specific monitors.
   programs.gamescope.enable = true;
 
