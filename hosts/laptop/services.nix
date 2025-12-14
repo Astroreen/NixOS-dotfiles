@@ -30,9 +30,13 @@
   # Display manager
   services.displayManager = {
     # CAUTION: DO NOT ENABLE BOTH!
-    sddm.enable = false;
+    sddm = {
+      enable = false;
+      wayland.enable = true;
+      autoNumlock = true;
+    };
     gdm = {
-      enable = true;
+      enable = false;
       wayland = true;
     };
 
@@ -44,6 +48,15 @@
 
     # Defaul session to log in to. Perfect with auto login :)
     defaultSession = "hyprland";
+  };
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "Hyprland";
+        user = "astroreen";
+      };
+    };
   };
 
   # Enable the X11 windowing system.
