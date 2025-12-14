@@ -51,7 +51,7 @@
   services.xserver.enable = true;
 
   # Desktop Environments
-  services.desktopManager.plasma6.enable = true;
+  services.desktopManager.plasma6.enable = false;
 
   # Enable CUPS to print documents.
   services.printing = {
