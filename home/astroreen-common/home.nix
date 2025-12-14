@@ -47,13 +47,6 @@
       package = pkgs.gnome-themes-extra;
     };
   };
-  xdg.configFile."gtk-4.0/settings.ini".text = ''
-    [Settings]
-    gtk-cursor-theme-name=breeze_cursors
-    gtk-cursor-theme-size=24
-    gtk-theme-name=Adwaita-dark
-    gtk-application-prefer-dark-theme=1
-  '';
 
   home.username = "astroreen";
   home.homeDirectory = "/home/astroreen";
@@ -85,5 +78,16 @@
     package = pkgs.kdePackages.kdeconnect-kde;
   };
 
-  home.stateVersion = "25.05";
+  xdg.configFile = {
+    # Force GTK dark theme settings
+    "gtk-4.0/settings.ini".text = ''
+      [Settings]
+      gtk-cursor-theme-name=breeze_cursors
+      gtk-cursor-theme-size=24
+      gtk-theme-name=Adwaita-dark
+      gtk-application-prefer-dark-theme=1
+    '';
+  };
+
+  home.stateVersion = "25.11";
 }

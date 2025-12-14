@@ -12,12 +12,14 @@
 
   environment.systemPackages = with pkgs; [
     qemu
+    qemu_kvm
     gns3-gui
     gns3-server
     ubridge
     dynamips # Cisco router emulator
     vpcs    # Virtual PC Simulator
     inetutils # telnet
+    tigervnc # for VNC viewer
   ];
 
   systemd.services.gns3-server.serviceConfig = {
@@ -30,5 +32,7 @@
   networking.firewall = {
     allowedTCPPorts = [ 3080 ];
     allowedUDPPorts = [ 3080 ];
+    allowedTCPPortRanges = [ { from = 5000; to = 6500; } ]; # For VNC connections
+    allowedUDPPortRanges = [ { from = 5000; to = 6500; } ]; # For VNC connections
   };
 }
