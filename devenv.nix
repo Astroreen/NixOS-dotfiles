@@ -26,11 +26,30 @@
       description = "Switch to the new NixOS laptop configuration";
     };
 
+    test-laptop = {
+      exec = "git add . && sudo nixos-rebuild test --flake .#laptop";
+      description = "Test the new NixOS laptop configuration";
+    };
+
+    test-server = {
+      exec = "git add . && sudo nixos-rebuild test --flake .#server";
+      description = "Test the new NixOS server configuration";
+    };
+
+    rollback-laptop = {
+      exec = "sudo nixos-rebuild switch --flake .#laptop --rollback";
+      description = "Rollback to the previous NixOS laptop configuration";
+    };
+
+    rollback-server = {
+      exec = "sudo nixos-rebuild switch --flake .#server --rollback";
+      description = "Rollback to the previous NixOS server configuration";
+    };
+
     delete-garbage = {
       exec = ''
         nix-collect-garbage --delete-older-than 7d
         nix-store --gc
-        nix-store --optimize
       '';
       description = "Delete old NixOS generations and unused packages";
     };
