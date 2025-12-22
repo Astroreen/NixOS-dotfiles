@@ -41,6 +41,7 @@ binds
 
     # Always open Discord on workspace 3
     "workspace 3 silent,class:^(discord)$"
+    "workspace 3 silent,class:^(vesktop)$"
 
     # Always center VSCode notifications
     "center,class:^(Code)$"
