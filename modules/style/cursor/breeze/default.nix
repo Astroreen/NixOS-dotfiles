@@ -13,8 +13,6 @@
     x11.enable = true;
   };
 
-  home.sessionVariables = {
-    XCURSOR_THEME = "breeze_cursors"; # Cursor theme
-    XCURSOR_SIZE = "24"; # Cursor size
-  };
+  home.sessionVariables.XCURSOR_THEME = "breeze_cursors"; # Cursor theme
+  home.sessionVariables.XCURSOR_SIZE = "24"; # Cursor size
 }

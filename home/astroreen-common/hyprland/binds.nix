@@ -6,8 +6,8 @@
   # Regular binds
   bind = [
     # Original app binds
-    "$mod, T, exec, [float; size 1200 800] app2unit -- kitty" # Terminal
-    "$mod, E, exec, [float; size 1400 800] app2unit -- nautilus" # File manager
+    "$mod, T, exec, [float; size 1200 800] kitty" # Terminal
+    "$mod, E, exec, [float; size 1400 800] nautilus" # File manager
     "$mod, Q, global, caelestia:launcher" # Menu/Launcher
     "$mod, C, killactive," # Close active window
     

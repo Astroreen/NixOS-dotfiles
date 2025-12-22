@@ -12,11 +12,8 @@
     ./services.nix # Services configuration
     ../certificates.nix # Import certificates
 
-    ../../modules/gui/steam.nix # Steam configuration
-    ../../modules/gui/nautilus.nix # Nautilus configuration
-    ../../modules/gui/wireshark.nix # Wireshark configuration
-
-    ../../modules/tui/openvpn/openvpn.nix # Open VPN configuration
+    ../../modules/import/common-system-apps.nix # Common system applications
+    ../../modules/style/theme/dark/adwaita/adwaita-dark-system.nix # Adwaita dark theme
     ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
   ];
 
@@ -249,21 +246,11 @@
     openal # OpenAL library
     mesa # Mesa 3D Graphics Library
     mesa-demos # Mesa demo programs
-
-    # Themes
-    adwaita-icon-theme # Adwaita icon theme
-    adwaita-qt # Adwaita Qt theme
-    adwaita-qt6 # Adwaita Qt6 theme
-    gnome-themes-extra # Extra GNOME themes
   ];
 
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # Use Intel Media Driver
     LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib";
-
-    # Dark theme
-    GTK_THEME = "Adwaita:dark";
-    QT_STYLE_OVERRIDE = "adwaita-dark";
   };
 
   # Fonts

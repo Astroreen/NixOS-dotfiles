@@ -59,6 +59,11 @@
     };
   };
 
+  # GNOME services
+  programs.dconf.enable = true; # configuration database primarily for GNOME apps
+  services.gnome.gnome-settings-daemon.enable = true;
+  services.gnome.gnome-keyring.enable = true;
+
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
   services.xserver.enable = true;
@@ -74,7 +79,6 @@
     ];
   };
   # Security
-  services.gnome.gnome-keyring.enable = true;
   security.pam.services.gdm-password.enableGnomeKeyring = true;
   services.gvfs.enable = true; # Enables trash
   services.power-profiles-daemon.enable = true; # Enable power profiles

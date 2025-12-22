@@ -1,5 +1,3 @@
-# AMONG ALL FILES THIS IS THE ONLY ONE THAT IS SYSTEM-WIDE CONFIGURED
-# SHOULD BE IMPORTED IN your configuration.nix
 { pkgs, ... }:
 {
   programs.nautilus-open-any-terminal = {
@@ -17,5 +15,7 @@
     nautilus-open-any-terminal # Open terminal in current directory
     sushi # File previewer
     code-nautilus # Open files in VSCode from Nautilus
+
+    gsettings-desktop-schemas # Ensure gsettings schemas are available
   ];
 }
