@@ -25,7 +25,7 @@ binds
   exec-once = [
     # On start up enable apps on certain workspaces
     "[workspace 2 silent] vivaldi"
-    "[workspace 3 silent] vesktop"
+    "[workspace 3 silent] sleep 7 && vesktop"
     "[workspace 4 silent] sleep 7 && spotify"
     "[workspace 5 silent] obsidian"
   ];
