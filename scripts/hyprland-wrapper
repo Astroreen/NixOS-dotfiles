@@ -1,0 +1,15 @@
+# Replace --watchdog-fd with --wayland-fd or ignore it
+args=()
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --watchdog-fd)
+      # Optionally: args+=("--wayland-fd" "$2"); shift
+      shift 2
+      ;;
+    *)
+      args+=("$1")
+      shift
+      ;;
+  esac
+done
+exec Hyprland "${args[@]}"
