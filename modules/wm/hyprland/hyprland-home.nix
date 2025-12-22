@@ -140,7 +140,7 @@ in
         Service = {
           Type = "exec";
           ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
-          ExecStart = "${inputs.app2unit.packages.${pkgs.system}.default}/bin/app2unit caelestia shell";
+          ExecStart = "caelestia-shell";
           Restart = "on-failure";
           Slice = "app-graphical.slice";
           RestartSec = "5s";
