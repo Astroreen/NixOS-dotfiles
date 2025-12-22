@@ -76,7 +76,7 @@ let
 
     "editor.parameterHints.enabled" = true;
     "editor.suggest.snippetsPreventQuickSuggestions" = false;
-    "editor.hover.enabled" = true;
+    "editor.hover.enabled" = "on";
     "editor.hover.delay" = 300;
 
     # Java Formatter

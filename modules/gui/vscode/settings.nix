@@ -70,9 +70,6 @@
   # Terminal settings
   "terminal.integrated.defaultProfile.linux" = "zsh";
 
-  # Hover settings
-  "editor.hover.enabled" = "on";
-
   ##############
   # Extensions #
   ##############
