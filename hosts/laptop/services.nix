@@ -98,8 +98,12 @@
       foo2zjs
     ];
   };
+
+  # Power management
+  services.power-profiles-daemon.enable = true; # Enable power profiles
+  services.upower.enable = true; # Enable upower for battery management
+  
   # Security
   security.pam.services.gdm-password.enableGnomeKeyring = true;
   services.gvfs.enable = true; # Enables trash
-  services.power-profiles-daemon.enable = true; # Enable power profiles
 }
