@@ -3,6 +3,7 @@
   imports = [
     # Apps (gui)
     ../../modules/gui/apps.nix # Standard apps to install
+    ../../modules/gui/vesktop.nix # VDesktop configuration
     ../../modules/gui/vscode/vscode.nix # VSCode
     ../../modules/gui/obs.nix # OBS Studio
     ../../modules/gui/lutris.nix # Lutris game manager

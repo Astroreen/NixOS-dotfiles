@@ -11,7 +11,6 @@
     prismlauncher # Minecraft launcher
 
     # Communication
-    discord # Discord
     telegram-desktop # Telegram
     viber # Viber
     caprine # Facebook Messenger

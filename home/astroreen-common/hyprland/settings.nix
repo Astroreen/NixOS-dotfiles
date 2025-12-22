@@ -25,7 +25,7 @@ binds
   exec-once = [
     # On start up enable apps on certain workspaces
     "[workspace 2 silent] vivaldi"
-    "[workspace 3 silent] discord"
+    "[workspace 3 silent] vesktop"
     "[workspace 4 silent] sleep 7 && spotify"
     "[workspace 5 silent] obsidian"
   ];
@@ -35,6 +35,7 @@ binds
     # Fullscreen auto-started programs
     "fullscreen,class:^(Vivaldi-stable)$"
     "fullscreen,class:^(discord)$"
+    "fullscreen,class:^(vesktop)$"
     "fullscreen,class:^(spotify)$"
     "fullscreen,class:^(obsidian)$"
 
