@@ -28,12 +28,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.caelestia-shell.follows = "caelestia-shell";
     };
-
-    # SpotX installation (patched spotify)
-    oskars-dotfiles = {
-      url = "github:oskardotglobal/.dotfiles/nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =

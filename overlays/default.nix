@@ -1,6 +1,8 @@
 { pkgs, inputs, ... }:
 {
-  nixpkgs.overlays = [
-    (inputs.oskars-dotfiles.overlays.spotx) # SpotX
+  nixpkgs.overlays = [ 
+    (self: super: {
+      spotx = import ./spotx.nix self super;
+    })
   ];
 }
