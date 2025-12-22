@@ -42,8 +42,9 @@
     #google-chrome
     vivaldi
     vivaldi-ffmpeg-codecs # Vivaldi Browser
+    qbittorrent # Torrent client
+
     # thunderbird                   # Email client
-    # qbittorrent                   # Torrent client
 
     # Security
     bitwarden-desktop # Password manager
