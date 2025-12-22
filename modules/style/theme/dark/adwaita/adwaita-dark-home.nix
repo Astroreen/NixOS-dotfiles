@@ -10,10 +10,6 @@
 
   gtk = {
     enable = true;
-    gtk3.extraConfig.gtk-decoration-layout = "menu:";
-    gtk3.extraConfig.gtk-application-prefer-dark-theme = true;
-    gtk4.extraConfig.gtk-application-prefer-dark-theme = true;
-
     # theme = {
     #   name = "Adwaita-dark";
     #   package = pkgs.gnome-themes-extra;
