@@ -70,6 +70,9 @@
   # Terminal settings
   "terminal.integrated.defaultProfile.linux" = "zsh";
 
+  # AI Chat settings
+  "chat.viewSessions.orientation" = "stacked";
+
   ##############
   # Extensions #
   ##############
