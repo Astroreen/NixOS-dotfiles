@@ -149,7 +149,7 @@ in
           RuntimeDirectoryMode = "0755";
           # Set environment variables for the service
           Environment = [
-            "QT_QPA_PLATFORM=wayland"
+            "QT_QPA_PLATFORM=wayland;xcb"
             "XDG_SESSION_TYPE=wayland;xcb"
             "XDG_CURRENT_DESKTOP=Hyprland"
             "XDG_SESSION_DESKTOP=Hyprland"

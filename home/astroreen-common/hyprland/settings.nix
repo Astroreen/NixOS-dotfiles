@@ -26,7 +26,7 @@ binds
     # On start up enable apps on certain workspaces
     "[workspace 2 silent] vivaldi"
     "[workspace 3 silent] sleep 7 && vesktop"
-    "[workspace 4 silent] sleep 7 && spotify"
+    "[workspace 4 silent] sleep 7 && youtube-music"
     "[workspace 5 silent] obsidian"
   ];
 
@@ -36,7 +36,7 @@ binds
     "fullscreen,class:^(Vivaldi-stable)$"
     "fullscreen,class:^(discord)$"
     "fullscreen,class:^(vesktop)$"
-    "fullscreen,class:^(spotify)$"
+    "fullscreen,class:^(com.github.tc_ch.youtube_music)$"
     "fullscreen,class:^(obsidian)$"
 
     # Always open Discord on workspace 3

@@ -48,6 +48,26 @@
 
     # Defaul session to log in to. Perfect with auto login :)
     defaultSession = "hyprland";
+
+    # Wrapper for Hyprland
+    # since the official DE won't rename the required option to work properly
+    sessionPackages = [
+      (pkgs.stdenv.mkDerivation {
+        name = "hyprland-session";
+        src = null;
+        dontUnpack = true;
+        installPhase = ''
+          mkdir -p $out/share/wayland-sessions
+          cat > $out/share/wayland-sessions/hyprland.desktop <<EOF
+          [Desktop Entry]
+          Name=Hyprland
+          Exec=/home/astroreen/.local/share/nixos/scripts/hyprland-wrapper
+          Type=Application
+          EOF
+        '';
+        passthru.providedSessions = [ "hyprland" ];
+      })
+    ];
   };
   services.greetd = {
     enable = false;
@@ -58,26 +78,6 @@
       };
     };
   };
-
-  # Wrapper for Hyprland 
-  # since the official DE won't rename the required option to work properly
-  services.xserver.displayManager.sessionPackages = [
-    (pkgs.stdenv.mkDerivation {
-      name = "hyprland-session";
-      src = null;
-      dontUnpack = true;
-      installPhase = ''
-        mkdir -p $out/share/wayland-sessions
-        cat > $out/share/wayland-sessions/hyprland.desktop <<EOF
-        [Desktop Entry]
-        Name=Hyprland
-        Exec=/home/astroreen/.local/share/nixos/scripts/hyprland-wrapper
-        Type=Application
-        EOF
-      '';
-      passthru.providedSessions = [ "hyprland" ];
-    })
-  ];
 
   # GNOME services
   programs.dconf.enable = true; # configuration database primarily for GNOME apps
@@ -102,7 +102,7 @@
   # Power management
   services.power-profiles-daemon.enable = true; # Enable power profiles
   services.upower.enable = true; # Enable upower for battery management
-  
+
   # Security
   security.pam.services.gdm-password.enableGnomeKeyring = true;
   services.gvfs.enable = true; # Enables trash

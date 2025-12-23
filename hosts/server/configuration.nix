@@ -12,7 +12,7 @@
     ./services.nix # Services configuration
     ../certificates.nix # Import certificates
 
-    ../../modules/import/common-system-apps.nix # Common system applications
+    ../../import/common-system-apps.nix # Common system applications
     ../../modules/style/theme/dark/adwaita/adwaita-dark-system.nix # Adwaita dark theme
     ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
   ];
@@ -20,10 +20,6 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
-  nixpkgs.config = {
-    android_sdk.accept_license = true;
-  };
 
   # Enable networking
   networking = {

@@ -12,7 +12,7 @@
     ./services.nix # Services configuration
     ../certificates.nix # Import certificates
 
-    ../../modules/import/common-system-apps.nix # Common system applications
+    ../../import/common-system-apps.nix # Common system applications
     ../../modules/style/theme/dark/adwaita/adwaita-dark-system.nix # Adwaita dark theme
     ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
   ];
@@ -193,6 +193,9 @@
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # Use Intel Media Driver
     LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib";
+    # Prefer NVIDIA Vulkan ICD for host-accelerated Android Emulator on this machine
+    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json";
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
   };
 
   # Docker settings
