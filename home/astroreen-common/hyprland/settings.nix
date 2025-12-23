@@ -43,42 +43,37 @@ binds
     "workspace 3 silent,class:^(discord)$"
     "workspace 3 silent,class:^(vesktop)$"
 
+    # Make all programs float by default
+    "float,class:^(.*)$"
+
     # Always center VSCode notifications
     "center,class:^(Code)$"
 
     # qView floating with specific size
-    "float,class:^(com.interversehq.qView)$"
     "size 1400 800,class:^(com.interversehq.qView)$"
     "center,class:^(com.interversehq.qView)$"
 
     # File Manager floating with specific size
-    "float,class:^(org.gnome.Nautilus)$"
     "size 1400 800,class:^(org.gnome.Nautilus)$"
     "center,class:^(org.gnome.Nautilus)$"
-    "float,class:^(org.gnome.NautilusPreviewer)$"
     "size 1400 800,class:^(org.gnome.NautilusPreviewer)$"
     "center,class:^(org.gnome.NautilusPreviewer)$"
-    "float,class:^(xdg-desktop-portal-gtk)$"
     "size 1400 800,class:^(xdg-desktop-portal-gtk)$"
     "center,class:^(xdg-desktop-portal-gtk)$"
 
     # LocalSend always floating with specific size
-    "float,class:^(localsend_app)$"
     "size 1400 800,class:^(localsend_app)$"
     "center,class:^(localsend_app)$"
 
     # Postman always floating with specific size
-    "float,class:^(Postman)$"
     "size 1400 800,class:^(Postman)$"
     "center,class:^(Postman)$"
 
     # Console kitty floating with specific size
-    "float,class:^(kitty)$"
     "size 1200 800,class:^(kitty)$"
 
     # KDE Connect daemon window
     "fullscreenstate 0 3,class:^(org.kde.kdeconnect.daemon)$"
-    "float,class:^(org.kde.kdeconnect.daemon)$"
     "size 100% 100%,class:^(org.kde.kdeconnect.daemon)$"
     "center,class:^(org.kde.kdeconnect.daemon)$"
     "noblur,class:^(org.kde.kdeconnect.daemon)$"
