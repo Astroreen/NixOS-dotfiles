@@ -28,7 +28,6 @@
       enable = true;
       efiSupport = true;
       devices = [ "nodev" ];
-      theme = "${pkgs.sleek-grub-theme}";
       useOSProber = true;
     };
   };
