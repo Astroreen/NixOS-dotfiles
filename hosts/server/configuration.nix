@@ -18,8 +18,20 @@
   ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader = {
+    efi = {
+      canTouchEfiVariables = true;
+      efiSysMountPoint = "/boot/efi";
+    };
+    # systemd-boot.enable = true;
+    grub = {
+      enable = true;
+      efiSupport = true;
+      devices = [ "nodev" ];
+      theme = "${pkgs.sleek-grub-theme}";
+      useOSProber = true;
+    };
+  };
 
   # Enable networking
   networking = {
