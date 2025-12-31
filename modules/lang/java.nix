@@ -84,6 +84,16 @@ let
       "editor.defaultFormatter" = "redhat.java";
       "editor.tabSize" = 4;
     };
+
+    # SonarLint settings
+    "sonarlint.rules" = {
+        "java:S1452" = {
+            "level" = "off";
+        };
+        "java:S3776" = {
+            "level" = "off";
+        };
+    };
   };
 in
 {
