@@ -98,6 +98,7 @@ in
   home.packages = with pkgs; [
     flutter
     androidSdk
+    android-tools
     firebase-tools
   ];
 
