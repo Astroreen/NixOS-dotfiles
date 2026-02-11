@@ -188,11 +188,22 @@
     openal # OpenAL library
     mesa # Mesa 3D Graphics Library
     mesa-demos # Mesa demo programs
+    vulkan-tools # Vulkan utilities
+    gtk3 # Multi-platform toolkit for graphical interfaces
+    glib # C library - building blocks
+    libxxf86vm # Extension library
+    libxcursor # X cursor managment library
+    libxrandr # xlib extension library
+    libxi
+    libxinerama # Extension to x11
+    libxtst # Library for the xtest and record x11 extension
+    wayland
+    libx11 # Core x11 protocol client library
   ];
 
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # Use Intel Media Driver
-    LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib";
+    # LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib"; # Effectively breaking path
     # Prefer NVIDIA Vulkan ICD for host-accelerated Android Emulator on this machine
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
