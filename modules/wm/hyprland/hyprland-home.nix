@@ -219,7 +219,6 @@ in
         cava # Audio visualizer
         aubio # Audio analysis library
         glibc # GNU C Library
-        glib # C library for data structures and utilities
         kdePackages.qt6ct # Qt6 configuration tool
         qt6.qtdeclarative # Qt6 declarative module
         libqalculate # Calculator library
@@ -364,7 +363,7 @@ in
               env = (base.env or [ ]) ++ (custom.env or [ ]);
               monitor = (base.monitor or [ ]) ++ (custom.monitor or [ ]);
               workspace = (base.workspace or [ ]) ++ (custom.workspace or [ ]);
-              windowrulev2 = (base.windowrulev2 or [ ]) ++ (custom.windowrulev2 or [ ]);
+              windowrule = (base.windowrule or [ ]) ++ (custom.windowrule or [ ]);
               # Add other list attributes as needed
             }
           );

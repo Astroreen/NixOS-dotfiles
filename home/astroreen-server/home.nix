@@ -18,7 +18,7 @@ let
         env = (base.env or [ ]) ++ (custom.env or [ ]);
         monitor = (base.monitor or [ ]) ++ (custom.monitor or [ ]);
         workspace = (base.workspace or [ ]) ++ (custom.workspace or [ ]);
-        windowrulev2 = (base.windowrulev2 or [ ]) ++ (custom.windowrulev2 or [ ]);
+        windowrule = (base.windowrule or [ ]) ++ (custom.windowrule or [ ]);
         bind = (base.bind or [ ]) ++ (custom.bind or [ ]);
         bindm = (base.bindm or [ ]) ++ (custom.bindm or [ ]);
         bindr = (base.bindr or [ ]) ++ (custom.bindr or [ ]);
