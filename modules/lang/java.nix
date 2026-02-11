@@ -5,7 +5,7 @@
   ...
 }:
 let
-  java-package = pkgs.jdk21;
+  java-package = pkgs.jdk25;
   gradle-package = pkgs.gradle_8;
   gradle-home = ".gradle";
 
@@ -20,18 +20,23 @@ let
   javaSettings = {
     "java.configuration.runtimes" = [
       {
-        "name" = "JavaSE-11";
+        "name" = "OpenJDK-11";
         "path" = "${pkgs.jdk11}/lib/openjdk";
         "default" = false;
       }
       {
-        "name" = "JavaSE-17";
+        "name" = "OpenJDK-17";
         "path" = "${pkgs.jdk17}/lib/openjdk";
         "default" = false;
       }
       {
-        "name" = "JavaSE-21";
+        "name" = "OpenJDK-21";
         "path" = "${pkgs.jdk21}/lib/openjdk";
+        "default" = false;
+      }
+      {
+        "name" = "OpenJDK-25";
+        "path" = "${pkgs.jdk25}/lib/openjdk";
         "default" = true;
       }
     ];
@@ -87,14 +92,14 @@ let
 
     # SonarLint settings
     "sonarlint.rules" = {
-        "java:S1452" = {
-            "level" = "off";
-        };
-        "java:S3776" = {
-            "level" = "off";
-        };
+      "java:S1452" = {
+        "level" = "off";
+      };
+      "java:S3776" = {
+        "level" = "off";
+      };
     };
-    "javafx.libPath" = "/home/astroreen/.local/share/javafx/javafx-sdk-25.0.2/lib";
+    "javafx.libPath" = "${pkgs.javaPackages.openjfx25}/modules";
   };
 in
 {
@@ -122,6 +127,11 @@ in
       profiles.default.userSettings = existingSettings // javaSettings;
     };
   };
+
+  home.packages = with pkgs; [
+    javaPackages.openjfx25
+    maven
+  ];
 
   # Remove the JRE that comes bundled with the Red Hat Java extension to avoid conflicts
   home.activation.deleteVscodeJre = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
