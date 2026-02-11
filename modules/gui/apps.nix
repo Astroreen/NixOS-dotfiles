@@ -20,7 +20,8 @@
     spotify # Music service
     mpv # Media player
     celluloid # MPV's frontend
-    youtube-music # Electron YouTube Music client
+    pear-desktop # Electron YouTube Music client
+
 
     # Graphics & Design
     # gimp                          # GNU Image Manipulation Program
