@@ -94,6 +94,7 @@ let
             "level" = "off";
         };
     };
+    "javafx.libPath" = "/home/astroreen/.local/share/javafx/javafx-sdk-25.0.2/lib";
   };
 in
 {
