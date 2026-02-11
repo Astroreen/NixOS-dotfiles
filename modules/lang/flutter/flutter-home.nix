@@ -99,7 +99,7 @@ in
     flutter
     androidSdk
     android-tools
-    firebase-tools
+    # firebase-tools # Commenting out since it breaks configuration and this module is rarely used
   ];
 
   # Symlink ~/Android/Sdk/cmdline-tools/latest -> $nixCmdlineTools
