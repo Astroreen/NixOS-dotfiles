@@ -46,6 +46,26 @@
       description = "Rollback to the previous NixOS server configuration";
     };
 
+    boot-laptop = {
+      exec = "git add . && sudo nixos-rebuild boot --flake .#laptop";
+      description = "Build the new configuration for laptop and make it the boot default";
+    };
+
+    boot-server = {
+      exec = "git add . && sudo nixos-rebuild boot --flake .#server";
+      description = "Build the new configuration for server and make it the boot default";
+    };
+
+    build-laptop = {
+      exec = "git add . && sudo nixos-rebuild build --flake .#laptop";
+      description = "Build the new configuration for laptop, but neither activate it nor add it to the GRUB boot menu";
+    };
+
+    build-server = {
+      exec = "git add . && sudo nixos-rebuild build --flake .#server";
+      description = "Build the new configuration for serverq, but neither activate it nor add it to the GRUB boot menu";
+    };
+
     delete-garbage = {
       exec = ''
         nix-collect-garbage --delete-older-than 7d
