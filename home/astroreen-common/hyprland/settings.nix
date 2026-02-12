@@ -33,57 +33,33 @@ binds
   # Windows rules
   windowrule = [
     # Fullscreen auto-started programs
-    "fullscreen on, match:class ^(Vivaldi-stable)$"
-    "fullscreen on, match:class ^(discord)$"
-    "fullscreen on, match:class ^(vesktop)$"
-    "fullscreen on, match:class ^(com.github.tc_ch.youtube_music)$"
-    "fullscreen on, match:class ^(obsidian)$"
+    "match:class ^(vivaldi-stable)$, fullscreen on"
+    "match:class discord|vesktop, fullscreen on"
+    "match:class youtube_music|spotify, fullscreen on"
+    "match:class ^(obsidian)$, fullscreen on"
 
     # Always open Discord on workspace 3
-    "workspace 3 silent, match:class ^(discord)$"
-    "workspace 3 silent, match:class ^(vesktop)$"
+    "workspace 3 silent, match:class discord|vesktop"
 
-    # Make all programs float by default
-    "float on, match:class ^(.*)$"
+    # Make all modal windows float (e.g. Popups)
+    "match:modal true, float on"
 
     # Always center VSCode notifications
-    "center on, match:class ^(Code)$"
+    "center on, float on, match:class ^(Code)$"
+    "match:class ^(com.interversehq.qView)$, size 1400 800, center on, float on, content photo"
+    "match:class ^org.gnome.Nautilus, size 1400 800, center on, float on"
+    "match:class ^(xdg-desktop-portal-gtk)$, size 1400 800, center on, float on"
+    "match:class ^(localsend_app)$, size 1400 800, center on, float on"
+    "match:class ^(Postman)$, size 1400 800, center on, float on"
 
-    # qView floating with specific size
-    "size 1400 800, match:class ^(com.interversehq.qView)$"
-    "center on, match:class ^(com.interversehq.qView)$"
-
-    # File Manager floating with specific size
-    "size 1400 800, match:class ^(org.gnome.Nautilus)$"
-    "center on, match:class ^(org.gnome.Nautilus)$"
-    "size 1400 800, match:class ^(org.gnome.NautilusPreviewer)$"
-    "center on, match:class ^(org.gnome.NautilusPreviewer)$"
-    "size 1400 800, match:class ^(xdg-desktop-portal-gtk)$"
-    "center on, match:class ^(xdg-desktop-portal-gtk)$"
-
-    # LocalSend always floating with specific size
-    "size 1400 800, match:class ^(localsend_app)$"
-    "center on, match:class ^(localsend_app)$"
-
-    # Postman always floating with specific size
-    "size 1400 800, match:class ^(Postman)$"
-    "center on, match:class ^(Postman)$"
-
-    # Console kitty floating with specific size
-    "size 1200 800, match:class ^(kitty)$"
+    "match:class ^(kitty)$, size 1200 800, float on, move (cursor_x-(window_w*0.5)) (cursor_y-(window_y*0.8))"
 
     # KDE Connect daemon window
-    "fullscreen_state 0 3, match:class ^(org.kde.kdeconnect.daemon)$"
-    "size 100% 100%, match:class ^(org.kde.kdeconnect.daemon)$"
-    "center on, match:class ^(org.kde.kdeconnect.daemon)$"
-    "no_blur on, match:class ^(org.kde.kdeconnect.daemon)$"
-    "no_anim on, match:class ^(org.kde.kdeconnect.daemon)$"
-    "no_dim on, match:class ^(org.kde.kdeconnect.daemon)$"
-    "no_focus on, match:class ^(org.kde.kdeconnect.daemon)$"
-    "no_shadow on, match:class ^(org.kde.kdeconnect.daemon)$"
-    "rounding 0, match:class ^(org.kde.kdeconnect.daemon)$"
-    "no_follow_mouse on, match:class ^(org.kde.kdeconnect.daemon)$"
-    "border_size 0, match:class ^(org.kde.kdeconnect.daemon)$" # instead of "noborder" we will use "border_size 0"
-    "rounding 0, match:class ^(org.kde.kdeconnect.daemon)$"
+    "match:class ^(org.kde.kdeconnect.daemon)$, fullscreen_state 0 3, size 100% 100%, center on, no_blur on, no_anim on, no_dim on, no_focus on, no_shadow on, rounding 0, no_follow_mouse on, border_size 0, rounding 0"
+
+    # Content managment
+    "match:content 3, float on" # All games should float
+    "match:content 1, float on" # All photo should float
+    "match:content 2, fullscreen on" # All video should be opened with fullscreen
   ];
 }

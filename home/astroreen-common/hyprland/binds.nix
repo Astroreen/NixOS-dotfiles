@@ -22,6 +22,7 @@
     "$mod, P, pseudo" # Reserve space for full window, but enable resizе
     "$mod, J, togglesplit" # Make windows stack vertically/horizontally
 
+    "ALT, Tab, cyclenext, activewindow"
     "$mod, Tab, cyclenext, activewindow"
     "$mod, Tab, bringactivetotop"
 
