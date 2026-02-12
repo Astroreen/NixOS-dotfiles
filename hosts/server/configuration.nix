@@ -20,8 +20,8 @@
   # Bootloader.
   boot.loader = {
     efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot/efi";
+      canTouchEfiVariables = false;
+      efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
     };
     # systemd-boot.enable = true;
     grub = {
@@ -29,6 +29,7 @@
       efiSupport = true;
       devices = [ "nodev" ];
       useOSProber = true;
+      efiInstallAsRemovable = true;
     };
   };
 
@@ -191,18 +192,19 @@
 
     nvidia = {
       modesetting.enable = true;
-      powerManagement.enable = true;
-      powerManagement.finegrained = true; # Requires offload below
+      powerManagement.enable = false; # Disable for Desktop stability
+      powerManagement.finegrained = false; # Disable (this is for laptops, requires offload)
       open = false; # Use proprietary driver
       nvidiaSettings = true;
       package = config.boot.kernelPackages.nvidiaPackages.stable;
-      nvidiaPersistenced = false;
+      nvidiaPersistenced = true; # Set to true for Ollama/Whisper performance
 
-      prime = {
-        offload.enable = true;
-        intelBusId = "PCI:0:2:0"; # Use lspci to verify
-        nvidiaBusId = "PCI:1:0:0"; # Use lspci to verify
-      };
+      # No use for PC, only usefull on laptop
+      # prime = {
+      #   offload.enable = false;
+      #   intelBusId = "PCI:0:2:0"; # Use lspci to verify
+      #   nvidiaBusId = "PCI:1:0:0"; # Use lspci to verify
+      # };
     };
     nvidia-container-toolkit.enable = true;
 
