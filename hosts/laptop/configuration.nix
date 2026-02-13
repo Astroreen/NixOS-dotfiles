@@ -12,6 +12,7 @@
     ./services.nix # Services configuration
     ../certificates.nix # Import certificates
 
+    ../../import/nix-ld.nix # Some libraries to run runtime projects
     ../../import/common-system-apps.nix # Common system applications
     ../../modules/style/theme/dark/adwaita/adwaita-dark-system.nix # Adwaita dark theme
     ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
@@ -214,7 +215,7 @@
   virtualisation.docker = {
     enable = true;
     enableOnBoot = true;
-    enableNvidia = true; # Enable NVIDIA support
+    # enableNvidia = true; # Enable NVIDIA support, deprecated
     rootless = {
       enable = false;
       setSocketVariable = false;

@@ -43,9 +43,9 @@ binds
 
     # Make all modal windows float (e.g. Popups)
     "match:modal true, float on"
+    "match:class ^me.astroreen, float on" # For development, make all my programs float when ran 
 
-    # Always center VSCode notifications
-    "center on, float on, match:class ^(Code)$"
+    "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
     "match:class ^(com.interversehq.qView)$, size 1400 800, center on, float on, content photo"
     "match:class ^org.gnome.Nautilus, size 1400 800, center on, float on"
     "match:class ^(xdg-desktop-portal-gtk)$, size 1400 800, center on, float on"
