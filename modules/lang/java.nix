@@ -20,22 +20,22 @@ let
   javaSettings = {
     "java.configuration.runtimes" = [
       {
-        "name" = "OpenJDK-11";
+        "name" = "JavaSE-11";
         "path" = "${pkgs.jdk11}/lib/openjdk";
         "default" = false;
       }
       {
-        "name" = "OpenJDK-17";
+        "name" = "JavaSE-17";
         "path" = "${pkgs.jdk17}/lib/openjdk";
         "default" = false;
       }
       {
-        "name" = "OpenJDK-21";
+        "name" = "JavaSE-21";
         "path" = "${pkgs.jdk21}/lib/openjdk";
         "default" = false;
       }
       {
-        "name" = "OpenJDK-25";
+        "name" = "JavaSE-25";
         "path" = "${pkgs.jdk25}/lib/openjdk";
         "default" = true;
       }
