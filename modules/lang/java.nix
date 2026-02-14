@@ -46,7 +46,7 @@ let
     "java.compile.nullAnalysis.mode" = "automatic";
     "java.completion.enabled" = true;
 
-    "java.jdt.ls.java.home" = "${pkgs.jdk21}";
+    "java.jdt.ls.java.home" = "${pkgs.jdk25}";
     "java.import.gradle.java.home" = "${java-package}";
     "gradle.java.home" = "${java-package}";
     "sonarlint.ls.javaHome" = "${java-package}";
@@ -56,8 +56,37 @@ let
     "java.gradle.buildServer.enabled" = "on";
     "gradle.autoDetect" = "on";
     "gradle.nestedProjects" = true;
-
+    # Give the server 4GB of RAM
+    "java.jdt.ls.vmargs" = "-Xmx4G -XX:+UseG1GC -XX:+UseStringDeduplication";
+    # Start in Lightweight mode to stop it from building everything immediately
     "java.server.launchMode" = "Standard";
+    # IMPORTANT: Stop it from indexing your Nix environment folders
+    "files.exclude" = {
+      "**/.devenv/**" = true;
+      "**/.direnv/**" = true;
+      "**/target/**" = true;
+      "**/bin/**" = true;
+    };
+    "files.watcherExclude" = {
+      "**/.devenv/**" = true;
+      "**/.direnv/**" = true;
+      "**/target/**" = true;
+      "**/bin/**" = true;
+    };
+    "java.import.exclusions" = [
+      "**/node_modules/**"
+      "**/.metadata/**"
+      "**/archetype-resources/**"
+      "**/META-INF/maven/**"
+      "**/.devenv/**" # This is the crucial one
+      "**/.direnv/**"
+    ];
+    "java.project.resourceFilters" = [
+      "node_modules"
+      ".devenv"
+      ".direnv"
+    ];
+
     "java.autobuild.enabled" = true;
     "java.completion.importOrder" = [
       "java"
@@ -99,7 +128,9 @@ let
         "level" = "off";
       };
     };
-    "javafx.libPath" = "${pkgs.javaPackages.openjfx25}/modules";
+
+    # JavaFX settings
+    "javafx.libPath" = "/home/astroreen/.local/share/javafx/javafx-sdk-25.0.2/lib";
   };
 in
 {
