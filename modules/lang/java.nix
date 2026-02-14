@@ -61,18 +61,6 @@ let
     # Start in Lightweight mode to stop it from building everything immediately
     "java.server.launchMode" = "Standard";
     # IMPORTANT: Stop it from indexing your Nix environment folders
-    "files.exclude" = {
-      "**/.devenv/**" = true;
-      "**/.direnv/**" = true;
-      "**/target/**" = true;
-      "**/bin/**" = true;
-    };
-    "files.watcherExclude" = {
-      "**/.devenv/**" = true;
-      "**/.direnv/**" = true;
-      "**/target/**" = true;
-      "**/bin/**" = true;
-    };
     "java.import.exclusions" = [
       "**/node_modules/**"
       "**/.metadata/**"

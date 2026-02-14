@@ -72,6 +72,20 @@
 
   # AI Chat settings
   "chat.viewSessions.orientation" = "stacked";
+  
+  # Stop VSCode from indexing these folders
+  "files.exclude" = {
+    "**/.devenv/**" = true;
+    "**/.direnv/**" = true;
+    "**/target/**" = true;
+    "**/bin/**" = true;
+  };
+  "files.watcherExclude" = {
+    "**/.devenv/**" = true;
+    "**/.direnv/**" = true;
+    "**/target/**" = true;
+    "**/bin/**" = true;
+  };
 
   ##############
   # Extensions #
