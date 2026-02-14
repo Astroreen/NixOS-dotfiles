@@ -33,13 +33,10 @@ binds
   # Windows rules
   windowrule = [
     # Fullscreen auto-started programs
-    "match:class ^(vivaldi-stable)$, fullscreen on"
-    "match:class discord|vesktop, fullscreen on"
-    "match:class youtube_music|spotify, fullscreen on"
-    "match:class ^(obsidian)$, fullscreen on"
-
-    # Always open Discord on workspace 3
-    "workspace 3 silent, match:class discord|vesktop"
+    "match:class ^vivaldi, fullscreen on, workspace 2"
+    "match:class discord|vesktop, fullscreen on, workspace 3 silent"
+    "match:class youtube_music|spotify, fullscreen on, workspace 4"
+    "match:class ^(obsidian)$, workspace 5 silent"
 
     # Make all modal windows float (e.g. Popups)
     "match:modal true, float on"
@@ -52,7 +49,7 @@ binds
     "match:class ^(localsend_app)$, size 1400 800, center on, float on"
     "match:class ^(Postman)$, size 1400 800, center on, float on"
 
-    "match:class ^(kitty)$, size 1200 800, float on, move (cursor_x-(window_w*0.5)) (cursor_y-(window_y*0.8))"
+    "match:class ^(kitty)$, size 1200 800, float on, center on"
 
     # KDE Connect daemon window
     "match:class ^(org.kde.kdeconnect.daemon)$, fullscreen_state 0 3, size 100% 100%, center on, no_blur on, no_anim on, no_dim on, no_focus on, no_shadow on, rounding 0, no_follow_mouse on, border_size 0, rounding 0"
