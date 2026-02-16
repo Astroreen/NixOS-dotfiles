@@ -1,4 +1,9 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 let
   dotnetPackage = pkgs.dotnetCorePackages.sdk_9_0-bin;
 
@@ -6,12 +11,16 @@ let
   existingSettings =
     if builtins.pathExists settingsPath then
       builtins.fromJSON (builtins.readFile settingsPath)
-    else { };
+    else
+      { };
 
   csharpSettings = {
-    "dotnet.dotnetPath" = "dotnet";
+    "omnisharp.dotnetPath" = "${dotnetPackage}/bin/dotnet";
+    "dotnet.dotnetPath" = "${dotnetPackage}/bin/dotnet";
+    "dotnet.server.useOmnisharp" = false;
+    "csharp.experimental.roslynDevKit" = true;
   };
-in 
+in
 {
 
   programs.vscode = {
