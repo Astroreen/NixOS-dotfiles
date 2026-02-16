@@ -23,6 +23,7 @@
     # Languages
     ../modules/lang/java.nix
     ../modules/lang/javascript.nix
+    ../modules/lang/csharp.nix
     ../modules/lang/flutter/flutter-home.nix
   ];
 }
