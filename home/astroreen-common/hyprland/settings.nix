@@ -33,9 +33,9 @@ binds
   # Windows rules
   windowrule = [
     # Fullscreen auto-started programs
-    "match:class ^vivaldi, fullscreen on, workspace 2 silent"
+    "match:class vivaldi, fullscreen on, workspace 2 silent"
     "match:class discord|vesktop, fullscreen on, workspace 3 silent"
-    "match:class youtube_music|spotify, fullscreen on"
+    "match:class youtube_music|spotify, fullscreen on, workspace 4 silent"
     "match:class ^(obsidian)$, workspace 5 silent"
 
     # Make all modal windows float (e.g. Popups)
