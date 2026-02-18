@@ -21,7 +21,7 @@
   # Bootloader.
   boot.loader = {
     efi = {
-      canTouchEfiVariables = false;
+      canTouchEfiVariables = true;
       efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
     };
     # systemd-boot.enable = true;
@@ -30,8 +30,10 @@
       efiSupport = true;
       devices = [ "nodev" ];
       useOSProber = true;
-      efiInstallAsRemovable = true;
+      efiInstallAsRemovable = false;
     };
+
+    timeout = 5; # seconds
   };
 
   # Enable networking

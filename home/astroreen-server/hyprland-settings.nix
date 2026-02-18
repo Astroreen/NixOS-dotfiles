@@ -15,13 +15,12 @@
     "DP-3,3440x1440@165,0x0,1"
     "DP-2,1920x1080@60,3440x-480,1,transform,3"
     "HDMI-A-1,1920x1080@240,-1080x-480,1,transform,1"
-    # "HDMI-A-1,1920x1080@60,-1920x-480,1"
   ];
 
   exec-once = [
     # Set primary monitor
-    "sleep 5 && hyprctl keyword monitor HDMI-A-1,disable && sleep 5 && hyprctl keyword monitor DP-2,disable && sleep 5"
-    "hyprctl keyword monitor HDMI-A-1,1920x1080@240,-1080x-480,1,transform,1 && hyprctl keyword monitor DP-2,1920x1080@60,3440x-480,1,transform,3"
+    "hyprctl keyword monitor HDMI-A-1,disable && sleep 5 && hyprctl keyword monitor DP-2,disable"
+    # "hyprctl keyword monitor HDMI-A-1,1920x1080@240,-1080x-480,1,transform,1 && hyprctl keyword monitor DP-2,1920x1080@60,3440x-480,1,transform,3"
     # Move mouse to main monitor
     "hyprctl dispatch workspace 1"
     # Start whisper server for voice transcription

@@ -33,14 +33,14 @@ binds
   # Windows rules
   windowrule = [
     # Fullscreen auto-started programs
-    "match:class ^vivaldi, fullscreen on, workspace 2"
+    "match:class ^vivaldi, fullscreen on, workspace 2 silent"
     "match:class discord|vesktop, fullscreen on, workspace 3 silent"
-    "match:class youtube_music|spotify, fullscreen on, workspace 4"
+    "match:class youtube_music|spotify, fullscreen on"
     "match:class ^(obsidian)$, workspace 5 silent"
 
     # Make all modal windows float (e.g. Popups)
     "match:modal true, float on"
-    "match:class ^me.astroreen, float on" # For development, make all my programs float when ran 
+    "match:class me.astroreen, float on" # For development, make all my programs float when ran 
 
     "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
     "match:class ^(com.interversehq.qView)$, size 1400 800, center on, float on, content photo"
