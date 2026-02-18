@@ -285,7 +285,7 @@
   virtualisation.docker = {
     enable = true;
     enableOnBoot = true;
-    # enableNvidia = true; # Enable NVIDIA support, deprecated
+    enableNvidia = true; # Enable NVIDIA support, deprecated
     rootless = {
       enable = false;
       setSocketVariable = false;
