@@ -31,6 +31,7 @@
       devices = [ "nodev" ];
       useOSProber = true;
       efiInstallAsRemovable = false;
+      theme = "${pkgs.sleek-grub-theme}"; # Sleek GRUB theme
     };
 
     timeout = 5; # seconds
