@@ -5,6 +5,12 @@
   lib,
   ...
 }:
+let
+  grub-theme-pkg = pkgs.sleek-grub-theme.override {
+    withStyle = "dark";
+    withBanner = "AstroGrub Bootloader";
+  };
+in
 {
   imports = [
     ./hardware-configuration.nix # Required.
@@ -31,7 +37,7 @@
       devices = [ "nodev" ];
       useOSProber = true;
       efiInstallAsRemovable = false;
-      theme = "${pkgs.sleek-grub-theme}"; # Sleek GRUB theme
+      theme = "${grub-theme-pkg}";
     };
 
     timeout = 5; # seconds
