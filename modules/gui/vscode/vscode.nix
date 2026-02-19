@@ -7,7 +7,7 @@ in
 {
   programs.vscode = {
     enable = true;
-    package = pkgs.vscode-fhs;
+    package = pkgs.vscode;
 
     profiles.default = {
       userSettings = vscodeSettings; # // dynamicSettings;
