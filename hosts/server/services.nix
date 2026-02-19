@@ -100,8 +100,20 @@
   };
 
   # Power management
-  services.power-profiles-daemon.enable = true; # Enable power profiles
-  services.upower.enable = true; # Enable upower for battery management
+  services.power-profiles-daemon.enable = false; # Enable power profiles
+  services.upower.enable = false; # Enable upower for battery management
+  powerManagement.enable = false;
+  # No hibernation for the server
+  systemd.targets.sleep.enable = false;
+  systemd.targets.suspend.enable = false;
+  systemd.targets.hibernate.enable = false;
+  systemd.targets.hybrid-sleep.enable = false;
+  services.logind.settings.Login = {
+    LidSwitchIgnoreInhibited = "no";
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
+    HandleLidSwitchDocked = "ignore";
+  };
 
   # Security
   security.pam.services.gdm-password.enableGnomeKeyring = true;
