@@ -41,4 +41,5 @@ in
 
   # Host specific settings - properly merged
   hyprland.settings = mergeHyprlandSettings commonSettings hostSettings;
+  hyprland.caelestia.shell-file = ./assets/caelestia-shell-config.json;
 }

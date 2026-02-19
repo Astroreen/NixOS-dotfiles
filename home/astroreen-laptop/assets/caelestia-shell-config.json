@@ -1,5 +1,7 @@
 {
     "appearance": {
+        "mediaGifSpeedAdjustment": 300,
+        "sessionGifSpeed": 0.7,
         "anim": {
             "durations": {
                 "scale": 1
@@ -84,7 +86,20 @@
     },
     "background": {
         "desktopClock": {
-            "enabled": false
+            "enabled": false,
+            "scale": 1.0,
+            "position": "bottom-right",
+            "shadow": {
+                "enabled": true,
+                "opacity": 0.7,
+                "blur": 0.4
+            },
+            "background": {
+                "enabled": false,
+                "opacity": 0.7,
+                "blur": true
+            },
+            "invertColors": false
         },
         "enabled": true,
         "visualiser": {
@@ -181,6 +196,10 @@
                     "icon": "sports_esports"
                 }
             ]
+        },
+        "excludedScreens": [""],
+        "activeWindow": {
+            "inverted": false
         }
     },
     "border": {
@@ -299,6 +318,14 @@
                 "command": ["systemctl", "suspend-then-hibernate"],
                 "enabled": true,
                 "dangerous": false
+            },
+            {
+                "name": "Settings",
+                "icon": "settings",
+                "description": "Configure the shell",
+                "command": ["caelestia", "shell", "controlCenter", "open"],
+                "enabled": true,
+                "dangerous": false
             }
         ],
         "dragThreshold": 50,
@@ -325,7 +352,8 @@
         "clearThreshold": 0.3,
         "defaultExpireTimeout": 3000,
         "expandThreshold": 20,
-        "expire": true
+        "openExpanded": false,
+        "expire": false
     },
     "osd": {
         "enabled": true,
@@ -340,15 +368,14 @@
     },
     "services": {
         "audioIncrement": 0.1,
+        "brightnessIncrement": 0.1,
         "maxVolume": 1.0,
-        "defaultPlayer": "Spotify",
-        "gpuType": "NVIDIA",
-        "playerAliases": [
-            { "from": "com.github.th_ch.youtube_music", "to": "YT Music" }
-        ],
-        "weatherLocation": "54.7005722,25.0878896",
+        "defaultPlayer": "YT Music",
+        "gpuType": "",
+        "playerAliases": [{ "from": "com.github.th_ch.youtube_music", "to": "YT Music" }],
+        "weatherLocation": "",
         "useFahrenheit": false,
-        "useTwelveHourClock": false,
+        "useTwelveHourClock": true,
         "smartScheme": true,
         "visualiserBars": 45
     },
@@ -379,17 +406,19 @@
             "dndChanged": true,
             "gameModeChanged": true,
             "kbLayoutChanged": true,
+            "kbLimit": true,
             "numLockChanged": true,
             "vpnChanged": true,
             "nowPlaying": false
         },
         "vpn": {
-            "enabled": false,
+            "enabled": true,
             "provider": [
                 {
                     "name": "wireguard",
                     "interface": "your-connection-name",
-                    "displayName": "Wireguard (Your VPN)"
+                    "displayName": "Wireguard (Your VPN)",
+                    "enabled": false
                 }
             ]
         }

@@ -42,7 +42,7 @@
 
       # All config options could be found here: https://github.com/caelestia-dots/shell/tree/main/config
       # or you could take a look at my caelestia shell.json file and tweak it to your liking.
-      shell-file = ./assets/caelestia-shell-config.json;
+      # shell-file = ./assets/caelestia-shell-config.json;
     };
   };
 
