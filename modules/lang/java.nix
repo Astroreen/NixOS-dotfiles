@@ -151,9 +151,9 @@ in
     javaPackages.openjfx25
     maven
 
-    # Tip: in order to install scene builder in vscode, run command
-    # 'Configure SceneBuilder path' using Ctrl+Shift+P and set it to the path
-    # which the command 'which scenebuilder' outputs after installing the package and extension
+    # Tip: in order to install scene builder in vscode install the extension,
+    # run command 'Configure SceneBuilder path' using Ctrl+Shift+P and set it
+    # to the path which the command 'which scenebuilder' outputs
     scenebuilder
   ];
 
