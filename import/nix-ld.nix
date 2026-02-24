@@ -13,6 +13,10 @@
   programs.nix-ld = {
     enable = true;
     libraries = with pkgs; [
+      # Required for Android Emulator (Flutter)
+      mesa
+      libvirt
+
       # List by default
       zlib
       zstd

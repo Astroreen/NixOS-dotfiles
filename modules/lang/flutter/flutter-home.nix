@@ -44,19 +44,42 @@ let
       "ANDROID_HOME" = sdkHome;
       "ANDROID_EMULATOR_USE_SYSTEM_LIBS" = "1";
       "ANDROID_EMULATOR_FORCE_ANGLE" = "false";
-      "ANDROID_EMULATOR_FORCE_GPU" = "swiftshader_indirect";
+      "ANDROID_EMULATOR_FORCE_GPU" = "angle_indirect";
       "QT_QPA_PLATFORM" = "xcb";
     };
     # Instruct the Flutter extension to start the emulator with ANGLE
     "dart.flutterEmulatorLaunchArgs" = [
       "-gpu"
-      "swiftshader_indirect"
+      "angle_indirect"
+    ];
+
+    "dart.flutterRunAdditionalArgs" = [
+      "--no-enable-impeller" # Disable Impeller renderer for better compatibility on this host
     ];
   };
 
+  includeAuto = pkgs.stdenv.hostPlatform.isx86_64 || pkgs.stdenv.hostPlatform.isDarwin;
+
   androidComposition = pkgs.androidenv.composeAndroidPackages {
+    includeNDK = true;
+    includeEmulator = true;
+    includeSystemImages = true;
+    includeSources = true;
+    useGoogleAPIs = true;
+    useGoogleTVAddOns = true;
+
+    abiVersions = [ "x86_64" ];
     toolsVersion = "26.1.1";
     platformToolsVersion = "35.0.1";
+    emulatorVersion = "35.1.4";
+    cmakeVersions = [ "3.22.1" ];
+    ndkVersions = [
+      "23.1.7779620"
+      "25.1.8937393"
+      "26.1.10909125"
+      "28.2.13676358"
+      "latest"
+    ];
     buildToolsVersions = [
       "28.0.3" # Required by Flutter
       "30.0.3"
@@ -72,25 +95,35 @@ let
       "35"
       "36" # Required by Flutter
     ];
-    abiVersions = [ "x86_64" ];
-    includeEmulator = true;
-    emulatorVersion = "35.1.4";
-    includeSystemImages = true;
+
+    includeExtras = [
+      "extras;google;gcm"
+    ]
+    ++ pkgs.lib.optionals includeAuto [
+      "extras;google;auto"
+    ];
+
     systemImageTypes = [ "google_apis_playstore" ];
-    includeSources = false;
+
     extraLicenses = [
+      # Already accepted for you with the global accept_license = true or
+      # licenseAccepted = true on androidenv.
+      # "android-sdk-license"
+
+      # These aren't, but are useful for more uncommon setups.
+      "android-sdk-preview-license"
       "android-googletv-license"
       "android-sdk-arm-dbt-license"
-      "android-sdk-license"
-      "android-sdk-preview-license"
       "google-gdk-license"
       "intel-android-extra-license"
       "intel-android-sysimage-license"
       "mips-android-sysimage-license"
     ];
   };
+
   androidSdk = androidComposition.androidsdk;
   sdkHome = "${config.home.homeDirectory}/Android/Sdk";
+
   cmdlineToolsVersion = "19.0"; # adjust if your version changes
   nixCmdlineTools = "${androidSdk}/libexec/android-sdk/cmdline-tools/${cmdlineToolsVersion}";
 in
@@ -99,6 +132,7 @@ in
     flutter
     androidSdk
     android-tools
+    aapt
     # firebase-tools # Commenting out since it breaks configuration and this module is rarely used
   ];
 
@@ -107,16 +141,23 @@ in
   home.activation.createAndroidSdkDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     rm -rf "$HOME/Android/Sdk"
     mkdir -p "$HOME/Android/Sdk/cmdline-tools"
+    mkdir -p "$HOME/Android/Sdk/emulator"
+
     ln -sf "${androidSdk}/libexec/android-sdk/build-tools" "$HOME/Android/Sdk/build-tools"
     ln -sf "${androidSdk}/libexec/android-sdk/cmdline-tools/${cmdlineToolsVersion}" "$HOME/Android/Sdk/cmdline-tools/latest"
     ln -sf "${androidSdk}/libexec/android-sdk/licenses" "$HOME/Android/Sdk/licenses"
-    ln -sf "${androidSdk}/libexec/android-sdk/emulator" "$HOME/Android/Sdk/emulator"
     ln -sf "${androidSdk}/libexec/android-sdk/platforms" "$HOME/Android/Sdk/platforms"
     ln -sf "${androidSdk}/libexec/android-sdk/platform-tools" "$HOME/Android/Sdk/platform-tools"
-
+    ln -sf "${androidSdk}/libexec/android-sdk/ndk" "$HOME/Android/Sdk/ndk"
     ln -sf "${androidSdk}/libexec/android-sdk/tools" "$HOME/Android/Sdk/tools"
     ln -sf "${androidSdk}/libexec/android-sdk/cmake" "$HOME/Android/Sdk/cmake"
     ln -sf "${androidSdk}/libexec/android-sdk/system-images" "$HOME/Android/Sdk/system-images"
+
+    # Commenting out and using wrapper
+    # ln - sf "${androidSdk}/libexec/android-sdk/emulator" "$HOME/Android/Sdk/emulator"
+    # Emulator symlink for VS Code and Flutter tools that call it directly
+    ln -sf "$HOME/Android/emulator-wrapper/bin/emulator" "$HOME/Android/Sdk/emulator/emulator"
+
 
   '';
 
@@ -127,7 +168,7 @@ in
   home.sessionVariables = {
     ANDROID_SDK_ROOT = sdkHome;
     ANDROID_HOME = sdkHome;
-    GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/34.0.0/aapt2";
+    GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${pkgs.aapt}/bin/aapt2";
     CHROME_EXECUTABLE = "${pkgs.vivaldi}/bin/vivaldi";
     # Android Emulator on NixOS/Wayland/NVIDIA tweaks
     ANDROID_EMULATOR_USE_SYSTEM_LIBS = "1"; # use system GL/Vulkan/Qt instead of bundled
@@ -158,14 +199,14 @@ in
       export QT_QPA_PLATFORM=xcb
       export VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
       export __GLX_VENDOR_LIBRARY_NAME=nvidia
-      export LD_LIBRARY_PATH="/run/opengl-driver/lib:$LD_LIBRARY_PATH"
+      export LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib:$LD_LIBRARY_PATH"
 
       # If no GPU flag passed, default to angle_indirect (works on this host)
       if ! printf '%s\n' "$@" | grep -q -- '-gpu'; then
         set -- -gpu angle_indirect "$@"
       fi
 
-      exec "$HOME/Android/Sdk/emulator/emulator" "$@"
+      exec "${androidSdk}/libexec/android-sdk/emulator/emulator" "$@"
     '';
     executable = true;
   };
