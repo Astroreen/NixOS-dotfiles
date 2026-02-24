@@ -21,22 +21,22 @@ let
     "java.configuration.runtimes" = [
       {
         "name" = "JavaSE-11";
-        "path" = "${pkgs.jdk11}/lib/openjdk";
+        "path" = "${pkgs.jdk11.home}";
         "default" = false;
       }
       {
         "name" = "JavaSE-17";
-        "path" = "${pkgs.jdk17}/lib/openjdk";
+        "path" = "${pkgs.jdk17.home}";
         "default" = false;
       }
       {
         "name" = "JavaSE-21";
-        "path" = "${pkgs.jdk21}/lib/openjdk";
+        "path" = "${pkgs.jdk21.home}";
         "default" = false;
       }
       {
         "name" = "JavaSE-25";
-        "path" = "${pkgs.jdk25}/lib/openjdk";
+        "path" = "${pkgs.jdk25.home}";
         "default" = true;
       }
     ];

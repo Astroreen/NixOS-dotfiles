@@ -122,70 +122,22 @@ let
   };
 
   androidSdk = androidComposition.androidsdk;
+  ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
   sdkHome = "${config.home.homeDirectory}/Android/Sdk";
 
   cmdlineToolsVersion = "19.0"; # adjust if your version changes
-  nixCmdlineTools = "${androidSdk}/libexec/android-sdk/cmdline-tools/${cmdlineToolsVersion}";
+  nixCmdlineTools = "${ANDROID_SDK_ROOT}/cmdline-tools/${cmdlineToolsVersion}";
 in
 {
+  # VSCode settings (unchanged)
+  programs.vscode.profiles.default.userSettings = existingSettings // flutterSettings;
+
   home.packages = with pkgs; [
     flutter
     androidSdk
     android-tools
     aapt
     # firebase-tools # Commenting out since it breaks configuration and this module is rarely used
-  ];
-
-  # Symlink ~/Android/Sdk/cmdline-tools/latest -> $nixCmdlineTools
-  # home.file."Android/Sdk".source = "${androidSdk}/libexec/android-sdk";
-  home.activation.createAndroidSdkDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    rm -rf "$HOME/Android/Sdk"
-    mkdir -p "$HOME/Android/Sdk/cmdline-tools"
-    mkdir -p "$HOME/Android/Sdk/emulator"
-
-    ln -sf "${androidSdk}/libexec/android-sdk/build-tools" "$HOME/Android/Sdk/build-tools"
-    ln -sf "${androidSdk}/libexec/android-sdk/cmdline-tools/${cmdlineToolsVersion}" "$HOME/Android/Sdk/cmdline-tools/latest"
-    ln -sf "${androidSdk}/libexec/android-sdk/licenses" "$HOME/Android/Sdk/licenses"
-    ln -sf "${androidSdk}/libexec/android-sdk/platforms" "$HOME/Android/Sdk/platforms"
-    ln -sf "${androidSdk}/libexec/android-sdk/platform-tools" "$HOME/Android/Sdk/platform-tools"
-    ln -sf "${androidSdk}/libexec/android-sdk/ndk" "$HOME/Android/Sdk/ndk"
-    ln -sf "${androidSdk}/libexec/android-sdk/tools" "$HOME/Android/Sdk/tools"
-    ln -sf "${androidSdk}/libexec/android-sdk/cmake" "$HOME/Android/Sdk/cmake"
-    ln -sf "${androidSdk}/libexec/android-sdk/system-images" "$HOME/Android/Sdk/system-images"
-
-    # Commenting out and using wrapper
-    # ln - sf "${androidSdk}/libexec/android-sdk/emulator" "$HOME/Android/Sdk/emulator"
-    # Emulator symlink for VS Code and Flutter tools that call it directly
-    ln -sf "$HOME/Android/emulator-wrapper/bin/emulator" "$HOME/Android/Sdk/emulator/emulator"
-
-
-  '';
-
-  # VSCode settings (unchanged)
-  programs.vscode.profiles.default.userSettings = existingSettings // flutterSettings;
-
-  # Set environment variables to point to user-writable SDK
-  home.sessionVariables = {
-    ANDROID_SDK_ROOT = sdkHome;
-    ANDROID_HOME = sdkHome;
-    GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${pkgs.aapt}/bin/aapt2";
-    CHROME_EXECUTABLE = "${pkgs.vivaldi}/bin/vivaldi";
-    # Android Emulator on NixOS/Wayland/NVIDIA tweaks
-    ANDROID_EMULATOR_USE_SYSTEM_LIBS = "1"; # use system GL/Vulkan/Qt instead of bundled
-  };
-
-  programs.bash.sessionVariables = config.home.sessionVariables;
-  programs.zsh.sessionVariables = config.home.sessionVariables;
-
-  home.sessionPath = [
-    "$HOME/Android/emulator-wrapper/bin" # wrapper first so VS Code uses it
-    "${sdkHome}/cmdline-tools/latest/bin"
-    "${sdkHome}/platforms"
-    "${sdkHome}/platform-tools"
-    "${sdkHome}/emulator"
-    "${sdkHome}/tools"
-    "${sdkHome}/tools/bin"
-    "$HOME/.pub-cache/bin"
   ];
 
   # VS Code and Flutter extensions often call `emulator` directly.
@@ -206,8 +158,55 @@ in
         set -- -gpu angle_indirect "$@"
       fi
 
-      exec "${androidSdk}/libexec/android-sdk/emulator/emulator" "$@"
+      exec "${ANDROID_SDK_ROOT}/emulator/emulator" "$@"
     '';
     executable = true;
   };
+
+  # Symlink ~/Android/Sdk/cmdline-tools/latest -> $nixCmdlineTools
+  # home.file."Android/Sdk".source = "${androidSdk}/libexec/android-sdk";
+  home.activation.createAndroidSdkDirectory = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    rm -rf "${sdkHome}"
+    mkdir -p "${sdkHome}/cmdline-tools"
+    mkdir -p "${sdkHome}/emulator"
+
+    ln -sf "${ANDROID_SDK_ROOT}/build-tools" "${sdkHome}/build-tools"
+    ln -sf "${ANDROID_SDK_ROOT}/cmdline-tools/${cmdlineToolsVersion}" "${sdkHome}/cmdline-tools/latest"
+    ln -sf "${ANDROID_SDK_ROOT}/licenses" "${sdkHome}/licenses"
+    ln -sf "${ANDROID_SDK_ROOT}/platforms" "${sdkHome}/platforms"
+    ln -sf "${ANDROID_SDK_ROOT}/platform-tools" "${sdkHome}/platform-tools"
+    ln -sf "${ANDROID_SDK_ROOT}/ndk" "${sdkHome}/ndk"
+    ln -sf "${ANDROID_SDK_ROOT}/tools" "${sdkHome}/tools"
+    ln -sf "${ANDROID_SDK_ROOT}/cmake" "${sdkHome}/cmake"
+    ln -sf "${ANDROID_SDK_ROOT}/system-images" "${sdkHome}/system-images"
+
+    # Commenting out and using wrapper
+    # ln -sf "${ANDROID_SDK_ROOT}/emulator" "${sdkHome}/emulator"
+    # Emulator symlink for VS Code and Flutter tools that call it directly
+    ln -sf "$HOME/Android/emulator-wrapper/bin/emulator" "${sdkHome}/emulator/emulator"
+  '';
+
+  # Set environment variables to point to user-writable SDK
+  home.sessionVariables = {
+    ANDROID_SDK_ROOT = sdkHome;
+    ANDROID_HOME = sdkHome;
+    GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${pkgs.aapt}/bin/aapt2";
+    CHROME_EXECUTABLE = "${pkgs.vivaldi}/bin/vivaldi";
+    # Android Emulator on NixOS/Wayland/NVIDIA tweaks
+    ANDROID_EMULATOR_USE_SYSTEM_LIBS = "1"; # use system GL/Vulkan/Qt instead of bundled
+  };
+
+  home.sessionPath = [
+    "$HOME/Android/emulator-wrapper/bin" # wrapper first so VS Code uses it
+    "${sdkHome}/cmdline-tools/latest/bin"
+    "${sdkHome}/platforms"
+    "${sdkHome}/platform-tools"
+    "${sdkHome}/emulator"
+    "${sdkHome}/tools"
+    "${sdkHome}/tools/bin"
+    "$HOME/.pub-cache/bin"
+  ];
+
+  programs.bash.sessionVariables = config.home.sessionVariables;
+  programs.zsh.sessionVariables = config.home.sessionVariables;
 }
