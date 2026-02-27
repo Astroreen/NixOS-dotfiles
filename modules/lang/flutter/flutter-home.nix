@@ -64,7 +64,7 @@ let
     includeNDK = true;
     includeEmulator = true;
     includeSystemImages = true;
-    includeSources = true;
+    includeSources = false;
     useGoogleAPIs = true;
     useGoogleTVAddOns = true;
 
