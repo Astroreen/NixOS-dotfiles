@@ -31,6 +31,7 @@
     # Productivity
     libreoffice # Office suite
     obsidian # Note-taking app
+    rustdesk # Remote desktop client
 
     # Development
     # github-desktop                # GitHub desktop client
