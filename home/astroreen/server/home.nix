@@ -28,12 +28,15 @@ let
     );
 
   # Import the settings
-  commonSettings = import ../astroreen-common/hyprland/settings.nix;
+  commonSettings = import ../common/hyprland/settings.nix;
   hostSettings = import ./hyprland-settings.nix;
 in
 {
   imports = [
-    ../astroreen-common/home.nix # All the common settings
+    ../common/home.nix # All the common settings
+
+    ../../modules/tui/ollama.nix
+    ../../modules/tui/whisper.nix
   ];
 
   # Host specific settings - properly merged

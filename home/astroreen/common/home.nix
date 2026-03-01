@@ -9,14 +9,14 @@
 {
   imports = [
     # Style
-    ../../modules/style/cursor/breeze # Breeze cursor style
-    ../../modules/style/theme/dark/adwaita/adwaita-dark-home.nix # Adwaita dark theme
+    ../../../modules/style/cursor/breeze # Breeze cursor style
+    ../../../modules/style/theme/dark/adwaita/adwaita-dark-home.nix # Adwaita dark theme
 
     # Apps
-    ../../import/common-home-apps.nix
+    ../../../import/common-home-apps.nix
 
     # Windows manager (wm)
-    ../../modules/wm/hyprland/hyprland-home.nix # Hyprland window manager
+    ../../../modules/wm/hyprland/hyprland-home.nix # Hyprland window manager
   ];
 
   # Wayland, X, etc. support for session vars
