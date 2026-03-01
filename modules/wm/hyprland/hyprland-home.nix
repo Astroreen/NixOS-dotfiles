@@ -20,19 +20,6 @@ in
       description = "Use this guide for flags: https://wiki.hypr.land/Configuring/Binds/#bind-flags";
     };
 
-    waybar.enable = lib.mkEnableOption "Enable wayland - bar at the top";
-
-    hyprpaper = {
-      enable = lib.mkEnableOption "Set up wallpaper";
-
-      wallpaper = lib.mkOption {
-        type = lib.types.path;
-        default = ./nixos-wallpaper.png;
-        example = "/absolute/path/to/wallpaper.png or ./relative/path/to/wallpaper.jpg";
-        description = "Path to wallpaper to set main wallpaper on screen";
-      };
-    };
-
     caelestia = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -65,54 +52,16 @@ in
   };
 
   config = {
-    # Hyprland specific programs (they relevent only on Hyprland)
-    programs = {
-      waybar = {
-        enable = cfg.waybar.enable;
-      };
-    };
 
     # Configs to apply
     home.file = {
 
-    }
-    // lib.optionalAttrs cfg.hyprpaper.enable {
-      "Pictures/Wallpapers/wallpaper.png" = {
-        source = cfg.hyprpaper.wallpaper;
-      };
-    }
-    // lib.optionalAttrs cfg.waybar.enable {
-      ".config/waybar" = {
-        source = ./waybar;
-        recursive = true;
-      };
-      ".config/waybar/waybar.sh" = {
-        source = ./waybar/waybar.sh;
-        executable = true;
-      };
-      ".config/waybar/modules/mediaplayer.py" = {
-        source = ./waybar/modules/mediaplayer.py;
-        executable = true;
-      };
     }
     // lib.optionalAttrs cfg.caelestia.enable {
       ".config/quickshell/caelestia".source = inputs.caelestia-shell;
       ".config/caelestia/shell.json".source = cfg.caelestia.shell-file;
       ".face".source = cfg.caelestia.avatar;
       ".local/state/caelestia/wallpaper/current".source = cfg.caelestia.wallpapers;
-    };
-
-    # Setup wallpapers
-    services.hyprpaper = {
-      enable = cfg.hyprpaper.enable;
-      settings = {
-        preload = [
-          "~/Pictures/Wallpapers/wallpaper.png"
-        ];
-        wallpaper = [
-          ", ~/Pictures/Wallpapers/wallpaper.png"
-        ];
-      };
     };
 
     # Clipboard history settings
@@ -282,12 +231,6 @@ in
             "wl-paste --type image --watch cliphist store"
             "power-profiles-daemon"
             "nm-applet --no-agent"
-          ]
-          ++ lib.optionals cfg.waybar.enable [
-            "sh ~/.config/waybar/waybar.sh"
-          ]
-          ++ lib.optionals cfg.hyprpaper.enable [
-            "hyprpaper"
           ]
           ++ lib.optionals cfg.caelestia.enable [
             "systemctl --user start caelestia.service"

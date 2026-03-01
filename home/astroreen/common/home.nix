@@ -29,12 +29,6 @@
   hyprland = {
     settings = import ./hyprland/settings.nix;
 
-    waybar.enable = false;
-    hyprpaper = {
-      enable = false;
-      wallpaper = ./assets/astronaut.jpg;
-    };
-
     caelestia = {
       enable = true;
       wallpapers = ./assets/astronaut.jpg;
