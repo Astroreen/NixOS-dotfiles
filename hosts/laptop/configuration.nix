@@ -1,29 +1,46 @@
 {
   config,
   pkgs,
-  lib,
   ...
 }:
-
 {
   imports = [
     ./hardware-configuration.nix # Required.
 
-    ./services.nix # Services configuration
+    ../common-settings.nix # Common settings for all hosts
+    ../common-services.nix # Services configuration
+    ../common-apps.nix # Common applications
     ../certificates.nix # Import certificates
 
-    ../../import/nix-ld.nix # Some libraries to run runtime projects
-    ../../import/common-system-apps.nix # Common system applications
-    ../../modules/style/theme/dark/adwaita/adwaita-dark-system.nix # Adwaita dark theme
-    ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
+    ../nix-ld.nix # Some libraries to run runtime projects
+    ../modules/style/theme/dark/adwaita # Adwaita dark theme
+    ../modules/wm/hyprland # Window manager Hyprland
   ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader = {
+    efi = {
+      canTouchEfiVariables = true;
+      efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
+    };
+    # systemd-boot.enable = true;
+    grub =
+      let
+        grub-theme-pkg = pkgs.sleek-grub-theme.override {
+          withStyle = "dark";
+          withBanner = "AstroGrub Bootloader";
+        };
+      in
+      {
+        enable = true;
+        efiSupport = true;
+        devices = [ "nodev" ];
+        useOSProber = false;
+        efiInstallAsRemovable = false;
+        theme = "${grub-theme-pkg}";
+      };
 
-  nixpkgs.config = {
-    android_sdk.accept_license = true;
+    timeout = 3; # seconds
   };
 
   # Enable networking
@@ -63,9 +80,6 @@
     };
   };
 
-  # Set your time zone.
-  time.timeZone = "Europe/Vilnius";
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.astroreen = {
     isNormalUser = true;
@@ -89,24 +103,6 @@
     shell = pkgs.zsh;
     ignoreShellProgramCheck = true;
   };
-
-  nix.settings = {
-    auto-optimise-store = true;
-    
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-
-    trusted-users = [
-      "root"
-      "astroreen"
-    ];
-  };
-
-  # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocales = [ "ru_RU.UTF-8/UTF-8" ]; # No more lithuanian locale "lt_LT.UTF-8/UTF-8"...
 
   # Drivers for hardware
   hardware = {
@@ -155,57 +151,8 @@
     };
   };
 
-  # System wide packages
-  environment.systemPackages = with pkgs; [
-    # Essential packages
-    kitty # Console
-    cliphist # Clipboard history
-    wl-clipboard # Clipboard management fow wayland
-    wl-clip-persist # Clipboard history daemon
-    bluez # Bluetooth management
-    ddcutil # Monitor brightness control
-    brightnessctl # Monitor brightness control
-    networkmanager # Network management
-    wl-screenrec # Screen recording for wayland
-    upower # Power management daemon
-    libnotify # Notifications
-    networkmanagerapplet # Network Manager applet
-    pavucontrol # Sound control
-
-    # Development tools
-    vim # Vim text editor
-
-    # System utilities
-    playerctl # Music player control
-    tree # `tree` command
-    pciutils # `lspci` command
-    libva-utils # VAAPI utilities
-    ffmpeg-full # FFmpeg with VAAPI support
-    ethtool # Ethernet tool
-    iproute2 # Networking tools
-    gnugrep # GNU grep
-    gawk # GNU Awk
-    coreutils # GNU Core Utilities
-    openal # OpenAL library
-    mesa # Mesa 3D Graphics Library
-    mesa-demos # Mesa demo programs
-    vulkan-tools # Vulkan utilities
-    gtk3 # Multi-platform toolkit for graphical interfaces
-    glib # C library - building blocks
-    libxxf86vm # Extension library
-    libxcursor # X cursor managment library
-    libxrandr # xlib extension library
-    libxi
-    libxinerama # Extension to x11
-    libxtst # Library for the xtest and record x11 extension
-    wayland
-    libx11 # Core x11 protocol client library
-    foo2zjs # Printer drivers
-  ];
-
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # Use Intel Media Driver
-    # LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib"; # Effectively breaking path
     # Prefer NVIDIA Vulkan ICD for host-accelerated Android Emulator on this machine
     VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
@@ -222,13 +169,6 @@
     };
   };
 
-  # Fonts
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-    font-awesome
-  ];
-
-  # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
   # This value determines the NixOS release from which the default

@@ -1,27 +1,20 @@
 {
   config,
   pkgs,
-  inputs,
-  lib,
   ...
 }:
-let
-  grub-theme-pkg = pkgs.sleek-grub-theme.override {
-    withStyle = "dark";
-    withBanner = "AstroGrub Bootloader";
-  };
-in
 {
   imports = [
     ./hardware-configuration.nix # Required.
 
-    ./services.nix # Services configuration
+    ../common-settings.nix # Common settings for all hosts
+    ../common-services.nix # Services configuration
+    ../common-apps.nix # Common applications
     ../certificates.nix # Import certificates
 
-    ../../import/nix-ld.nix # Some libraries to run runtime projects
-    ../../import/common-system-apps.nix # Common system applications
-    ../../modules/style/theme/dark/adwaita/adwaita-dark-system.nix # Adwaita dark theme
-    ../../modules/wm/hyprland/hyprland-system.nix # Window manager Hyprland
+    ../nix-ld.nix # Some libraries to run runtime projects
+    ../modules/style/theme/dark/adwaita # Adwaita dark theme
+    ../modules/wm/hyprland # Window manager Hyprland
   ];
 
   # Bootloader.
@@ -31,14 +24,21 @@ in
       efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
     };
     # systemd-boot.enable = true;
-    grub = {
-      enable = true;
-      efiSupport = true;
-      devices = [ "nodev" ];
-      useOSProber = true;
-      efiInstallAsRemovable = false;
-      theme = "${grub-theme-pkg}";
-    };
+    grub =
+      let
+        grub-theme-pkg = pkgs.sleek-grub-theme.override {
+          withStyle = "dark";
+          withBanner = "AstroGrub Bootloader";
+        };
+      in
+      {
+        enable = true;
+        efiSupport = true;
+        devices = [ "nodev" ];
+        useOSProber = true;
+        efiInstallAsRemovable = false;
+        theme = "${grub-theme-pkg}";
+      };
 
     timeout = 5; # seconds
   };
@@ -98,25 +98,6 @@ in
     };
   };
 
-  # Enable SSH server
-  services.openssh = {
-    enable = true;
-
-    settings = {
-      # Use key-based auth only
-      PasswordAuthentication = false;
-      PermitRootLogin = "prohibit-password";
-    };
-
-    # Change default port
-    ports = [ 22 ];
-
-    # Restrict to specific IPs
-    # listenAddresses = [
-    #   { addr = "0.0.0.0"; port = 22; }
-    # ];
-  };
-
   # Enable Wake-on-LAN at boot via systemd service
   systemd.services.wol-enable = {
     description = "Enable Wake-on-LAN";
@@ -128,9 +109,6 @@ in
       ExecStart = "${pkgs.ethtool}/bin/ethtool -s enp5s0 wol g";
     };
   };
-
-  # Set your time zone.
-  time.timeZone = "Europe/Vilnius";
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.astroreen = {
@@ -160,21 +138,36 @@ in
     ];
   };
 
-  nix.settings = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
+  services = {
+    openssh = {
+      enable = true;
 
-    trusted-users = [
-      "root"
-      "astroreen"
-    ];
+      settings = {
+        # Use key-based auth only
+        PasswordAuthentication = false;
+        PermitRootLogin = "prohibit-password";
+      };
+
+      # Change default port
+      ports = [ 22 ];
+
+      # Restrict to specific IPs
+      # listenAddresses = [
+      #   { addr = "0.0.0.0"; port = 22; }
+      # ];
+    };
+
+    logind.settings.Login = {
+      LidSwitchIgnoreInhibited = "no";
+      HandleLidSwitch = "ignore";
+      HandleLidSwitchExternalPower = "ignore";
+      HandleLidSwitchDocked = "ignore";
+    };
+
+    # Power management settings
+    power-profiles-daemon.enable = false; # Enable power profiles
+    upower.enable = false; # Enable upower for battery management
   };
-
-  # Select internationalisation properties.
-  i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocales = [ "ru_RU.UTF-8/UTF-8" ]; # No more lithuanian locale "lt_LT.UTF-8/UTF-8"...
 
   # Drivers for hardware
   hardware = {
@@ -231,64 +224,10 @@ in
     options = [ "defaults" ];
   };
 
-  # System wide packages
-  environment.systemPackages = with pkgs; [
-    # Essential packages
-    kitty # Console
-    cliphist # Clipboard history
-    wl-clipboard # Clipboard management fow wayland
-    wl-clip-persist # Clipboard history daemon
-    bluez # Bluetooth management
-    ddcutil # Monitor brightness control
-    brightnessctl # Monitor brightness control
-    networkmanager # Network management
-    wl-screenrec # Screen recording for wayland
-    upower # Power management daemon
-    libnotify # Notifications
-    networkmanagerapplet # Network Manager applet
-    pavucontrol # Sound control
-
-    # Development tools
-    vim # Vim text editor
-
-    # System utilities
-    playerctl # Music player control
-    tree # `tree` command
-    pciutils # `lspci` command
-    libva-utils # VAAPI utilities
-    ffmpeg-full # FFmpeg with VAAPI support
-    ethtool # Ethernet tool
-    iproute2 # Networking tools
-    gnugrep # GNU grep
-    gawk # GNU Awk
-    coreutils # GNU Core Utilities
-    openal # OpenAL library
-    mesa # Mesa 3D Graphics Library
-    mesa-demos # Mesa demo programs
-    vulkan-tools # Vulkan utilities
-    gtk3 # Multi-platform toolkit for graphical interfaces
-    glib # C library - building blocks
-    libxxf86vm # Extension library
-    libxcursor # X cursor managment library
-    libxrandr # xlib extension library
-    libxi
-    libxinerama # Extension to x11
-    libxtst # Library for the xtest and record x11 extension
-    wayland
-    libx11 # Core x11 protocol client library
-    foo2zjs # Printer drivers
-  ];
-
   environment.sessionVariables = {
     LIBVA_DRIVER_NAME = "iHD"; # Use Intel Media Driver
     # LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib"; # Effectively breaking path
   };
-
-  # Fonts
-  fonts.packages = with pkgs; [
-    nerd-fonts.jetbrains-mono
-    font-awesome
-  ];
 
   # Docker settings
   virtualisation.docker = {
@@ -301,7 +240,15 @@ in
     };
   };
 
-  # Allow unfree packages
+  powerManagement.enable = false;
+  # No hibernation for the server
+  systemd.targets = {
+    sleep.enable = false;
+    suspend.enable = false;
+    hibernate.enable = false;
+    hybrid-sleep.enable = false;
+  };
+
   nixpkgs.config.allowUnfree = true;
 
   # This value determines the NixOS release from which the default
@@ -311,5 +258,4 @@ in
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
-
 }

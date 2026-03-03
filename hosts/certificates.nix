@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+_:
 {
   security.pki.certificates = [
     "-----BEGIN CERTIFICATE-----

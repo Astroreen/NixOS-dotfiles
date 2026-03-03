@@ -1,4 +1,4 @@
-final: prev:
+prev:
 let
   spotx = prev.fetchurl {
     url = "https://github.com/SpotX-Official/SpotX-Bash/raw/5e9b08f91e55c210bbc64715b4ad698186b3c06b/spotx.sh";

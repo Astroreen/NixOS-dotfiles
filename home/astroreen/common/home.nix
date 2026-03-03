@@ -1,50 +1,45 @@
 {
-  config,
   pkgs,
-  inputs,
-  lib,
   osConfig,
+  inputs,
   ...
 }:
 {
+
   imports = [
     # Style
-    ../../../modules/style/cursor/breeze # Breeze cursor style
-    ../../../modules/style/theme/dark/adwaita/adwaita-dark-home.nix # Adwaita dark theme
+    ../../modules/style/cursor/breeze # Breeze cursor style
+    ../../modules/style/theme/dark/adwaita # Adwaita dark theme
 
     # Apps
-    ../../../import/common-home-apps.nix
+    ../../common-apps.nix
 
     # Windows manager (wm)
-    ../../../modules/wm/hyprland/hyprland-home.nix # Hyprland window manager
+    ../../modules/wm/hyprland # Hyprland window manager
+    ../../modules/wm/hyprland/caelestia # Caelestia shell
+    inputs.caelestia-shell.homeManagerModules.default # Caelestia shell module
   ];
 
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = osConfig.home-manager.users.astroreen.home.sessionVariables;
 
-  home.username = "astroreen";
-  home.homeDirectory = "/home/astroreen";
-
   # Hyprland settings
-  hyprland = {
-    settings = import ./hyprland/settings.nix;
+  wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix;
 
-    caelestia = {
-      enable = true;
-      wallpapers = ./assets/astronaut.jpg;
-      avatar = ./assets/avatar.jpg;
-
-      # All config options could be found here: https://github.com/caelestia-dots/shell/tree/main/config
-      # or you could take a look at my caelestia shell.json file and tweak it to your liking.
-      # shell-file = ./assets/caelestia-shell-config.json;
-    };
-  };
+  programs.caelestia.systemd.environment = [
+    "QT_QPA_PLATFORM=wayland;xcb"
+    "XDG_SESSION_TYPE=wayland;xcb"
+    "XDG_CURRENT_DESKTOP=Hyprland"
+    "XDG_SESSION_DESKTOP=Hyprland"
+    "QT_QPA_PLATFORMTHEME=qt6ct"
+    "XDG_RUNTIME_DIR=/run/user/1000"
+    "WAYLAND_DISPLAY=wayland-1"
+    "QUICKSHELL_ENABLE_PORTAL=1"
+  ];
 
   services.kdeconnect = {
     enable = true;
     indicator = true;
     package = pkgs.kdePackages.kdeconnect-kde;
   };
-
-  home.stateVersion = "25.11";
 }

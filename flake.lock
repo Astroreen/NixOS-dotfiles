@@ -59,29 +59,6 @@
           "caelestia-shell"
         ],
         "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1771987897,
-        "narHash": "sha256-5pNQFGxG3fxS9pGnNBJjT76veotKIKq2XpAVFGAhCdI=",
-        "owner": "caelestia-dots",
-        "repo": "cli",
-        "rev": "b0d68f0a1c48fa138d6fde94dcbecea801a86a01",
-        "type": "github"
-      },
-      "original": {
-        "owner": "caelestia-dots",
-        "repo": "cli",
-        "type": "github"
-      }
-    },
-    "caelestia-cli_2": {
-      "inputs": {
-        "caelestia-shell": [
-          "caelestia-shell"
-        ],
-        "nixpkgs": [
           "caelestia-shell",
           "nixpkgs"
         ]
@@ -102,7 +79,7 @@
     },
     "caelestia-shell": {
       "inputs": {
-        "caelestia-cli": "caelestia-cli_2",
+        "caelestia-cli": "caelestia-cli",
         "nixpkgs": [
           "nixpkgs"
         ],
@@ -612,7 +589,6 @@
     "root": {
       "inputs": {
         "app2unit": "app2unit",
-        "caelestia-cli": "caelestia-cli",
         "caelestia-shell": "caelestia-shell",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",

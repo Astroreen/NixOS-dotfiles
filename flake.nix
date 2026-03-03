@@ -22,12 +22,6 @@
       url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    caelestia-cli = {
-      url = "github:caelestia-dots/cli";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.caelestia-shell.follows = "caelestia-shell";
-    };
   };
 
   outputs =
@@ -60,22 +54,35 @@
             modules = [
               ./overlays # Overlays
               ./hosts/${host}/configuration.nix # Host configuration
-              inputs.hyprland.nixosModules.default # Hyperland default module
+              inputs.hyprland.nixosModules.default # Hyprland default module
               home-manager.nixosModules.home-manager # Home manager module
               (
                 {
-                  home-manager.useGlobalPkgs = true;
-                  home-manager.useUserPackages = true;
-                  home-manager.backupFileExtension = "backup";
+                  home-manager = {
+                    useGlobalPkgs = true;
+                    useUserPackages = true;
+                    backupFileExtension = "backup";
 
-                  # Pass arguments to every home-manager file
-                  home-manager.extraSpecialArgs = {
-                    inherit inputs;
-                    pkgs-stable = inputs.pkgs-stable;
+                    # Pass arguments to every home-manager file
+                    extraSpecialArgs = {
+                      inherit inputs;
+                      inherit (inputs) pkgs-stable;
+                    };
+
+                    # User specific config file
+                    users.${username} = {
+                      imports = [
+                        ./home/${username}/${host}/home.nix
+                        {
+                          home = {
+                            inherit username;
+                            homeDirectory = "/home/${username}";
+                            stateVersion = "25.11";
+                          };
+                        }
+                      ];
+                    };
                   };
-
-                  # User specific config file
-                  home-manager.users.${username} = import ./home/${username}/${host}/home.nix;
                 }
                 // extraHomeModuleSettings
               )

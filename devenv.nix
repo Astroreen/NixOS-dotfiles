@@ -1,9 +1,14 @@
 {
-  config,
+  pkgs,
   ...
 }:
 
 {
+  packages = with pkgs; [
+    deadnix
+    statix
+  ];
+
   env = {
     OPENVPN_CONFIG = "/home/astroreen/.local/share/nixos/modules/tui/openvpn/work.ovpn";
     COMPANY_DNS = "192.168.1.8";
@@ -64,6 +69,26 @@
     build-server = {
       exec = "git add . && sudo nixos-rebuild build --flake .#server";
       description = "Build the new configuration for serverq, but neither activate it nor add it to the GRUB boot menu";
+    };
+
+    dry-build-laptop = {
+      exec = "git add . && sudo nixos-rebuild dry-build --flake .#laptop";
+      description = "Show what store paths would be built or downloaded by any of the operations above, but otherwise do nothing.";
+    };
+
+    dry-build-server = {
+      exec = "git add . && sudo nixos-rebuild dry-build --flake .#server";
+      description = "Show what store paths would be built or downloaded by any of the operations above, but otherwise do nothing.";
+    };
+
+    dry-activate-laptop = {
+      exec = "git add . && sudo nixos-rebuild dry-activate --flake .#laptop";
+      description = "Build the new configuration, but instead of activating it, show what changes would be performed by the activationq.";
+    };
+
+    dry-activate-server = {
+      exec = "git add . && sudo nixos-rebuild dry-activate --flake .#server";
+      description = "Build the new configuration, but instead of activating it, show what changes would be performed by the activation.";
     };
 
     delete-garbage = {

@@ -1,0 +1,53 @@
+# Configuration for apps that can be installed just with package
+{
+  pkgs,
+  ...
+}:
+{
+  home.packages = with pkgs; [
+    # Games
+    prismlauncher # Minecraft launcher
+
+    # Communication
+    telegram-desktop # Telegram
+    viber # Viber
+    caprine # Facebook Messenger
+    mattermost-desktop # Mattermost
+
+    # Media
+    spotify # Music service
+    mpv # Media player
+    celluloid # MPV's frontend
+    pear-desktop # Electron YouTube Music client
+
+
+    # Graphics & Design
+    # gimp                          # GNU Image Manipulation Program
+    # inkscape                      # Vector graphics editor
+    qview # Image viewer
+
+    # Productivity
+    libreoffice # Office suite
+    obsidian # Note-taking app
+    rustdesk # Remote desktop client
+
+    # Development
+    # github-desktop                # GitHub desktop client
+    postman # API development environment
+    thonny # Python IDE
+
+    # File management
+    localsend # Cross-platform file transfer
+
+    # Internet
+    #google-chrome
+    vivaldi
+    vivaldi-ffmpeg-codecs # Vivaldi Browser
+    qbittorrent # Torrent client
+
+    # thunderbird                   # Email client
+
+    # Security
+    bitwarden-desktop # Password manager
+  ];
+}

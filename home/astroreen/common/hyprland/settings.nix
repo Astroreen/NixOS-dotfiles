@@ -1,5 +1,3 @@
-# Think of this file like of an attribute set of `wayland.windowManager.hyprland.settings`
-
 let
   binds = import ./binds.nix;
 in
@@ -23,6 +21,9 @@ binds
   };
 
   exec-once = [
+    # Start caelestia shell on start up
+    "caelstia shell"
+
     # On start up enable apps on certain workspaces
     "[workspace 2 silent] vivaldi"
     "[workspace 3 silent] vesktop"
@@ -33,7 +34,7 @@ binds
   # Windows rules
   windowrule = [
     # Fullscreen auto-started programs
-    "match:class vivaldi, fullscreen on, workspace 2 silent"
+    "match:class ^(vivaldi-stable)$, fullscreen on, workspace 2 silent"
     "match:class discord|vesktop, fullscreen on, workspace 3 silent"
     "match:class youtube_music|spotify, fullscreen on, workspace 4 silent"
     "match:class ^(obsidian)$, workspace 5 silent"
@@ -59,5 +60,10 @@ binds
     "match:content 3, float on" # All games should float
     "match:content 1, float on" # All photo should float
     "match:content 2, fullscreen on" # All video should be opened with fullscreen
+  ];
+
+  env = [
+    "QT_QPA_PLATFORMTHEME, qt6ct"
+    "QUICKSHELL_ENABLE_PORTAL, 1"
   ];
 }
