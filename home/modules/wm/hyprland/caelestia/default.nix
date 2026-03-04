@@ -8,7 +8,7 @@
   programs.caelestia = {
     enable = true;
     systemd = {
-      enable = false;
+      enable = true;
       target = "graphical-session.target";
       environment = [
         "QT_QPA_PLATFORM=wayland"
@@ -23,32 +23,32 @@
     };
   };
 
-  systemd.user.services.caelestia = {
-    Unit = {
-      Description = "Caelestia desktop shell";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      Type = "exec";
-      ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
-      ExecStart = "${inputs.caelestia-shell.packages.${pkgs.system}.with-cli}/bin/caelestia-shell";
+  # systemd.user.services.caelestia = {
+  #   Unit = {
+  #     Description = "Caelestia desktop shell";
+  #     After = [ "graphical-session.target" ];
+  #     PartOf = [ "graphical-session.target" ];
+  #   };
+  #   Service = {
+  #     Type = "exec";
+  #     ExecStartPre = "${pkgs.coreutils}/bin/sleep 5";
+  #     ExecStart = "${inputs.caelestia-shell.packages.${pkgs.system}.with-cli}/bin/caelestia-shell";
 
-      Restart = "on-failure";
-      RestartSec = "5s";
-      RestartPreventExitStatus = "0";
-      RuntimeDirectory = "caelestia";
-      RuntimeDirectoryMode = "0755";
+  #     Restart = "on-failure";
+  #     RestartSec = "5s";
+  #     RestartPreventExitStatus = "0";
+  #     RuntimeDirectory = "caelestia";
+  #     RuntimeDirectoryMode = "0755";
 
-      Slice = "app-graphical.slice";
+  #     Slice = "app-graphical.slice";
 
-      Environment = [
-        "QT_QPA_PLATFORM=wayland"
-        "QT_QPA_PLATFORMTHEME=qt6ct"
-        "QUICKSHELL_ENABLE_PORTAL=1"
-      ];
-    };
-  };
+  #     Environment = [
+  #       "QT_QPA_PLATFORM=wayland"
+  #       "QT_QPA_PLATFORMTHEME=qt6ct"
+  #       "QUICKSHELL_ENABLE_PORTAL=1"
+  #     ];
+  #   };
+  # };
 
   # Additional packages to support caelestia shell
   home.packages = with pkgs; [

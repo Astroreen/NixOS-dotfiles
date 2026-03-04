@@ -10,7 +10,7 @@
   ];
 
   env = {
-    OPENVPN_CONFIG = "/home/astroreen/.local/share/nixos/modules/tui/openvpn/work.ovpn";
+    OPENVPN_CONFIG = "/home/astroreen/.local/share/nixos/hosts/modules/tui/openvpn/work.ovpn";
     COMPANY_DNS = "192.168.1.8";
     BACKUP_FILE = "/tmp/resolv.conf.backup";
   };
@@ -165,16 +165,6 @@
   };
 
   tasks = {
-    "work:start-vpn" = {
-      exec = "add-work-dns && start-vpn";
-      description = "Start OpenVPN with the specified configuration file";
-    };
-
-    "work:stop-vpn" = {
-      exec = "stop-vpn";
-      description = "Stop OpenVPN and restore the original DNS settings";
-      after = [ "work:start-vpn" ];
-    };
 
     "nixos:update-flake" = {
       exec = "update-flake";

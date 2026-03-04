@@ -18,30 +18,31 @@
     ];
   };
 
-  # Create systemd service to run Caelestia shell
-  systemd.user.enable = true;
-  systemd.user.services = {
-    # Fix for Hyprland's xdg-desktop-portal
-    xdg-desktop-portal-hyprland = {
-      Service = {
-        Environment = [
-          "WAYLAND_DISPLAY=wayland-1"
-          "XDG_CURRENT_DESKTOP=Hyprland"
-          "XDG_SESSION_TYPE=wayland"
-        ];
-        ExecStart = [
-          ""
-          "${
-            inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
-          }/libexec/xdg-desktop-portal-hyprland"
-        ];
-        Restart = "on-failure";
-        RestartSec = "3s";
-      };
+  systemd.user = {
+    enable = true;
+    services = {
+      # Fix for Hyprland's xdg-desktop-portal
+      xdg-desktop-portal-hyprland = {
+        Service = {
+          Environment = [
+            "WAYLAND_DISPLAY=wayland-1"
+            "XDG_CURRENT_DESKTOP=Hyprland"
+            "XDG_SESSION_TYPE=wayland"
+          ];
+          ExecStart = [
+            ""
+            "${
+              inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
+            }/libexec/xdg-desktop-portal-hyprland"
+          ];
+          Restart = "on-failure";
+          RestartSec = "3s";
+        };
 
-      Unit = {
-        ConditionEnvironment = ""; # clear previous Condition
-        After = [ "hyprland-session.target" ];
+        Unit = {
+          ConditionEnvironment = ""; # clear previous Condition
+          After = [ "hyprland-session.target" ];
+        };
       };
     };
   };

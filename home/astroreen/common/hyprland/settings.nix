@@ -21,9 +21,6 @@ binds
   };
 
   exec-once = [
-    # Start caelestia shell on start up
-    "caelstia shell"
-
     # On start up enable apps on certain workspaces
     "[workspace 2 silent] vivaldi"
     "[workspace 3 silent] vesktop"
