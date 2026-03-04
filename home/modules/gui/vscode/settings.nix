@@ -35,9 +35,9 @@
   "workbench.layoutControl.enabled" = false;
   "window.titleBarStyle" = "native";
   "window.menuBarVisibility" = "toggle";
-  "explorer.decorations.badges" = false;
-  "git.decorations.enabled" = false;
-  "scm.diffDecorations" = "none";
+  "explorer.decorations.badges" = true;
+  "git.decorations.enabled" = true;
+  "scm.diffDecorations" = "all";
 
   # Always use the tabs; that you pasted yourself
   "editor.detectIndentation" = false;
