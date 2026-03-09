@@ -7,6 +7,7 @@
     ./modules/gui/vscode # VSCode
     ./modules/gui/obs.nix # OBS Studio
     ./modules/gui/lutris.nix # Lutris game manager
+    ./modules/gui/nautilus.nix # Nautilus file manager configuration
 
     # Terminal apps (tui)
     ./modules/tui/wine.nix # Wine configuration
