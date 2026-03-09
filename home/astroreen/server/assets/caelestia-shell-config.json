@@ -345,7 +345,7 @@
         "defaultExpireTimeout": 3000,
         "expandThreshold": 20,
         "openExpanded": false,
-        "expire": false
+        "expire": true
     },
     "osd": {
         "enabled": true,
