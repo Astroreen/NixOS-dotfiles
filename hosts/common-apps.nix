@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   imports = [
     ./modules/gui/steam.nix # Steam configuration
     ./modules/gui/nautilus.nix # Nautilus configuration
@@ -7,6 +6,7 @@
     ./modules/gui/gns3.nix # GNS3 configuration
 
     ./modules/tui/openvpn # Open VPN configuration
+    ./modules/tui/shell # Shell settings
 
     # Languages
     ./modules/lang/flutter
