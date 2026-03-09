@@ -7,8 +7,8 @@ binds
 // {
   # Keyboard settings for hyprland
   input = {
-    kb_layout = "us,ru";
-    kb_variant = ",phonetic";
+    kb_layout = "us,ru,lt";
+    kb_variant = ",phonetic,";
     kb_options = "grp:alt_shift_toggle"; # Alt + Shift to switch layouts
 
     follow_mouse = 1;

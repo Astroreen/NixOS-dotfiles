@@ -7,7 +7,7 @@ with lib;
       enable = true;
       xkb = {
         layout = "us,ru,lt";
-        variant = ",phonetic,us";
+        variant = ",phonetic,";
         options = "grp:alt_shift_toggle";
       };
       videoDrivers = [ "nvidia" ];
