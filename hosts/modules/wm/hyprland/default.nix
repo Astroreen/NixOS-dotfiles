@@ -5,14 +5,18 @@
 }:
 
 {
-  # System-level Hyprland configuration
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = true;
-    package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
-    portalPackage =
-      inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
-    withUWSM = false;
+  programs = {
+    hyprland = {
+      enable = true;
+      xwayland.enable = true;
+      package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+      portalPackage =
+        inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+      withUWSM = false;
+    };
+
+    # Enable GPU screen recording (mostly for Caelestia shell, but could be useful for others)
+    gpu-screen-recorder.enable = true;
   };
 
   # CRITICAL: Proper XDG portal configuration
@@ -75,9 +79,9 @@
 
   environment = {
     systemPackages = with pkgs; [
-      xdg-desktop-portal
-      xdg-desktop-portal-gtk
       inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal
       wayland-utils
       polkit_gnome # Polkit authentication agent
     ];
