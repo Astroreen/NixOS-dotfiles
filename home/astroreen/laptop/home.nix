@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   imports = [
     ../common/home.nix
@@ -8,6 +8,6 @@
   wayland.windowManager.hyprland.settings = import ./hyprland-settings.nix;
 
   programs.caelestia = {
-    settings = builtins.fromJSON (builtins.readFile ./assets/caelestia-shell-config.json);
+    settings = lib.mkDefault (builtins.fromJSON (builtins.readFile ./assets/caelestia-shell-config.json));
   };
 }
