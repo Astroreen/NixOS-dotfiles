@@ -2,8 +2,7 @@ let
   binds = import ./binds.nix;
 in
 
-binds
-# Added binds to configuration
+binds # Added binds to configuration
 // {
   # Keyboard settings for hyprland
   input = {
@@ -29,38 +28,42 @@ binds
   ];
 
   # Windows rules
-  windowrule = [
-    # Fullscreen auto-started programs
-    "match:class ^(vivaldi-stable)$, fullscreen on, workspace 2 silent"
-    "match:class discord|vesktop, fullscreen on, workspace 3 silent"
-    "match:class youtube_music|spotify, fullscreen on, workspace 4 silent"
-    "match:class ^(obsidian)$, workspace 5 silent"
+  windowrule =
+    let
+      left-bottom-corner = "(monitor_w-window_w-50) (monitor_h-window_h-50)";
+    in
+    [
+      # Fullscreen auto-started programs
+      "match:class ^(vivaldi-stable)$, fullscreen on, workspace 2 silent"
+      "match:class discord|vesktop, fullscreen on, workspace 3 silent"
+      "match:class youtube_music|spotify, fullscreen on, workspace 4 silent"
+      "match:class ^(obsidian)$, workspace 5 silent"
 
-    # Make all modal windows float (e.g. Popups)
-    "match:modal true, float on"
-    "match:class me.astroreen, float on" # For development, make all my programs float when ran
-    "match:class ^(\s*)$, float on" # All windows without class should float (e.g. vivaldi notifications)
+      # Make all modal windows float (e.g. Popups)
+      "match:modal true, float on"
+      "match:class me.astroreen, float on" # For development, make all my programs float when ran
+      "match:class ^(\s*)$, float on, move ${left-bottom-corner}" # All windows without class should float (e.g. vivaldi notifications)
 
-    "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
-    "match:class ^(Emulator)$, center on, float on" # Always center Android Emulator
-    "match:class ^(com.interversehq.qView)$, size 1400 800, center on, float on, content photo"
-    "match:class ^org.gnome.Nautilus, size 1400 800, center on, float on"
-    "match:class ^(xdg-desktop-portal-gtk)$, size 1400 800, center on, float on"
-    "match:class ^(localsend_app)$, size 1400 800, center on, float on"
-    "match:class ^(Postman)$, size 1400 800, center on, float on"
+      "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
+      "match:class ^(Emulator)$, center on, float on" # Always center Android Emulator
+      "match:class ^(com.interversehq.qView)$, size 1400 800, center on, float on, content photo"
+      "match:class ^org.gnome.Nautilus, size 1400 800, center on, float on"
+      "match:class ^(xdg-desktop-portal-gtk)$, size 1400 800, center on, float on"
+      "match:class ^(localsend_app)$, size 1400 800, center on, float on"
+      "match:class ^(Postman)$, size 1400 800, center on, float on"
 
-    "match:class ^(kitty)$, size 1200 800, float on, center on"
-    "match:class ^(realvnc-vncviewer)$, float on, center on" # VNC viewer should float and be centered
-    "match:class ^(Vncviewer)$, float on, center on" # VNC viewer should float and be centered
+      "match:class ^(kitty)$, size 1200 800, float on, center on"
+      "match:class ^(realvnc-vncviewer)$, float on, center on" # VNC viewer should float and be centered
+      "match:class ^(Vncviewer)$, float on, center on" # VNC viewer should float and be centered
 
-    # KDE Connect daemon window
-    "match:class ^(org.kde.kdeconnect.daemon)$, fullscreen_state 0 3, size 100% 100%, center on, no_blur on, no_anim on, no_dim on, no_focus on, no_shadow on, rounding 0, no_follow_mouse on, border_size 0, rounding 0"
+      # KDE Connect daemon window
+      "match:class ^(org.kde.kdeconnect.daemon)$, fullscreen_state 0 3, size 100% 100%, center on, no_blur on, no_anim on, no_dim on, no_focus on, no_shadow on, rounding 0, no_follow_mouse on, border_size 0, rounding 0"
 
-    # Content managment
-    "match:content 3, float on" # All games should float
-    "match:content 1, float on" # All photo should float
-    "match:content 2, fullscreen on" # All video should be opened with fullscreen
-  ];
+      # Content managment
+      "match:content 3, float on" # All games should float
+      "match:content 1, float on" # All photo should float
+      "match:content 2, fullscreen on" # All video should be opened with fullscreen
+    ];
 
   env = [
     "QT_QPA_PLATFORMTHEME, qt6ct"
