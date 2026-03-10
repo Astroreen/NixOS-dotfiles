@@ -56,12 +56,6 @@
     };
   };
 
-  # CRITICAL: Graphics and hardware support
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
-
   # Essential services for Wayland
   services = {
     udev.enable = true;
