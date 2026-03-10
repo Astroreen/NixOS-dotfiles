@@ -39,6 +39,7 @@ binds
     # Make all modal windows float (e.g. Popups)
     "match:modal true, float on"
     "match:class me.astroreen, float on" # For development, make all my programs float when ran
+    "match:class ^(\s*)$, float on" # All windows without class should float (e.g. vivaldi notifications)
 
     "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
     "match:class ^(Emulator)$, center on, float on" # Always center Android Emulator
@@ -49,6 +50,8 @@ binds
     "match:class ^(Postman)$, size 1400 800, center on, float on"
 
     "match:class ^(kitty)$, size 1200 800, float on, center on"
+    "match:class ^(realvnc-vncviewer)$, float on, center on" # VNC viewer should float and be centered
+    "match:class ^(Vncviewer)$, float on, center on" # VNC viewer should float and be centered
 
     # KDE Connect daemon window
     "match:class ^(org.kde.kdeconnect.daemon)$, fullscreen_state 0 3, size 100% 100%, center on, no_blur on, no_anim on, no_dim on, no_focus on, no_shadow on, rounding 0, no_follow_mouse on, border_size 0, rounding 0"
