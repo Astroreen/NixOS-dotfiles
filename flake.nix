@@ -11,6 +11,8 @@
     };
 
     flake-utils.url = "github:numtide/flake-utils";
+    
+    # Do not override nixpkgs version of Hyprland, as it may break cachix and other things.
     hyprland.url = "github:hyprwm/Hyprland";
 
     app2unit = {
