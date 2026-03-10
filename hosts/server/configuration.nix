@@ -132,10 +132,6 @@
 
     shell = pkgs.zsh;
     ignoreShellProgramCheck = true;
-
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILc4D5faB+mNx6yN2Wzzp3UTNDvKqu1/NB72/wlsrS7a u0_a345@localhost"
-    ];
   };
 
   services = {
@@ -143,18 +139,22 @@
       enable = true;
 
       settings = {
-        # Use key-based auth only
-        PasswordAuthentication = false;
-        PermitRootLogin = "prohibit-password";
+        PasswordAuthentication = true; # Whether to allow password authentication, set to false if you only want to use key-based auth
+        PermitRootLogin = "no"; # Disable root login for security
+
+        # Allows SSH to authenticate users through the system's standard login mechanism
+        UsePAM = true;
       };
 
-      # Change default port
       ports = [ 22 ];
 
-      # Restrict to specific IPs
-      # listenAddresses = [
-      #   { addr = "0.0.0.0"; port = 22; }
-      # ];
+      # Only listen on the Tailscale interface
+      listenAddresses = [
+        {
+          addr = "100.72.90.18";
+          port = 22;
+        }
+      ];
     };
 
     logind.settings.Login = {

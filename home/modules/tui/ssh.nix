@@ -1,5 +1,6 @@
 _:
 {
+  # Enable SSH client and agent
   programs.ssh = {
     enable = true;
 
@@ -8,8 +9,8 @@ _:
       AddKeysToAgent yes
     '';
     
-    # Define hosts
     matchBlocks = {
+      # Configures SSH to use ~/.ssh/github-astroreen as the identity file when connecting to github.com as user
       "github.com" = {
         identityFile = "~/.ssh/github-astroreen";
         user = "git";
