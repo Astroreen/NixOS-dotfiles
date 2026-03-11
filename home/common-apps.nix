@@ -8,6 +8,7 @@ _:
     ./modules/gui/obs.nix # OBS Studio
     ./modules/gui/lutris.nix # Lutris game manager
     ./modules/gui/nautilus.nix # Nautilus file manager configuration
+    ./modules/gui/kdeconnect.nix # KDE Connect configuration
     ./modules/gui/vnc.nix # VNC server and client configuration
     ./modules/gui/tailscale.nix # Tailscale tray and client configuration
 
