@@ -10,6 +10,7 @@ _: {
     ./modules/tui/openvpn # Open VPN configuration
     ./modules/tui/shell # Shell settings
     ./modules/tui/tailscale.nix # Tailscale CLI configuration
+    ./modules/tui/ssh.nix # SSH server configuration
 
     # Languages
     ./modules/lang/flutter

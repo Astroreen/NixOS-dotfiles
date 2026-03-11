@@ -135,28 +135,6 @@
   };
 
   services = {
-    openssh = {
-      enable = true;
-
-      settings = {
-        PasswordAuthentication = true; # Whether to allow password authentication, set to false if you only want to use key-based auth
-        PermitRootLogin = "no"; # Disable root login for security
-
-        # Allows SSH to authenticate users through the system's standard login mechanism
-        UsePAM = true;
-      };
-
-      ports = [ 22 ];
-
-      # Only listen on the Tailscale interface
-      listenAddresses = [
-        {
-          addr = "100.72.90.18";
-          port = 22;
-        }
-      ];
-    };
-
     logind.settings.Login = {
       LidSwitchIgnoreInhibited = "no";
       HandleLidSwitch = "ignore";
