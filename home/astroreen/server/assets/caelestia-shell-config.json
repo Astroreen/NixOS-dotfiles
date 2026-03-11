@@ -159,7 +159,7 @@
         "showOnHover": true,
         "status": {
             "showAudio": false,
-            "showBattery": true,
+            "showBattery": false,
             "showBluetooth": true,
             "showKbLayout": true,
             "showMicrophone": false,
