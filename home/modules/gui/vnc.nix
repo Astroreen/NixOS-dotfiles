@@ -12,4 +12,12 @@
   home.packages = with pkgs; [
     realvnc-vnc-viewer
   ];
+
+  wayland.windowManager.hyprland.extraConfig = ''
+    submap = global
+    bind = SUPER, F10, submap, passthrough
+    submap = passthrough
+    bind = SUPER, F10, submap, global
+    submap = global
+  '';
 }

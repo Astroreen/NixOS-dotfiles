@@ -10,7 +10,6 @@
     "$mod, E, exec, [float; size 1400 800] nautilus" # File manager
     "$mod, Q, global, caelestia:launcher" # Menu/Launcher
     "$mod, C, killactive," # Close active window
-    
 
     # Window resizing
     "$mod, Minus, splitratio, -0.1"
@@ -41,7 +40,6 @@
     ", PRINT, global, caelestia:screenshotFreeze" # Screenshots (enhanced from original)
     "$mod SHIFT, C, exec, hyprpicker -a" # Color picker (just like from powertoys on windows)
     "CTRL, Q, global, caelestia:launcherInterrupt" # Disable closing program with CTRL Q
-
 
     # Workspace navigation (original)
     "$mod, 1, workspace, 1"
