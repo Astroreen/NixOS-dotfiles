@@ -42,7 +42,7 @@ binds # Added binds to configuration
       # Make all modal windows float (e.g. Popups)
       "match:modal true, float on"
       "match:class me.astroreen, float on" # For development, make all my programs float when ran
-      "match:class ^(\s*)$, float on, move ${left-bottom-corner}" # All windows without class should float (e.g. vivaldi notifications)
+      "match:class ^(\s*)$, float on" # All windows without class should float (e.g. vivaldi notifications)
 
       "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
       "match:class ^(Emulator)$, center on, float on" # Always center Android Emulator
