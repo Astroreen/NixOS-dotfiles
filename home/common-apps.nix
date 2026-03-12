@@ -19,8 +19,8 @@ _:
     ./modules/tui/htop.nix # Htop on steroids
     ./modules/tui/devenv.nix # DevEnv for project scripts
     ./modules/tui/ranger.nix # Terminal file manager
-    ./modules/tui/ai/fabric # Fabric AI CLI tool
-    ./modules/tui/ai/claude # Claude Code
+    ./modules/tui/ai/fabric.nix # Fabric AI CLI tool
+    ./modules/tui/ai/opencode.nix # Open Code
     
     # Languages
     ./modules/lang/java.nix
