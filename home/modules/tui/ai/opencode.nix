@@ -17,9 +17,16 @@ let
   '';
 in
 {
+  imports = [
+    ./mcps.nix
+  ];
+
   programs.opencode = {
     enable = true;
-    # Not using settings since it would symlink the config file, thus restricting write permissions
+    enableMcpIntegration = false;
+    settings = {
+      theme = "gruvbox";
+    };
   };
 
   # Copy AGENTS.md

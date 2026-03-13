@@ -1,44 +1,38 @@
-let
-  createMcpServer =
-    {
-      enable ? false,
-      name ? "",
-      type ? "local",
-      command ? "",
-      args ? [ ],
-      env ? { },
-      ...
-    }:
-    {
-      inherit
-        enable
-        name
-        type
-        command
-        args
-        env
-        ;
-    };
-in
+{ ... }:
 {
-  obsidian = createMcpServer {
+  programs.mcp = {
     enable = true;
-    name = "obsidian";
-    type = "local";
-    command = "docker";
-    args = [
-      "run"
-      "-i"
-      "--rm"
-      "-e"
-      "OBSIDIAN_HOST"
-      "-e"
-      "OBSIDIAN_API_KEY"
-      "mcp/obsidian"
-    ];
-    env = {
-      OBSIDIAN_HOST = "host.docker.internal"; 
-      OBSIDIAN_API_KEY = "{env:OBSIDIAN_API_KEY}";
+    servers = {
+      context7 = {
+        enabled = false;
+        type = "remote";
+        url = "https://mcp.context7.com/mcp";
+        headers = { };
+      };
+
+      playwright = {
+        enabled = false;
+        type = "local";
+        command = "docker";
+        args = [
+          "run"
+          "-i"
+          "--rm"
+          "mcp/playwright"
+        ];
+      };
+
+      youtube-transcript = {
+        enabled = false;
+        type = "local";
+        command = "docker";
+        args = [
+          "run"
+          "-i"
+          "--rm"
+          "mcp/youtube-transcript"
+        ];
+      };
     };
   };
 }
