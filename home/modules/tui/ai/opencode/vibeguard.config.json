@@ -1,0 +1,28 @@
+{
+    "enabled": true,
+    "debug": false,
+    "placeholder_prefix": "__POTENTIAL_",
+    "session": {
+        "ttl": "1h",
+        "max_mappings": 100000
+    },
+    "patterns": {
+        "keywords": [{ "value": "my-api-key-123", "category": "API_KEY" }],
+        "regex": [
+            { "pattern": "sk-[A-Za-z0-9]{48}", "category": "OPENAI_KEY" },
+            { "pattern": "(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]+", "category": "GITHUB_TOKEN" },
+            { "pattern": "AKIA[0-9A-Z]{16}", "category": "AWS_ACCESS_KEY" },
+            { "pattern": "\\+?[1-9][0-9]{7,14}", "category": "PHONE_NUMBER" },
+            { "pattern": "\\S*((api[_\\-\\.]key)|(API[_\\-\\.]KEY))\\S*", "category": "API_KEY" },
+            { "pattern": "\\S*((api[_\\-\\.]secret)|(API[_\\-\\.]SECRET))\\S*", "category": "API_SECRET" },
+            { "pattern": "-----BEGIN ([A-Z0-9 ]+)-----([\\s\\S]*?)-----END \\1-----", "category": "CERTIFICATE" },
+            { "pattern": "\b(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}\b", "category": "CRYPTOCURRENCY_ADDRESS" },
+            { "pattern": "eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}", "category": "JWT_TOKEN" },
+            { "pattern": "\bBearer\\s+[A-Za-z0-9\\-._~+/]+=*", "category": "BEARER_TOKEN" },
+            { "pattern": "(?i)(mongodb|mysql|postgresql|postgres)://[^\\s'\"]+", "category": "DATABASE_CONNECTION_STRING" },
+            { "pattern": "(?i)(private[_-]?key|secret[_-]?key)\\s*[:=]\\s*['\"][^'\"]+['\"]", "category": "SECRET_ASSIGNMENT" }
+        ],
+        "builtin": ["email", "china_phone", "china_id", "uuid", "ipv4", "mac"],
+        "exclude": ["test.com", "test.test", "example.com", "localhost", "127.0.0.1", "0.0.0.0"]
+    }
+}

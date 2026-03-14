@@ -1,7 +1,6 @@
 { lib, pkgs, ... }:
 let
   configDir = ".config/opencode";
-  mcps = import ./mcps.nix;
 
   copyFile = src: dest: ''
     mkdir -p $(dirname ${dest})
@@ -18,7 +17,7 @@ let
 in
 {
   imports = [
-    ./mcps.nix
+    ../mcps.nix
   ];
 
   programs.opencode = {
@@ -26,22 +25,32 @@ in
     enableMcpIntegration = false;
     settings = {
       theme = "gruvbox";
+      plugin = [
+        "@franlol/opencode-md-table-formatter@latest"
+        "@mohak34/opencode-notifier@latest"
+        "opencode-vibeguard@latest"
+      ];
     };
   };
 
   # Copy AGENTS.md
   home.activation.copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyFile ./AGENTS.md "${configDir}/AGENTS.md"
+    copyFile ../AGENTS.md "${configDir}/AGENTS.md"
+  );
+
+  # Copy vibeguard config
+  home.activation.copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    copyFile ./vibeguard.config.json "${configDir}/vibeguard.config.json"
   );
 
   # Copy agents folder
   home.activation.copyOpencodeAgentsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyDir ./agents "${configDir}/agents"
+    copyDir ../agents "${configDir}/agents"
   );
 
   # Copy commands folder
   home.activation.copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyDir ./commands "${configDir}/commands"
+    copyDir ../commands "${configDir}/commands"
   );
 
 }

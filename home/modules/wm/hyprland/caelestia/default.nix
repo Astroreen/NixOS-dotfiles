@@ -74,16 +74,6 @@
     safeeyes # Eye protection tool
     gpu-screen-recorder # Screen recorder that uses GPU for encoding
 
-    # Python packages
-    (python3.withPackages (
-      ps: with ps; [
-        aubio
-        numpy
-        pyaudio
-        inotify
-      ]
-    ))
-
     # Might be the wrong packages
     gdbuspp
     libpulseaudio
