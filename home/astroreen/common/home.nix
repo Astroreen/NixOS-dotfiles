@@ -30,7 +30,11 @@ in
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = osConfig.home-manager.users.astroreen.home.sessionVariables;
 
-  # Hyprland settings
-  wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix;
+  wayland.windowManager.hyprland = {
+    # Hyprland settings
+    settings = import ./hyprland/settings.nix;
+    # Hyprland submaps (keybinds)
+    submaps = import ./hyprland/binds.nix;
+  };
 
 }

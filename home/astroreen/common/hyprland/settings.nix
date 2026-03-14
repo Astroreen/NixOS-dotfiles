@@ -1,9 +1,7 @@
-let
-  binds = import ./binds.nix;
-in
+{
+  # Activate global submap on every config reload
+  exec = "hyprctl dispatch submap global";
 
-binds # Added binds to configuration
-// {
   # Keyboard settings for hyprland
   input = {
     kb_layout = "us,ru,lt";
