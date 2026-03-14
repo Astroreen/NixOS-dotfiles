@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+
+  // Claude-only setup (no OpenAI, no Gemini, no Copilot)
+  "agents": {
+    "sisyphus": {
+      "model": "anthropic/claude-opus-4-6"
+    },
+    "oracle": {
+      "model": "anthropic/claude-opus-4-6"
+    },
+    "explore": {
+      "model": "anthropic/claude-haiku-4-5"
+    },
+    "librarian": {
+      "model": "anthropic/claude-haiku-4-5"
+    },
+    "prometheus": {
+      "model": "anthropic/claude-opus-4-6"
+    },
+    "multimodal-looker": {
+      "model": "anthropic/claude-sonnet-4-6"
+    }
+  },
+
+  "categories": {
+    "quick": {
+      "model": "anthropic/claude-haiku-4-5"
+    },
+    "unspecified-low": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "unspecified-high": {
+      "model": "anthropic/claude-opus-4-6"
+    },
+    "writing": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "visual-engineering": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "ultrabrain": {
+      "model": "anthropic/claude-opus-4-6"
+    },
+    "deep": {
+      "model": "anthropic/claude-opus-4-6"
+    }
+  },
+
+  "background_task": {
+    "providerConcurrency": {
+      "anthropic": 5
+    }
+  },
+
+  "runtime_fallback": {
+    "enabled": true,
+    "max_fallback_attempts": 3,
+    "notify_on_fallback": true
+  },
+
+  "experimental": {
+    "aggressive_truncation": true
+  }
+}
