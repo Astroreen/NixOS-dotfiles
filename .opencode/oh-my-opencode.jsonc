@@ -4,20 +4,20 @@
   // GitHub Copilot setup (proxied models via github-copilot provider)
   "agents": {
     "sisyphus": {
-      "model": "github-copilot/claude-opus-4-6"
+      "model": "anthropic/claude-opus-4-6"
     },
     "oracle": {
-      "model": "github-copilot/gpt-5.4",
+      "model": "github-copilot/gpt-5.3",
       "variant": "high"
     },
     "explore": {
       "model": "github-copilot/grok-code-fast-1"
     },
     "librarian": {
-      "model": "github-copilot/gemini-3-flash"
+      "model": "github-copilot/gemini-3-flash-preview"
     },
     "prometheus": {
-      "model": "github-copilot/claude-opus-4-6"
+      "model": "anthropic/claude-opus-4-6"
     },
     "multimodal-looker": {
       "model": "github-copilot/claude-sonnet-4-6"
@@ -41,7 +41,7 @@
       "model": "github-copilot/claude-sonnet-4-6"
     },
     "ultrabrain": {
-      "model": "github-copilot/gpt-5.4",
+      "model": "github-copilot/gpt-5.3",
       "variant": "xhigh"
     },
     "deep": {
