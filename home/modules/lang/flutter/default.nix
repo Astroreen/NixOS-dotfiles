@@ -1,20 +1,3 @@
-# Flutter Development Environment for NixOS
-#
-# This module sets up Flutter with Android SDK support for NixOS.
-#
-# WHY THE COMPLEXITY?
-# - Android SDK components are scattered across the Nix store
-# - Flutter/Android tools expect a unified SDK structure at $ANDROID_SDK_ROOT
-# - We create symlinks from ~/Android/Sdk to the Nix store components
-# - This allows adb (Android Debug Bridge) and other tools to find everything
-#
-# WHAT DOES THIS CONFIGURE?
-# - Flutter SDK with Android support
-# - Android SDK with required platforms and build tools
-# - Android Emulator with hardware acceleration (via KVM)
-# - VSCode settings for Flutter development
-# - Environment variables for Android tools
-#
 {
   lib,
   config,
@@ -22,14 +5,6 @@
   ...
 }:
 let
-
-  settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
-  existingSettings =
-    if builtins.pathExists settingsPath then
-      builtins.fromJSON (builtins.readFile settingsPath)
-    else
-      { };
-
   flutterSettings = {
     # Point Flutter extension at the immutable Nix store SDK; VS Code only reads from it.
     "dart.flutterSdkPath" = "${pkgs.flutter}";
@@ -130,7 +105,7 @@ in
 {
   programs = {
     # VSCode settings (unchanged)
-    vscode.profiles.default.userSettings = existingSettings // flutterSettings;
+    vscode.profiles.default.userSettings = flutterSettings;
     bash.sessionVariables = config.home.sessionVariables;
     zsh.sessionVariables = config.home.sessionVariables;
   };

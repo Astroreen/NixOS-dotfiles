@@ -7,12 +7,6 @@ let
   node-package = pkgs.nodejs_24;
   settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
 
-  existingSettings =
-    if builtins.pathExists settingsPath then
-      builtins.fromJSON (builtins.readFile settingsPath)
-    else
-      { };
-
   javascriptSettings = {
     "sonarlint.pathToNodeExecutable" = "${node-package}/bin/node";
 
@@ -22,9 +16,7 @@ let
   };
 in
 {
-  home.packages = with pkgs; [ node-package ];
+  home.packages = with pkgs; [ node-package bun ];
 
-  programs.vscode = {
-    profiles.default.userSettings = existingSettings // javascriptSettings;
-  };
+  programs.vscode.profiles.default.userSettings = javascriptSettings;
 }

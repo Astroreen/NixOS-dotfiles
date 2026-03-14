@@ -4,16 +4,6 @@
   ...
 }:
 let
-
-  settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
-
-  # Read existing settings if they exist
-  existingSettings =
-    if builtins.pathExists settingsPath then
-      builtins.fromJSON (builtins.readFile settingsPath)
-    else
-      { };
-
   # Direnv-specific settings to add to vscode
   direnvSettings = {
     # Direnv integration
@@ -39,10 +29,7 @@ in
       mise.enable = false;
     };
 
-    vscode = {
-      # Merge existing settings with Direnv settings
-      profiles.default.userSettings = existingSettings // direnvSettings;
-    };
+    vscode.profiles.default.userSettings = direnvSettings;
   };
 
   home.shellAliases = {

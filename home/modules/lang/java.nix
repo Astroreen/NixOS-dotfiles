@@ -9,14 +9,6 @@ let
   gradle-package = pkgs.gradle_8;
   gradle-home = ".gradle";
 
-  settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
-
-  existingSettings =
-    if builtins.pathExists settingsPath then
-      builtins.fromJSON (builtins.readFile settingsPath)
-    else
-      { };
-
   javaSettings = {
     "java.configuration.runtimes" = [
       {
@@ -142,9 +134,7 @@ in
       };
     };
 
-    vscode = {
-      profiles.default.userSettings = existingSettings // javaSettings;
-    };
+    vscode.profiles.default.userSettings = javaSettings;
   };
 
   home = {

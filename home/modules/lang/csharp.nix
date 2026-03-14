@@ -6,13 +6,6 @@
 let
   dotnetPackage = pkgs.dotnetCorePackages.sdk_9_0-bin;
 
-  settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
-  existingSettings =
-    if builtins.pathExists settingsPath then
-      builtins.fromJSON (builtins.readFile settingsPath)
-    else
-      { };
-
   csharpSettings = {
     "omnisharp.dotnetPath" = "${dotnetPackage}/bin/dotnet";
     "dotnet.dotnetPath" = "${dotnetPackage}/bin/dotnet";
@@ -22,9 +15,7 @@ let
 in
 {
 
-  programs.vscode = {
-    profiles.default.userSettings = existingSettings // csharpSettings;
-  };
+  programs.vscode.profiles.default.userSettings = csharpSettings;
 
   home.packages = with pkgs; [
     dotnetPackage

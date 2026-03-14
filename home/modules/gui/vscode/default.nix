@@ -1,8 +1,6 @@
 { pkgs, ... }:
 let
   vscodeSettings = import ./settings.nix;
-
-  # dynamicSettings = {};
 in
 {
   programs.vscode = {
