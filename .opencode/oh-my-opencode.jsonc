@@ -1,55 +1,58 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
 
-  // Claude-only setup (no OpenAI, no Gemini, no Copilot)
+  // GitHub Copilot setup (proxied models via github-copilot provider)
   "agents": {
     "sisyphus": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-opus-4-6"
     },
     "oracle": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/gpt-5.4",
+      "variant": "high"
     },
     "explore": {
-      "model": "anthropic/claude-haiku-4-5"
+      "model": "github-copilot/grok-code-fast-1"
     },
     "librarian": {
-      "model": "anthropic/claude-haiku-4-5"
+      "model": "github-copilot/gemini-3-flash"
     },
     "prometheus": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-opus-4-6"
     },
     "multimodal-looker": {
-      "model": "anthropic/claude-sonnet-4-6"
+      "model": "github-copilot/claude-sonnet-4-6"
     }
   },
 
   "categories": {
     "quick": {
-      "model": "anthropic/claude-haiku-4-5"
+      "model": "github-copilot/claude-haiku-4-5"
     },
     "unspecified-low": {
-      "model": "anthropic/claude-sonnet-4-6"
+      "model": "github-copilot/claude-sonnet-4-6"
     },
     "unspecified-high": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-opus-4-6"
     },
     "writing": {
-      "model": "anthropic/claude-sonnet-4-6"
+      "model": "github-copilot/claude-sonnet-4-6"
     },
     "visual-engineering": {
-      "model": "anthropic/claude-sonnet-4-6"
+      "model": "github-copilot/claude-sonnet-4-6"
     },
     "ultrabrain": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/gpt-5.4",
+      "variant": "xhigh"
     },
     "deep": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/gpt-5.3-codex",
+      "variant": "medium"
     }
   },
 
   "background_task": {
     "providerConcurrency": {
-      "anthropic": 5
+      "github-copilot": 5
     }
   },
 
