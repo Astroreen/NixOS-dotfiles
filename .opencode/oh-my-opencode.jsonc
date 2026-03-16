@@ -1,68 +1,68 @@
 {
-  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+    "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
 
-  // GitHub Copilot setup (proxied models via github-copilot provider)
-  "agents": {
-    "sisyphus": {
-      "model": "anthropic/claude-opus-4-6"
+    // GitHub Copilot setup (proxied models via github-copilot provider)
+    "agents": {
+        "sisyphus": {
+            "model": "anthropic/claude-opus-4-6",
+        },
+        "oracle": {
+            "model": "github-copilot/gpt-5.3",
+            "variant": "high",
+        },
+        "explore": {
+            "model": "github-copilot/grok-code-fast-1",
+        },
+        "librarian": {
+            "model": "github-copilot/gemini-3-flash-preview",
+        },
+        "prometheus": {
+            "model": "anthropic/claude-opus-4-6",
+        },
+        "multimodal-looker": {
+            "model": "anthropic/claude-sonnet-4-6",
+        },
     },
-    "oracle": {
-      "model": "github-copilot/gpt-5.3",
-      "variant": "high"
-    },
-    "explore": {
-      "model": "github-copilot/grok-code-fast-1"
-    },
-    "librarian": {
-      "model": "github-copilot/gemini-3-flash-preview"
-    },
-    "prometheus": {
-      "model": "anthropic/claude-opus-4-6"
-    },
-    "multimodal-looker": {
-      "model": "github-copilot/claude-sonnet-4-6"
-    }
-  },
 
-  "categories": {
-    "quick": {
-      "model": "github-copilot/claude-haiku-4-5"
+    "categories": {
+        "quick": {
+            "model": "github-copilot/claude-haiku-4-5",
+        },
+        "unspecified-low": {
+            "model": "anthropic/claude-sonnet-4-6",
+        },
+        "unspecified-high": {
+            "model": "anthropic/claude-opus-4-6",
+        },
+        "writing": {
+            "model": "anthropic/claude-sonnet-4-6",
+        },
+        "visual-engineering": {
+            "model": "anthropic/claude-sonnet-4-6",
+        },
+        "ultrabrain": {
+            "model": "github-copilot/gpt-5.2",
+            "variant": "xhigh",
+        },
+        "deep": {
+            "model": "github-copilot/gpt-5.3-codex",
+            "variant": "medium",
+        },
     },
-    "unspecified-low": {
-      "model": "github-copilot/claude-sonnet-4-6"
-    },
-    "unspecified-high": {
-      "model": "github-copilot/claude-opus-4-6"
-    },
-    "writing": {
-      "model": "github-copilot/claude-sonnet-4-6"
-    },
-    "visual-engineering": {
-      "model": "github-copilot/claude-sonnet-4-6"
-    },
-    "ultrabrain": {
-      "model": "github-copilot/gpt-5.3",
-      "variant": "xhigh"
-    },
-    "deep": {
-      "model": "github-copilot/gpt-5.3-codex",
-      "variant": "medium"
-    }
-  },
 
-  "background_task": {
-    "providerConcurrency": {
-      "github-copilot": 5
-    }
-  },
+    "background_task": {
+        "providerConcurrency": {
+            "github-copilot": 5,
+        },
+    },
 
-  "runtime_fallback": {
-    "enabled": true,
-    "max_fallback_attempts": 3,
-    "notify_on_fallback": true
-  },
+    "runtime_fallback": {
+        "enabled": true,
+        "max_fallback_attempts": 3,
+        "notify_on_fallback": true,
+    },
 
-  "experimental": {
-    "aggressive_truncation": true
-  }
+    "experimental": {
+        "aggressive_truncation": true,
+    },
 }
