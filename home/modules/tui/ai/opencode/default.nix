@@ -22,7 +22,7 @@ in
 
   programs.opencode = {
     enable = true;
-    enableMcpIntegration = false;
+    enableMcpIntegration = true;
     settings = {
       theme = "gruvbox";
       plugin = [
@@ -51,6 +51,11 @@ in
   # Copy commands folder
   home.activation.copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
     copyDir ../commands "${configDir}/commands"
+  );
+
+  # Copy skills folder
+  home.activation.copyOpencodeSkillsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    copyDir ../skills "${configDir}/skills"
   );
 
 }
