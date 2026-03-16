@@ -17,19 +17,18 @@ let
     "dart.env" = {
       "ANDROID_SDK_ROOT" = sdkHome;
       "ANDROID_HOME" = sdkHome;
-      "ANDROID_EMULATOR_USE_SYSTEM_LIBS" = "1";
       "ANDROID_EMULATOR_FORCE_ANGLE" = "false";
-      "ANDROID_EMULATOR_FORCE_GPU" = "angle_indirect";
+      "ANDROID_EMULATOR_FORCE_GPU" = "host";
       "QT_QPA_PLATFORM" = "xcb";
     };
     # Instruct the Flutter extension to start the emulator with ANGLE
     "dart.flutterEmulatorLaunchArgs" = [
       "-gpu"
-      "angle_indirect"
+      "host"
     ];
 
     "dart.flutterRunAdditionalArgs" = [
-      "--no-enable-impeller" # Disable Impeller renderer for better compatibility on this host
+      # "--no-enable-impeller" # Disable Impeller renderer for better compatibility on this host
     ];
   };
 
@@ -124,19 +123,20 @@ in
     file."Android/emulator-wrapper/bin/emulator" = {
       text = ''
         #!/usr/bin/env bash
-        # NixOS/Wayland-friendly Android Emulator wrapper
-        # Ensure emulator uses system GL/Vulkan/Qt and NVIDIA ICD
-        export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
         export QT_QPA_PLATFORM=xcb
         export VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
         export __GLX_VENDOR_LIBRARY_NAME=nvidia
-        export LD_LIBRARY_PATH="/run/opengl-driver/lib:/run/opengl-driver-32/lib:$LD_LIBRARY_PATH"
-
-        # If no GPU flag passed, default to angle_indirect (works on this host)
+        export LD_LIBRARY_PATH="${
+          pkgs.lib.makeLibraryPath [
+            pkgs.libGL # libglvnd dispatch (libGL.so, libGLX.so, libEGL.so)
+            pkgs.libglvnd # same, explicit
+            pkgs.libX11
+            pkgs.libXext
+          ]
+        }:/run/opengl-driver/lib:$LD_LIBRARY_PATH"
         if ! printf '%s\n' "$@" | grep -q -- '-gpu'; then
-          set -- -gpu angle_indirect "$@"
+          set -- -gpu host "$@"
         fi
-
         exec "${ANDROID_SDK_ROOT}/emulator/emulator" "$@"
       '';
       executable = true;
@@ -185,4 +185,27 @@ in
       "$HOME/.pub-cache/bin"
     ];
   };
+  # ===== AVD Creation Helper =====
+  # To create an Android Virtual Device with optimal hardware settings, run:
+  #
+  #   avdmanager create avd \
+  #     --name "pixel_8_api_36" \
+  #     --package "system-images;android-36;google_apis_playstore;x86_64" \
+  #     --device "pixel_8"
+  #
+  # Then manually edit ~/.android/avd/<name>.avd/config.ini to add:
+  #
+  #   hw.gpu.enabled = yes
+  #   hw.gpu.mode = host
+  #   hw.ramSize = 4096
+  #   vm.heapSize = 512
+  #
+  # Or use this one-liner after creation:
+  #
+  #   cat >> ~/.android/avd/pixel_8_api_36.avd/config.ini << EOF
+  #   hw.gpu.enabled = yes
+  #   hw.gpu.mode = host
+  #   hw.ramSize = 4096
+  #   vm.heapSize = 512
+  #   EOF
 }

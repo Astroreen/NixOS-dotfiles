@@ -37,6 +37,7 @@
       libXrandr
       libXext
       libX11
+      libglvnd
       libXfixes
       libGL
       libva
