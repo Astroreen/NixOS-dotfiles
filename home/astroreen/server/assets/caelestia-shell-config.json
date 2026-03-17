@@ -170,7 +170,7 @@
             "background": false,
             "compact": true,
             "iconSubs": [],
-            "recolour": false
+            "recolour": true
         },
         "workspaces": {
             "activeIndicator": true,
@@ -179,7 +179,7 @@
             "label": "  ",
             "occupiedBg": false,
             "occupiedLabel": "󰮯",
-            "perMonitorWorkspaces": true,
+            "perMonitorWorkspaces": false,
             "showWindows": true,
             "shown": 5,
             "specialWorkspaceIcons": [
@@ -189,7 +189,7 @@
                 }
             ]
         },
-        "excludedScreens": [""],
+        "excludedScreens": ["HDMI-A-1", "DP-2"],
         "activeWindow": {
             "inverted": false
         }
@@ -369,7 +369,7 @@
         "weatherLocation": "",
         "useFahrenheit": false,
         "useFahrenheitPerformance": false,
-        "useTwelveHourClock": true,
+        "useTwelveHourClock": false,
         "smartScheme": true,
         "visualiserBars": 45
     },

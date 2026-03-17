@@ -34,7 +34,7 @@
       # Fullscreen auto-started programs
       "match:class ^(vivaldi-stable)$, fullscreen on, workspace 2 silent"
       "match:class discord|vesktop, fullscreen on, workspace 3 silent"
-      "match:class youtube_music|spotify, fullscreen on, workspace 4 silent"
+      "match:class ^com.github.th_ch.youtube_music|youtube_music|spotify, fullscreen on, workspace 4 silent"
       "match:class ^(obsidian)$, workspace 5 silent"
 
       # Make all modal windows float (e.g. Popups)
