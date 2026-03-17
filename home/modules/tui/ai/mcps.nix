@@ -48,7 +48,7 @@
       };
 
       sequential-thinking = {
-        disabled = false;
+        disabled = true;
         command = "npx";
         args = [
           "-y"
