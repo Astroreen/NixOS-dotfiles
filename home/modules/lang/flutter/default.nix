@@ -40,7 +40,7 @@ let
     includeSystemImages = true;
     includeSources = false;
     useGoogleAPIs = true;
-    useGoogleTVAddOns = true;
+    useGoogleTVAddOns = false;
 
     abiVersions = [ "x86_64" ];
     toolsVersion = "26.1.1";
@@ -77,7 +77,7 @@ let
       "extras;google;auto"
     ];
 
-    systemImageTypes = [ "google_apis_playstore" ];
+    systemImageTypes = [ "google_apis" ];
 
     extraLicenses = [
       # Already accepted for you with the global accept_license = true or
@@ -190,7 +190,7 @@ in
   #
   #   avdmanager create avd \
   #     --name "pixel_8_api_36" \
-  #     --package "system-images;android-36;google_apis_playstore;x86_64" \
+  #     --package "system-images;android-36;google_apis;x86_64" \
   #     --device "pixel_8"
   #
   # Then manually edit ~/.android/avd/<name>.avd/config.ini to add:
