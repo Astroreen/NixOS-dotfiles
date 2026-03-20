@@ -29,6 +29,7 @@ in
         "@franlol/opencode-md-table-formatter@latest"
         "@mohak34/opencode-notifier@latest"
         "opencode-vibeguard@latest"
+        "@tarquinen/opencode-dcp@latest"
       ];
     };
   };

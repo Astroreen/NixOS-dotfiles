@@ -35,7 +35,7 @@
       };
 
       persistent-memory = {
-        disabled = false;
+        disabled = true;
         command = "npx";
         args = [
           "-y"
