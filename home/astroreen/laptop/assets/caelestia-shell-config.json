@@ -423,10 +423,10 @@
             "enabled": true,
             "provider": [
                 {
-                    "name": "wireguard",
-                    "interface": "your-connection-name",
-                    "displayName": "Wireguard (Your VPN)",
-                    "enabled": false
+                    "displayName": "Tailscale",
+                    "enabled": true,
+                    "interface": "tailscale0",
+                    "name": "tailscale"
                 }
             ]
         }
