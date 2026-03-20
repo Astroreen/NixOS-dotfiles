@@ -126,6 +126,10 @@ in
         export QT_QPA_PLATFORM=xcb
         export VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
         export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export __NV_PRIME_RENDER_OFFLOAD=1
+        export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export __VK_LAYER_NV_optimus=NVIDIA_only
         export LD_LIBRARY_PATH="${
           pkgs.lib.makeLibraryPath [
             pkgs.libGL # libglvnd dispatch (libGL.so, libGLX.so, libEGL.so)
@@ -171,7 +175,7 @@ in
       GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${pkgs.aapt}/bin/aapt2";
       CHROME_EXECUTABLE = "${pkgs.vivaldi}/bin/vivaldi";
       # Android Emulator on NixOS/Wayland/NVIDIA tweaks
-      ANDROID_EMULATOR_USE_SYSTEM_LIBS = "1"; # use system GL/Vulkan/Qt instead of bundled
+      # ANDROID_EMULATOR_USE_SYSTEM_LIBS = "1"; # use system GL/Vulkan/Qt instead of bundled
     };
 
     sessionPath = [
