@@ -1,6 +1,6 @@
 ---
 description: Reviews prompts for quality and best practices
-mode: all
+mode: subagent
 temperature: 0.3
 tools:
     write: false
