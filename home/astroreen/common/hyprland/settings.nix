@@ -22,7 +22,6 @@
     "[workspace 2 silent] vivaldi"
     "[workspace 3 silent] vesktop"
     "[workspace 4 silent] pear-desktop"
-    "[workspace 5 silent] obsidian"
   ];
 
   # Windows rules
@@ -35,7 +34,6 @@
       "match:class ^(vivaldi-stable)$, fullscreen on, workspace 2 silent"
       "match:class discord|vesktop, fullscreen on, workspace 3 silent"
       "match:class ^com.github.th_ch.youtube_music|youtube_music|spotify, fullscreen on, workspace 4 silent"
-      "match:class ^(obsidian)$, workspace 5 silent"
 
       # Make all modal windows float (e.g. Popups)
       "match:modal true, float on"
