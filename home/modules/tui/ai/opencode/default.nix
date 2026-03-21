@@ -30,6 +30,7 @@ in
         "@mohak34/opencode-notifier@latest"
         "opencode-vibeguard@latest"
         "@tarquinen/opencode-dcp@latest"
+        "opencode-anthropic-oauth"
       ];
     };
   };
