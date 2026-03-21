@@ -173,7 +173,6 @@ in
       ANDROID_SDK_ROOT = sdkHome;
       ANDROID_HOME = sdkHome;
       GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${pkgs.aapt}/bin/aapt2";
-      CHROME_EXECUTABLE = "${pkgs.vivaldi}/bin/vivaldi";
       # Android Emulator on NixOS/Wayland/NVIDIA tweaks
       # ANDROID_EMULATOR_USE_SYSTEM_LIBS = "1"; # use system GL/Vulkan/Qt instead of bundled
     };

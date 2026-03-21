@@ -10,6 +10,7 @@ _: {
     ./modules/gui/kdeconnect.nix # KDE Connect configuration
     ./modules/gui/vnc.nix # VNC server and client configuration
     ./modules/gui/tailscale.nix # Tailscale tray and client configuration
+    ./modules/gui/browser.nix # Browser configuration
 
     # Terminal apps (tui)
     ./modules/tui/wine.nix # Wine configuration

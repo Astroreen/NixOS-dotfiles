@@ -39,9 +39,6 @@
     localsend # Cross-platform file transfer
 
     # Internet
-    #google-chrome
-    vivaldi
-    vivaldi-ffmpeg-codecs # Vivaldi Browser
     qbittorrent # Torrent client
 
     # thunderbird                   # Email client

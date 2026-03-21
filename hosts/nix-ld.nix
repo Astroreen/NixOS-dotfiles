@@ -153,6 +153,10 @@
       fuse
       fuse3
       e2fsprogs
+
+      # For browser
+      libglibutil
+      
     ];
   };
 }
