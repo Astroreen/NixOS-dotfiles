@@ -23,9 +23,5 @@
 
     # Set primary monitor
     "/home/astroreen/.local/share/nixos/scripts/restart-side-monitors.sh"
-
-    # Start whisper server for voice transcription
-    # ggml-tiny.bin ggml-base.bin ggml-large-v3-turbo-q5_0.bin
-    "whisper-server -m /home/astroreen/apps/whisper.cpp/models/ggml-medium.bin --host 0.0.0.0 --port 7777 --language auto &"
   ];
 }

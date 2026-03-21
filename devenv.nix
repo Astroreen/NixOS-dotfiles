@@ -162,6 +162,13 @@
         delete-work-dns
       '';
     };
+
+    start-whisper = {
+      # Start whisper server for voice transcription
+      # ggml-tiny.bin ggml-base.bin ggml-large-v3-turbo-q5_0.bin
+      description = "Start voice transcribing service";
+      exec = "whisper-server -m /home/astroreen/apps/whisper.cpp/models/ggml-medium.bin --host 0.0.0.0 --port 7777 --language auto";
+    };
   };
 
   tasks = {
