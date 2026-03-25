@@ -40,6 +40,11 @@ in
     copyFile ../AGENTS.md "${configDir}/AGENTS.md"
   );
 
+  # Copy oh-my-opencode config
+  home.activation.copyOhMyOpencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+    copyFile ./oh-my-opencode.jsonc "${configDir}/oh-my-opencode.config.jsonc"
+  );
+
   # Copy vibeguard config
   home.activation.copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
     copyFile ./vibeguard.config.json "${configDir}/vibeguard.config.json"
