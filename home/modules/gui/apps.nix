@@ -15,10 +15,8 @@
     mattermost-desktop # Mattermost
 
     # Media
-    spotify # Music service
     mpv # Media player
     celluloid # MPV's frontend
-    pear-desktop # Electron YouTube Music client
 
 
     # Graphics & Design

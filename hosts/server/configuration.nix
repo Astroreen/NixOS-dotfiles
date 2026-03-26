@@ -202,6 +202,7 @@
   };
 
   environment.sessionVariables = {
+    ELECTRON_ENABLE_FEATURES = "VaapiVideoDecoder,VaapiVideoEncoder";
     LIBVA_DRIVER_NAME = "nvidia"; # VAAPI → NVIDIA
     VDPAU_DRIVER = "nvidia"; # VDPAU → NVIDIA
     __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # OpenGL → NVIDIA

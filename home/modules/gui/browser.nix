@@ -1,14 +1,25 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
+let
+  # Chromium flags to enable NVIDIA hardware video acceleration
+  nvidia-vaapi-flags = [
+    "--enable-features=VaapiVideoDecoder,VaapiIgnoreDriverChecks,VaapiOnNvidiaGPUs,AcceleratedVideoDecodeLinuxGL,WaylandLinuxDrmSyncobj"
+    "--ignore-gpu-blocklist"
+    "--enable-gpu-rasterization"
+  ];
+
+  vivaldi-gpu = pkgs.vivaldi.override {
+    commandLineArgs = lib.concatStringsSep " " nvidia-vaapi-flags;
+  };
+in
 {
   home = {
-    packages = with pkgs; [
-      # Vivaldi Browser
-      vivaldi
-      vivaldi-ffmpeg-codecs
+    packages = [
+      vivaldi-gpu
+      pkgs.vivaldi-ffmpeg-codecs
     ];
 
     sessionVariables = {
-      CHROME_EXECUTABLE = "${pkgs.vivaldi}/bin/vivaldi";
+      CHROME_EXECUTABLE = "${vivaldi-gpu}/bin/vivaldi";
     };
   };
 }
