@@ -250,6 +250,44 @@ Some program names exist in both layers with different semantics (e.g. `programs
 
 ---
 
+## Import Chain
+
+The module system forms two parallel trees:
+
+**System modules:**
+```
+flake.nix (createHost function)
+  → hosts/{laptop,server}/configuration.nix
+    → hosts/common-settings.nix, common-services.nix, common-apps.nix
+    → hosts/certificates.nix, nix-ld.nix
+    → hosts/modules/{gui,tui,lang,style,wm}/*
+```
+
+**Home Manager modules:**
+```
+flake.nix (home-manager.users.astroreen)
+  → home/astroreen/{laptop,server}/home.nix
+    → home/astroreen/common/home.nix
+    → home/common-apps.nix
+    → home/modules/{gui,tui,lang,style,wm}/*
+```
+
+**Server-only additions:** Ollama, Whisper
+
+**Unimported files** (exist but not in any import chain): `blender.nix`, `claude/`, `ssh.nix` in home — these are dormant/WIP modules.
+
+---
+
+## Additional Constraints
+
+- Never enable both display managers simultaneously (SDDM + GDM conflict)
+- Never enable `xdg-desktop-portal-wlr` alongside Hyprland (use Hyprland's own portal)
+- VPN helper scripts (`add-work-dns`, `start-vpn`, `start-work`) are defined in devenv.nix, not in NixOS config
+- `scripts/` directory contains shell scripts for Hyprland monitor management (hotplug, layout)
+- Two legacy `with pkgs;` violations exist at file scope — do not add more, fix when touching those files
+
+---
+
 ## Key Facts for Agents
 
 - Both hosts use the same username `astroreen`
