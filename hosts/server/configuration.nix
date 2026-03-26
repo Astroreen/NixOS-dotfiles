@@ -202,8 +202,12 @@
   };
 
   environment.sessionVariables = {
-    LIBVA_DRIVER_NAME = "iHD"; # Use Intel Media Driver
-    # LD_LIBRARY_PATH = lib.mkForce "/run/opengl-driver/lib:${pkgs.openal}/lib:${pkgs.pulseaudio}/lib:${pkgs.pipewire}/lib"; # Effectively breaking path
+    LIBVA_DRIVER_NAME = "nvidia"; # VAAPI → NVIDIA
+    VDPAU_DRIVER = "nvidia"; # VDPAU → NVIDIA
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # OpenGL → NVIDIA
+    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json"; # Vulkan → NVIDIA
+    GBM_BACKEND = "nvidia-drm"; # Wayland GBM → NVIDIA
+    NVD_BACKEND = "direct"; # nvidia-vaapi-driver: direct mode
   };
 
   # Docker settings
