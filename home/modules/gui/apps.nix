@@ -23,6 +23,7 @@
     # gimp                          # GNU Image Manipulation Program
     # inkscape                      # Vector graphics editor
     qview # Image viewer
+    furmark # GPU stress test
 
     # Productivity
     libreoffice # Office suite
