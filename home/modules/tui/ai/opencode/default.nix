@@ -27,7 +27,7 @@ in
       theme = "gruvbox";
       plugin = [
         "@franlol/opencode-md-table-formatter@latest"
-        "@mohak34/opencode-notifier@latest"
+        "@mohak34/opencode-notifier@0.1.36"
         "opencode-vibeguard@latest"
         "@tarquinen/opencode-dcp@latest"
         "opencode-anthropic-oauth"
