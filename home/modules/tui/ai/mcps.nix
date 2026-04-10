@@ -83,6 +83,13 @@
         url = "https://docs.mcp.cloudflare.com/mcp";
         description = "Cloudflare documentation search";
       };
+
+      excel = {
+        disabled = true;
+        command = "uvx";
+        args = ["excel-mcp-server" "stdio"];
+        description = "Excel spreadsheet interactions";
+      };
     };
   };
 }
