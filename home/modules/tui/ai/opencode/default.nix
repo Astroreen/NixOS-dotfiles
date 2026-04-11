@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, config, ... }:
 let
   configDir = ".config/opencode";
 
@@ -18,7 +18,14 @@ in
 {
   imports = [
     ../mcps.nix
+    ../meridian.nix
   ];
+
+  # Enable Meridian for Claude Pro/Max integration into OpenCode
+  custom.meridian = {
+    enable = true;
+    enableOpencodeIntegration = true;
+  };
 
   programs.opencode = {
     enable = true;
@@ -30,7 +37,6 @@ in
         "@mohak34/opencode-notifier@0.1.36"
         "opencode-vibeguard@latest"
         "@tarquinen/opencode-dcp@3.1.6"
-        "opencode-anthropic-oauth"
       ];
     };
   };
