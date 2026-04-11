@@ -22,6 +22,7 @@ _: {
     ./modules/tui/ranger.nix # Terminal file manager
     ./modules/tui/ai/fabric # Fabric AI CLI tool
     ./modules/tui/ai/opencode # Open Code
+    ./modules/tui/ai/claude # Claude Code
 
     # Languages
     ./modules/lang/java.nix
