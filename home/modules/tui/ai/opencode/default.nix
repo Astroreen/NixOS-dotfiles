@@ -23,8 +23,6 @@ in
 {
   imports = [
     ../. # default.nix of ai folder
-    ../mcps.nix
-    ../meridian.nix
   ];
 
   # Enable Meridian for Claude Pro/Max integration into OpenCode

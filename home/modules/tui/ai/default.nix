@@ -1,9 +1,10 @@
-{ config, lib, ... }: 
-let 
+{ config, lib, ... }:
+let
   cfg = config.custom.ai;
-in 
+in
 {
   imports = [
+    ./mcps.nix
     ./skills
     ./meridian.nix
   ];
