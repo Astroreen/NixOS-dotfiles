@@ -5,11 +5,11 @@
   ...
 }:
 let
-  cfg = config.custom.meridian;
+  cfg = config.custom.ai.meridian;
 in
 {
   options = with lib; {
-    custom.meridian = {
+    custom.ai.meridian = {
       enable = mkEnableOption "Enable Meridian local proxy for Claude Pro/Max integration";
       enableOpencodeIntegration = mkEnableOption "Enable Meridian OpenCode plugin for session tracking and smart model context routing";
       settings = mkOption {

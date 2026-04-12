@@ -1,6 +1,11 @@
-{ lib, pkgs, config, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 let
-  configDir = ".config/opencode";
+  baseCfg = config.custom.ai;
 
   copyFile = src: dest: ''
     mkdir -p $(dirname ${dest})
@@ -17,14 +22,27 @@ let
 in
 {
   imports = [
+    ../. # default.nix of ai folder
     ../mcps.nix
     ../meridian.nix
   ];
 
   # Enable Meridian for Claude Pro/Max integration into OpenCode
-  custom.meridian = {
-    enable = true;
-    enableOpencodeIntegration = true;
+  custom.ai = {
+    meridian = {
+      enable = false;
+      enableOpencodeIntegration = true;
+    };
+
+    skill = {
+      learn.enable = true;
+
+      # Caveman skill — token-efficient mode, always on
+      caveman = {
+        enable = true;
+        alwaysOn = true;
+      };
+    };
   };
 
   programs.opencode = {
@@ -37,38 +55,36 @@ in
         "@mohak34/opencode-notifier@0.1.36"
         "opencode-vibeguard@latest"
         "@tarquinen/opencode-dcp@3.1.6"
+        "opencode-anthropic-auth"
+        "opencode-claude-auth"
       ];
     };
   };
 
-  # Copy AGENTS.md
-  home.activation.copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyFile ../AGENTS.md "${configDir}/AGENTS.md"
-  );
+  home.activation = {
+    # Copy AGENTS.md
+    copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      copyFile ../AGENTS.md "${baseCfg.settings.configDir}/AGENTS.md"
+    );
 
-  # Copy oh-my-opencode config
-  home.activation.copyOhMyOpencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyFile ./oh-my-opencode.jsonc "${configDir}/oh-my-opencode.config.jsonc"
-  );
+    # Copy oh-my-opencode config
+    copyOhMyOpencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      copyFile ./oh-my-opencode.jsonc "${baseCfg.settings.configDir}/oh-my-opencode.config.jsonc"
+    );
 
-  # Copy vibeguard config
-  home.activation.copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyFile ./vibeguard.config.json "${configDir}/vibeguard.config.json"
-  );
+    # Copy vibeguard config
+    copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      copyFile ./vibeguard.config.json "${baseCfg.settings.configDir}/vibeguard.config.json"
+    );
 
-  # Copy agents folder
-  home.activation.copyOpencodeAgentsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyDir ../agents "${configDir}/agents"
-  );
+    # Copy agents folder
+    copyOpencodeAgentsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      copyDir ../agents "${baseCfg.settings.configDir}/agents"
+    );
 
-  # Copy commands folder
-  home.activation.copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyDir ../commands "${configDir}/commands"
-  );
-
-  # Copy skills folder
-  home.activation.copyOpencodeSkillsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    copyDir ../skills "${configDir}/skills"
-  );
-
+    # Copy commands folder
+    copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      copyDir ../commands "${baseCfg.settings.configDir}/commands"
+    );
+  };
 }

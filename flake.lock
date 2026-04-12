@@ -99,6 +99,22 @@
         "type": "github"
       }
     },
+    "caveman": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1775945827,
+        "narHash": "sha256-gDPgQx1TIhGrJ2EVvEoDY+4MXdlI79zdcx6pL5nMEG4=",
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "rev": "600e8efcd6aca4006051ca2a889aa8100a9b3967",
+        "type": "github"
+      },
+      "original": {
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -590,6 +606,7 @@
       "inputs": {
         "app2unit": "app2unit",
         "caelestia-shell": "caelestia-shell",
+        "caveman": "caveman",
         "flake-utils": "flake-utils",
         "home-manager": "home-manager",
         "hyprland": "hyprland",

@@ -11,7 +11,7 @@
     };
 
     flake-utils.url = "github:numtide/flake-utils";
-    
+
     # Do not override nixpkgs version of Hyprland, as it may break cachix and other things.
     hyprland.url = "github:hyprwm/Hyprland";
 
@@ -23,6 +23,13 @@
     caelestia-shell = {
       url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Caveman: opencode skill for terse, token-efficient responses.
+    # Not a flake — consumed as a plain source tree.
+    caveman = {
+      url = "github:JuliusBrussee/caveman";
+      flake = false;
     };
   };
 
