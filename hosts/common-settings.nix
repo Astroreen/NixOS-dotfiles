@@ -74,6 +74,7 @@
     wayland
     libx11 # Core x11 protocol client library
     foo2zjs # Printer drivers
+    dnsutils # DNS utilities
   ];
 
   # Fonts
