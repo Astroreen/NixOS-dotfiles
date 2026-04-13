@@ -59,7 +59,7 @@
       allowedTCPPorts = [
         22 # SSH
         8573 # Pi-hole web interface
-        53317 # Localsend port
+        3000 # Localsend port
         11434 # Ollama API port
         7777 # Whisper.cpp server port
         9167 # KitchenOwl port
@@ -69,7 +69,7 @@
 
       allowedUDPPorts = [
         53 # DNS queries
-        53317 # Localsend port
+        3000 # Localsend port
         7777 # Whisper.cpp server port
         9 # Wake-on-LAN
       ];
