@@ -50,12 +50,12 @@
 
     firewall = {
       allowedTCPPorts = [
-        53317 # Localsend port
+        3000 # Localsend port
         4096 # OpenCode server port
       ];
 
       allowedUDPPorts = [
-        53317 # Localsend port
+        3000 # Localsend port
       ];
 
       # Open TCP ports
