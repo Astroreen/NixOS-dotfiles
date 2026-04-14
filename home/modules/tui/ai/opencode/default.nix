@@ -28,7 +28,7 @@ in
   # Enable Meridian for Claude Pro/Max integration into OpenCode
   custom.ai = {
     meridian = {
-      enable = false;
+      enable = true;
       enableOpencodeIntegration = true;
     };
 
@@ -53,8 +53,6 @@ in
         "@mohak34/opencode-notifier@0.1.36"
         "opencode-vibeguard@latest"
         "@tarquinen/opencode-dcp@3.1.6"
-        "opencode-anthropic-auth"
-        "opencode-claude-auth"
       ];
     };
   };
