@@ -97,7 +97,15 @@ with lib;
       ];
     };
 
-    resolved.enable = true; # Enable systemd-resolved for DNS resolution
+    # Enable systemd-resolved for DNS resolution
+    resolved = {
+      enable = true;
+      # Disable systemd-resolved DNS stub listener to free port 53 for Pi-hole
+      settings.Resolve = {
+        DNSStubListener = "no";
+      };
+    };
+
     gvfs.enable = true; # Enables trash
     power-profiles-daemon.enable = mkDefault true; # Enable power profiles
     upower.enable = mkDefault true; # Enable upower for battery management
