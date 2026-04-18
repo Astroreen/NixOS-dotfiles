@@ -12,7 +12,6 @@
   env = {
     OPENVPN_CONFIG = "/home/astroreen/.local/share/nixos/hosts/modules/tui/openvpn/work.ovpn";
     COMPANY_DNS = "192.168.1.8";
-    BACKUP_FILE = "/tmp/resolv.conf.backup";
   };
 
   scripts = {
@@ -104,62 +103,74 @@
       exec = ''
         echo "Setting up VPN DNS..."
 
-        # Backup current resolv.conf
-        sudo cp /etc/resolv.conf "$BACKUP_FILE"
+        # Configure DNS for tun0 interface using systemd-resolved
+        sudo resolvectl dns tun0 "$COMPANY_DNS"
+        sudo resolvectl domain tun0 '~aktkc.local'
 
-        # Create new resolv.conf with company DNS first
-        {
-            echo "# VPN DNS Configuration"
-            echo "nameserver $COMPANY_DNS"
-            # Original DNS servers
-            echo "nameserver 192.168.50.167"
-            echo "nameserver 192.168.50.1"
-            # Fallback DNS servers
-            echo "nameserver 8.8.8.8"
-            echo "nameserver 8.8.4.4"
-            echo "options edns0"
-        } | sudo tee /etc/resolv.conf > /dev/null
-
-        echo "DNS configured for VPN (Primary: $COMPANY_DNS)"
+        echo "DNS configured for VPN (Primary: $COMPANY_DNS, Domain: aktkc.local)"
       '';
-    };
-
-    start-vpn = {
-      description = "Start OpenVPN with the specified configuration file and its dns server";
-      exec = "sudo openvpn --config $OPENVPN_CONFIG";
     };
 
     delete-work-dns = {
       description = "Stop work DNS server";
       exec = ''
-        echo "Restoring original DNS..."
+        echo "Removing VPN DNS..."
 
-        if [ -f "$BACKUP_FILE" ]; then
-            sudo cp "$BACKUP_FILE" /etc/resolv.conf
-            sudo rm "$BACKUP_FILE"
-            echo "Original DNS restored"
+        # Clear DNS configuration for tun0 interface
+        if ip link show tun0 &>/dev/null; then
+            sudo resolvectl revert tun0
+            echo "VPN DNS removed"
         else
-            # Fallback to original DNS servers
-            {
-                # Original DNS servers
-                echo "nameserver 192.168.50.167"
-                echo "nameserver 192.168.50.1"
-                # Fallback DNS servers
-                echo "nameserver 8.8.8.8"
-                echo "nameserver 8.8.4.4"
-                echo "options edns0"
-            } | sudo tee /etc/resolv.conf > /dev/null
-            echo "Reset to default DNS"
+            echo "tun0 interface not found (VPN not running)"
         fi
       '';
     };
 
     start-work = {
-      description = "List of scripts to start work environment";
+      description = "Start work VPN and configure DNS";
       exec = ''
+        echo "Starting work environment..."
+
+        # Start VPN in background
+        sudo openvpn --config "$OPENVPN_CONFIG" --daemon
+
+        # Wait for tun0 to come up
+        echo "Waiting for VPN interface..."
+        for i in {1..10}; do
+          if ip link show tun0 &>/dev/null; then
+            echo "VPN interface is up"
+            break
+          fi
+          sleep 1
+        done
+
+        # Configure DNS
         add-work-dns
-        start-vpn
+
+        echo "Work environment ready"
+      '';
+    };
+
+    end-work = {
+      description = "Stop work VPN and remove DNS configuration";
+      exec = ''
+        echo "Stopping work environment..."
+
+        # Remove DNS configuration
         delete-work-dns
+
+        # Stop OpenVPN
+        sudo pkill -SIGTERM openvpn
+
+        # Wait for process to terminate
+        sleep 1
+
+        if pgrep openvpn &>/dev/null; then
+          echo "Warning: OpenVPN still running, force killing..."
+          sudo pkill -SIGKILL openvpn
+        fi
+
+        echo "Work environment stopped"
       '';
     };
 
