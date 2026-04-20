@@ -53,6 +53,8 @@ in
         "@mohak34/opencode-notifier@0.1.36"
         "opencode-vibeguard@latest"
         "@tarquinen/opencode-dcp@3.1.6"
+        "opencode-anthropic-auth"
+        "opencode-claude-auth"
       ];
     };
   };
