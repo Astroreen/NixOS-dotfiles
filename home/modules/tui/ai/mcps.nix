@@ -83,6 +83,15 @@ let
       ];
       description = "Excel spreadsheet interactions";
     };
+
+    drawio = {
+      command = "npx";
+      args = [
+        "-y"
+        "@drawio/mcp"
+      ];
+      description = "Draw.io diagram interactions";
+    };
   };
 in
 {
