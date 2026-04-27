@@ -67,7 +67,7 @@ in
 
     # Copy oh-my-opencode config
     copyOhMyOpencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      copyFile ./oh-my-opencode.jsonc "${baseCfg.settings.configDir}/oh-my-opencode.config.jsonc"
+      copyFile ./oh-my-opencode.jsonc "${baseCfg.settings.configDir}/oh-my-openagent.jsonc"
     );
 
     # Copy vibeguard config

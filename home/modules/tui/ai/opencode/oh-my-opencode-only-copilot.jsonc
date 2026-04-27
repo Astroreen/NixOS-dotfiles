@@ -4,11 +4,20 @@
     // GitHub Copilot setup (proxied models via github-copilot provider)
     "agents": {
         "sisyphus": {
-            "model": "anthropic/claude-opus-4-6",
+            "model": "github-copilot/gpt-5.2",
+            "variant": "xhigh",
         },
         "sisyphus-junior": {
             "model": "github-copilot/gpt-5.2",
             "variant": "high",
+        },
+        "prometheus": {
+            "model": "github-copilot/gpt-5.2",
+            "variant": "high",
+        },
+        "atlas": {
+            "model": "github-copilot/gpt-5.2",
+            "variant": "xhigh",
         },
         "oracle": {
             "model": "github-copilot/gpt-5.2",
@@ -20,30 +29,22 @@
         "librarian": {
             "model": "github-copilot/gemini-3-flash-preview",
         },
-        "prometheus": {
-            "model": "anthropic/claude-opus-4-6",
+        "build": {
+            "model": "github-copilot/gpt-5.3-codex",
+            "variant": "medium",
         },
-        "multimodal-looker": {
-            "model": "anthropic/claude-sonnet-4-6",
+        "plan": {
+            "model": "github-copilot/gpt-5.2",
+            "variant": "xhigh",
+        },
+        "hephaestus": {
+            "model": "github-copilot/gemini-3-flash-preview",
         },
     },
 
     "categories": {
         "quick": {
-            "model": "anthropic/claude-haiku-4-5",
-            // "model": "github-copilot/claude-haiku-4.5",
-        },
-        "unspecified-low": {
-            "model": "anthropic/claude-sonnet-4-6",
-        },
-        "unspecified-high": {
-            "model": "anthropic/claude-opus-4-6",
-        },
-        "writing": {
-            "model": "anthropic/claude-sonnet-4-6",
-        },
-        "visual-engineering": {
-            "model": "anthropic/claude-sonnet-4-6",
+            "model": "github-copilot/claude-haiku-4.5",
         },
         "ultrabrain": {
             "model": "github-copilot/gpt-5.2",
@@ -65,9 +66,5 @@
         "enabled": true,
         "max_fallback_attempts": 3,
         "notify_on_fallback": true,
-    },
-
-    "experimental": {
-        "aggressive_truncation": true,
     },
 }

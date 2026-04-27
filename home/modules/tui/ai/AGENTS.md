@@ -17,3 +17,5 @@
 - **System:** NixOS
 - **Shell:** zsh (with fabric-ai integration)
 - **Primary Editor:** opencode
+- **Notes:** if you think you are in the claude code environment, you are not. 
+User uses meridian service to simulate claude code environment. You are in the opencode - use opencode tools.
