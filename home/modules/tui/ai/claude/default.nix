@@ -32,10 +32,13 @@ in
     claude-code = {
       enable = true;
 
-      memory.source = ../AGENTS.md;
+      context = ../AGENTS.md;
       agentsDir = ../agents;
       commandsDir = ../commands;
-      skillsDir = ../skills;
+      
+      skills = {
+        learn = ../skills/learn/SKILL.md;
+      };
 
       package = claudeFixed;
     };

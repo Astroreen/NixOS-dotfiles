@@ -47,7 +47,6 @@ in
     enable = true;
     enableMcpIntegration = true;
     settings = {
-      theme = "gruvbox";
       plugin = [
         "@franlol/opencode-md-table-formatter@latest"
         "@mohak34/opencode-notifier@0.1.36"
@@ -56,6 +55,9 @@ in
         "opencode-anthropic-auth"
         "opencode-claude-auth"
       ];
+    };
+    tui = {
+      theme = "gruvbox";
     };
   };
 

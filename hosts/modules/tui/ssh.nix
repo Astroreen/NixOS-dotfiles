@@ -26,6 +26,9 @@ _: {
       "tailscaled.service"
       "network-online.target"
     ];
-    wants = [ "tailscaled.service" ];
+    wants = [
+      "tailscaled.service"
+      "network-online.target"
+    ];
   };
 }
