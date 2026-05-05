@@ -3,7 +3,7 @@
   imports = [
     ../common/home.nix
 
-    ../../modules/tui/ollama.nix
+    # ../../modules/tui/ollama.nix
     ../../modules/tui/whisper.nix
   ];
 
