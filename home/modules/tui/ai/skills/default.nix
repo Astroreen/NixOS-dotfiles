@@ -17,7 +17,11 @@ let
 
   copyDir = src: dest: ''
     mkdir -p ${dest}
-    cp -r ${src}/* ${dest}/
+    for item in ${src}/*; do
+      name=$(basename "$item")
+      rm -rf "${dest}/$name"
+      cp -r "$item" "${dest}/$name"
+    done
     chmod -R 777 ${dest}
     find ${dest} -type d -exec chmod 755 {} \;
   '';
