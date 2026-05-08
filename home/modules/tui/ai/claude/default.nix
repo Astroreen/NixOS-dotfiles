@@ -32,7 +32,7 @@ in
     claude-code = {
       enable = true;
 
-      context = ../AGENTS.md;
+      context = ../CustomPrompt.md;
       agentsDir = ../agents;
       commandsDir = ../commands;
       

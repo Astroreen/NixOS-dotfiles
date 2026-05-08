@@ -274,7 +274,7 @@ flake.nix (home-manager.users.astroreen)
 
 **Server-only additions:** Ollama, Whisper
 
-**Unimported files** (exist but not in any import chain): `blender.nix`, `claude/`, `ssh.nix` in home — these are dormant/WIP modules.
+**Unimported files** (exist but not in any import chain): `blender.nix` in `home/modules/gui/`, `ssh.nix` in `home/modules/tui/`, `claude/` in `home/modules/tui/ai/` — all dormant/WIP, do not import.
 
 ---
 
@@ -297,3 +297,7 @@ flake.nix (home-manager.users.astroreen)
 - There is no automated test suite — validation is `dry-build` / `dry-activate` before switching
 - The `caelestia-shell` config is written via `home.activation` (not symlinked) so the shell can mutate it at runtime
 - `home-manager` is embedded in NixOS configs via `home-manager.nixosModules.home-manager`, not a standalone `home-manager switch`
+- Meridian (`@rynfar/meridian`) runs as a systemd user service on port 3456 — local proxy routing opencode → Claude Pro/Max API
+- Opencode config (AGENTS.md, agents/, commands/, skills/) deployed via `home.activation` copy (chmod 777), NOT symlinked — files must stay mutable for runtime edits
+- All MCPs defined in `home/modules/tui/ai/mcps.nix` are disabled by default (`lib.mkDefault true`) — enable individually per-host config
+- `home/modules/tui/ai/agents/` and `commands/` contain opencode agent definitions and slash commands, copied to `~/.config/opencode/` at activation

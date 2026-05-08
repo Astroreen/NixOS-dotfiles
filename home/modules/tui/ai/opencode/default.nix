@@ -64,7 +64,7 @@ in
   home.activation = {
     # Copy AGENTS.md
     copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      copyFile ../AGENTS.md "${baseCfg.settings.configDir}/AGENTS.md"
+      copyFile ../CustomPrompt.md "${baseCfg.settings.configDir}/AGENTS.md"
     );
 
     # Copy oh-my-opencode config
