@@ -20,74 +20,53 @@
       description = "Update the Nix flake";
     };
 
-    switch-server = {
-      exec = "git add . && sudo nixos-rebuild switch --flake .#server";
-      description = "Switch to the new NixOS server configuration";
+    switch = {
+      exec = ''
+        host="''${1:?Usage: switch <laptop|server>}"
+        git add . && sudo nixos-rebuild switch --flake ".#$host"
+      '';
     };
 
-    switch-laptop = {
-      exec = "git add . && sudo nixos-rebuild switch --flake .#laptop";
-      description = "Switch to the new NixOS laptop configuration";
+    try = {
+      exec = ''
+        host="''${1:?Usage: switch <laptop|server>}"
+        git add . && sudo nixos-rebuild test --flake ".#$host"
+      '';
     };
 
-    test-laptop = {
-      exec = "git add . && sudo nixos-rebuild test --flake .#laptop";
-      description = "Test the new NixOS laptop configuration";
+    rollback = {
+      exec = ''
+        host="''${1:?Usage: switch <laptop|server>}"
+        sudo nixos-rebuild switch --flake ".#$host" --rollback
+      '';
     };
 
-    test-server = {
-      exec = "git add . && sudo nixos-rebuild test --flake .#server";
-      description = "Test the new NixOS server configuration";
+    boot = {
+      exec = ''
+        host="''${1:?Usage: switch <laptop|server>}"
+        git add . && sudo nixos-rebuild boot --flake ".#$host"
+      '';
     };
 
-    rollback-laptop = {
-      exec = "sudo nixos-rebuild switch --flake .#laptop --rollback";
-      description = "Rollback to the previous NixOS laptop configuration";
+    build = {
+      exec = ''
+        host="''${1:?Usage: switch <laptop|server>}"
+        git add . && sudo nixos-rebuild build --flake ".#$host"
+      '';
     };
 
-    rollback-server = {
-      exec = "sudo nixos-rebuild switch --flake .#server --rollback";
-      description = "Rollback to the previous NixOS server configuration";
+    dry-build = {
+      exec = ''
+        host="''${1:?Usage: switch <laptop|server>}"
+        git add . && sudo nixos-rebuild dry-build --flake ".#$host"
+      '';
     };
 
-    boot-laptop = {
-      exec = "git add . && sudo nixos-rebuild boot --flake .#laptop";
-      description = "Build the new configuration for laptop and make it the boot default";
-    };
-
-    boot-server = {
-      exec = "git add . && sudo nixos-rebuild boot --flake .#server";
-      description = "Build the new configuration for server and make it the boot default";
-    };
-
-    build-laptop = {
-      exec = "git add . && sudo nixos-rebuild build --flake .#laptop";
-      description = "Build the new configuration for laptop, but neither activate it nor add it to the GRUB boot menu";
-    };
-
-    build-server = {
-      exec = "git add . && sudo nixos-rebuild build --flake .#server";
-      description = "Build the new configuration for serverq, but neither activate it nor add it to the GRUB boot menu";
-    };
-
-    dry-build-laptop = {
-      exec = "git add . && sudo nixos-rebuild dry-build --flake .#laptop";
-      description = "Show what store paths would be built or downloaded by any of the operations above, but otherwise do nothing.";
-    };
-
-    dry-build-server = {
-      exec = "git add . && sudo nixos-rebuild dry-build --flake .#server";
-      description = "Show what store paths would be built or downloaded by any of the operations above, but otherwise do nothing.";
-    };
-
-    dry-activate-laptop = {
-      exec = "git add . && sudo nixos-rebuild dry-activate --flake .#laptop";
-      description = "Build the new configuration, but instead of activating it, show what changes would be performed by the activationq.";
-    };
-
-    dry-activate-server = {
-      exec = "git add . && sudo nixos-rebuild dry-activate --flake .#server";
-      description = "Build the new configuration, but instead of activating it, show what changes would be performed by the activation.";
+    dry-activate = {
+      exec = ''
+        host="''${1:?Usage: switch <laptop|server>}"
+        git add . && sudo nixos-rebuild dry-activate --flake ".#$host"
+      '';
     };
 
     delete-garbage = {
@@ -179,37 +158,6 @@
       # ggml-tiny.bin ggml-base.bin ggml-large-v3-turbo-q5_0.bin
       description = "Start voice transcribing service";
       exec = "whisper-server -m /home/astroreen/apps/whisper.cpp/models/ggml-medium.bin --host 0.0.0.0 --port 7777 --language auto";
-    };
-  };
-
-  tasks = {
-
-    "nixos:update-flake" = {
-      exec = "update-flake";
-      description = "Update the Nix flake";
-      before = [
-        "nixos:switch-server"
-        "nixos:switch-laptop"
-      ];
-    };
-
-    "nixos:switch-server" = {
-      exec = "switch-server";
-      description = "Switch to the new NixOS server configuration";
-    };
-
-    "nixos:switch-laptop" = {
-      exec = "switch-laptop";
-      description = "Switch to the new NixOS laptop configuration";
-    };
-
-    "nixos:delete-garbage" = {
-      exec = "delete-garbage";
-      description = "Delete old NixOS generations and unused packages";
-      after = [
-        "nixos:switch-server"
-        "nixos:switch-laptop"
-      ];
     };
   };
 }
