@@ -35,7 +35,7 @@
   "workbench.layoutControl.enabled" = false;
   "window.titleBarStyle" = "native";
   "window.menuBarVisibility" = "toggle";
-  "explorer.decorations.badges" = true;
+  "explorer.decorations.badges" = false;
   "git.decorations.enabled" = true;
   "scm.diffDecorations" = "all";
 

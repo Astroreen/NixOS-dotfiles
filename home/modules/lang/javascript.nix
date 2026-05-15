@@ -13,10 +13,20 @@ let
     # Disable path suggestions since we are using Path Intellisense
     "typescript.suggest.paths" = false;
     "javascript.suggest.paths" = false;
+
+    "[javascript]" = {
+      "editor.defaultFormatter" = "esbenp.prettier-vscode";
+      "editor.tabSize" = 4;
+    };
+
+    "js/ts.format.enabled" = false;
   };
 in
 {
-  home.packages = with pkgs; [ node-package bun ];
+  home.packages = with pkgs; [
+    node-package
+    bun
+  ];
 
   programs.vscode.profiles.default.userSettings = javascriptSettings;
 }
