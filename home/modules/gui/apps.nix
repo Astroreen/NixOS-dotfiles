@@ -17,6 +17,7 @@
     # Media
     mpv # Media player
     celluloid # MPV's frontend
+    kdePackages.kdenlive
 
 
     # Graphics & Design
@@ -39,8 +40,6 @@
 
     # Internet
     qbittorrent # Torrent client
-
-    # thunderbird                   # Email client
 
     # Security
     bitwarden-desktop # Password manager
