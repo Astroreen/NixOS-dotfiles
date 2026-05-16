@@ -27,10 +27,10 @@
         host="''${2:?Usage: nixos <action> <host>}"
 
         if [ "$action" = "rollback" ]; then
-          sudo nixos-rebuild switch --flake ".#$host" --rollback
+          sudo nixos-rebuild switch --fast --flake ".#$host" --rollback
         else
           git add .
-          sudo nixos-rebuild "$action" --flake ".#$host"
+          sudo nixos-rebuild "$action" --fast --flake ".#$host"
         fi
       '';
     };
