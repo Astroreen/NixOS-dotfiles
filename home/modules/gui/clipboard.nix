@@ -26,7 +26,7 @@ _: {
         ];
 
         windowrule = [
-          "match:class ^(com.github.hluk.copyq)$, size 1100 600, center on, float on"
+          "match:class copyq, size 1100 600, center on, float on"
         ];
       };
 
