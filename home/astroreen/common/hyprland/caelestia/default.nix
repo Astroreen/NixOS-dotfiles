@@ -8,9 +8,14 @@ let
   cfg = config.custom.caelestia;
 in
 {
+  imports = [
+    ../../../../modules/wm/hyprland/settings/binds.nix
+  ];
+
   options = with lib; {
     custom.caelestia = {
       enable = mkEnableOption "Enable Caelestia shell configuration";
+      enableDefaultKeyboardBinds = mkEnableOption "Enable default keyboard binds for caelestia";
       settings = mkOption {
         type = types.attrsOf types.anything;
         default = { };
@@ -59,5 +64,80 @@ in
           systemctl --user restart caelestia || true
         fi
       '';
+
+    custom.binds.global = lib.mkIf cfg.enableDefaultKeyboardBinds {
+      bind = [
+        "$mod, Q, global, caelestia:launcher" # Menu/Launcher
+
+        # Caelestia shell integration
+        "$mod, K, global, caelestia:showall"
+        "$mod, L, global, caelestia:lock"
+        "$mod SHIFT, L, exec, systemctl suspend-then-hibernate"
+        "CTRL ALT, Delete, global, caelestia:session"
+        "$mod, M, exit,"
+
+        # Caelestia utilities
+        "$mod, Period, exec, pkill fuzzel || caelestia emoji -p" # Emoji picker
+        "CTRL $mod SHIFT, R, exec, systemctl --user restart caelestia" # Kill/restart Caelestia shell
+        ", PRINT, global, caelestia:screenshotFreeze" # Screenshots (enhanced from original)
+        "$mod SHIFT, C, exec, hyprpicker -a" # Color picker (just like from powertoys on windows)
+        "CTRL, Q, global, caelestia:launcherInterrupt" # Disable closing program with CTRL Q
+
+        # Special workspaces (from Caelestia)
+        "$mod, S, exec, caelestia toggle specialws"
+        "CTRL $mod, up, movetoworkspace, special:special"
+        "CTRL $mod, down, movetoworkspace, e+0"
+
+        # Enhanced window movement from Caelestia
+        "$mod SHIFT, left, movewindow, l"
+        "$mod SHIFT, right, movewindow, r"
+        "$mod SHIFT, up, movewindow, u"
+        "$mod SHIFT, down, movewindow, d"
+        "$mod, left, movefocus, l"
+        "$mod, right, movefocus, r"
+        "$mod, up, movefocus, u"
+        "$mod, down, movefocus, d"
+      ];
+
+      bindin = [
+        # "$mod, catchall, global, caelestia:launcherInterrupt"
+        "$mod, mouse:272, global, caelestia:launcherInterrupt"
+        "$mod, mouse:273, global, caelestia:launcherInterrupt"
+        "$mod, mouse:274, global, caelestia:launcherInterrupt"
+        "$mod, mouse:275, global, caelestia:launcherInterrupt"
+        "$mod, mouse:276, global, caelestia:launcherInterrupt"
+        "$mod, mouse:277, global, caelestia:launcherInterrupt"
+        "$mod, mouse_up, global, caelestia:launcherInterrupt"
+        "$mod, mouse_down, global, caelestia:launcherInterrupt"
+      ];
+
+      bindl = [
+        # Media controls (original + Caelestia enhancements)
+        ", XF86AudioNext, exec, playerctl next"
+        ", XF86AudioPause, exec, playerctl play-pause"
+        ", XF86AudioPlay, exec, playerctl play-pause"
+        ", XF86AudioPrev, exec, playerctl previous"
+        ", XF86AudioStop, global, caelestia:mediaStop"
+
+        # Enhanced media with Caelestia
+        "CTRL $mod, S, global, caelestia:mediaToggle"
+        "CTRL $mod, Equal, global, caelestia:mediaNext"
+        "CTRL $mod, Minus, global, caelestia:mediaPrev"
+
+        # Brightness
+        ", XF86MonBrightnessUp, global, caelestia:brightnessUp"
+        ", XF86MonBrightnessDown, global, caelestia:brightnessDown"
+
+        # Notifications
+        "CTRL ALT, C, global, caelestia:clearNotifs"
+
+        # Lock restore
+        "$mod ALT, L, exec, caelestia shell -d"
+        "$mod ALT, L, global, caelestia:lock"
+
+        # Test notification
+        "$mod ALT, f12, exec, notify-send -u low -i dialog-information-symbolic 'Test notification' \"Here's a really long message to test truncation and wrapping\\nYou can middle click or flick this notification to dismiss it!\" -a 'Shell' -A \"Test1=I got it!\" -A \"Test2=Another action\""
+      ];
+    };
   };
 }

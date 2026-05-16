@@ -1,5 +1,9 @@
 { pkgs, ... }:
 {
+  imports = [
+    ../wm/hyprland/settings/binds.nix
+  ];
+
   programs.nautilus-open-any-terminal = {
     enable = true;
 
@@ -17,5 +21,9 @@
     code-nautilus # Open files in VSCode from Nautilus
 
     gsettings-desktop-schemas # Ensure gsettings schemas are available
+  ];
+  
+  custom.binds.global.bind = [
+    "$mod, E, exec, [float; size 1400 800] nautilus" # File manager
   ];
 }

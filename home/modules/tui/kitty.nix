@@ -1,4 +1,8 @@
 _: {
+  imports = [
+    ../wm/hyprland/settings/binds.nix
+  ];
+
   programs.kitty = {
     enable = true;
     enableGitIntegration = true;
@@ -24,4 +28,8 @@ _: {
       window_padding_width = "10 20 10 20";
     };
   };
+
+  custom.binds.global.bind = [
+    "$mod, T, exec, [float; size 1200 800] kitty" # Terminal
+  ];
 }

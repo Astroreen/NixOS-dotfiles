@@ -24,6 +24,7 @@ in
     # Windows manager (wm)
     ../../modules/wm/hyprland # Hyprland window manager
     ../../modules/wm/hyprland/caelestia # Caelestia shell
+    ../../modules/wm/hyprland/settings/binds.nix # Binds configuration
     inputs.caelestia-shell.homeManagerModules.default # Caelestia shell module
   ];
 
@@ -33,8 +34,7 @@ in
   wayland.windowManager.hyprland = {
     # Hyprland settings
     settings = import ./hyprland/settings.nix;
-    # Hyprland submaps (keybinds)
-    submaps = import ./hyprland/binds.nix;
   };
 
+  custom.binds.enable = true;
 }
