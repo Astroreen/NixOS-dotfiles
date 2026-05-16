@@ -64,39 +64,37 @@
               ./overlays # Overlays
               ./hosts/${host}/configuration.nix # Host configuration
               inputs.hyprland.nixosModules.default # Hyprland default module
-              home-manager.nixosModules.home-manager # Home manager module
-              (
-                {
-                  home-manager = {
-                    useGlobalPkgs = true;
-                    useUserPackages = true;
-                    backupFileExtension = "backup";
-
-                    # Pass arguments to every home-manager file
-                    extraSpecialArgs = {
-                      inherit inputs;
-                      inherit (inputs) pkgs-stable;
-                    };
-
-                    # User specific config file
-                    users.${username} = {
-                      imports = [
-                        ./home/${username}/${host}/home.nix
-                        {
-                          home = {
-                            inherit username;
-                            homeDirectory = "/home/${username}";
-                            stateVersion = "25.11";
-                          };
-                        }
-                      ];
-                    };
-                  };
-                }
-                // extraHomeModuleSettings
-              )
             ]
             ++ extraModules; # Allow passing extra modules from host configuration
+          };
+
+          homeConfigurations."${username}@${host}" = home-manager.lib.homeManagerConfiguration {
+            pkgs = import nixpkgs {
+              system = systemVersion;
+              config.allowUnfree = true;
+              config.android_sdk.accept_license = true;
+            };
+
+            extraSpecialArgs = {
+              inherit inputs host;
+              pkgs-stable = import inputs.nixpkgs-stable {
+                system = systemVersion;
+                config.allowUnfree = true;
+                config.android_sdk.accept_license = true;
+              };
+            };
+
+            modules = [
+              ./home/${username}/${host}/home.nix
+              {
+                home = {
+                  inherit username;
+                  homeDirectory = "/home/${username}";
+                  stateVersion = "25.11";
+                };
+                programs.home-manager.enable = true;
+              }
+            ] ++ (if extraHomeModuleSettings != {} then [ extraHomeModuleSettings ] else []);
           };
         };
 
@@ -110,10 +108,16 @@
           username = "astroreen";
         }
       ];
+
+      hostConfigs = map createHost hosts;
     in
     {
       nixosConfigurations = builtins.foldl' (a: b: a // b) { } (
-        map (h: h.nixosConfigurations) (map createHost hosts)
+        map (h: h.nixosConfigurations) hostConfigs
+      );
+
+      homeConfigurations = builtins.foldl' (a: b: a // b) { } (
+        map (h: h.homeConfigurations) hostConfigs
       );
     };
 }

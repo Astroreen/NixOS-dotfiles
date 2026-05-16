@@ -20,54 +20,37 @@
       description = "Update the Nix flake";
     };
 
-    switch = {
+    nixos = {
+      description = "Manage NixOS configuration (switch, test, boot, build, dry-build, dry-activate, rollback)";
       exec = ''
-        host="''${1:?Usage: switch <laptop|server>}"
-        git add . && sudo nixos-rebuild switch --flake ".#$host"
-      '';
-    };
+        action="''${1:?Usage: nixos <action> <host>}"
+        host="''${2:?Usage: nixos <action> <host>}"
 
-    try = {
-      exec = ''
-        host="''${1:?Usage: switch <laptop|server>}"
-        git add . && sudo nixos-rebuild test --flake ".#$host"
+        if [ "$action" = "rollback" ]; then
+          sudo nixos-rebuild switch --flake ".#$host" --rollback
+        else
+          git add .
+          sudo nixos-rebuild "$action" --flake ".#$host"
+        fi
       '';
     };
+    nx.exec = "nixos $@"; # Alias for nixos-rebuild
 
-    rollback = {
+    home = {
+      description = "Manage Home Manager configuration (switch, build, rollback)";
       exec = ''
-        host="''${1:?Usage: switch <laptop|server>}"
-        sudo nixos-rebuild switch --flake ".#$host" --rollback
-      '';
-    };
+        action="''${1:?Usage: home <action> <host>}"
+        host="''${2:?Usage: home <action> <host>}"
 
-    boot = {
-      exec = ''
-        host="''${1:?Usage: switch <laptop|server>}"
-        git add . && sudo nixos-rebuild boot --flake ".#$host"
+        if [ "$action" = "rollback" ]; then
+          home-manager switch --rollback --flake ".#astroreen@$host"
+        else
+          git add .
+          home-manager "$action" --flake ".#astroreen@$host"
+        fi
       '';
     };
-
-    build = {
-      exec = ''
-        host="''${1:?Usage: switch <laptop|server>}"
-        git add . && sudo nixos-rebuild build --flake ".#$host"
-      '';
-    };
-
-    dry-build = {
-      exec = ''
-        host="''${1:?Usage: switch <laptop|server>}"
-        git add . && sudo nixos-rebuild dry-build --flake ".#$host"
-      '';
-    };
-
-    dry-activate = {
-      exec = ''
-        host="''${1:?Usage: switch <laptop|server>}"
-        git add . && sudo nixos-rebuild dry-activate --flake ".#$host"
-      '';
-    };
+    hm.exec = "home $@"; # Alias for home manager
 
     delete-garbage = {
       exec = ''

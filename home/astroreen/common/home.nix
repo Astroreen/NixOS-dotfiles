@@ -1,6 +1,5 @@
 {
   pkgs,
-  osConfig,
   inputs,
   config,
   lib,
@@ -28,7 +27,7 @@ in
   ];
 
   # Wayland, X, etc. support for session vars
-  systemd.user.sessionVariables = osConfig.home-manager.users.astroreen.home.sessionVariables;
+  systemd.user.sessionVariables = config.home.sessionVariables;
 
   wayland.windowManager.hyprland = {
     # Hyprland settings
