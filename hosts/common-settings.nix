@@ -32,9 +32,6 @@
   environment.systemPackages = with pkgs; [
     # Essential packages
     kitty # Console
-    cliphist # Clipboard history
-    wl-clipboard # Clipboard management fow wayland
-    wl-clip-persist # Clipboard history daemon
     bluez # Bluetooth management
     ddcutil # Monitor brightness control
     brightnessctl # Monitor brightness control

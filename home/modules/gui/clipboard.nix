@@ -1,4 +1,12 @@
-_: {
+{ pkgs, ... }: {
+  home.packages = with pkgs; [
+    # Clipboard history
+    cliphist
+    wl-clipboard # Clipboard management fow wayland
+    wl-clip-persist # Clipboard history daemon
+
+  ];
+
   # Clipboard history settings
   services.cliphist = {
     enable = true;
