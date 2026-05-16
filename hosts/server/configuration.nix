@@ -279,7 +279,8 @@
     hybrid-sleep.enable = false;
   };
 
-  # nixpkgs.config.allowUnfree = true;
+  # nixpkgs.config.allowUnfree = true; # Moved to flake.nix to avoid unfree packages in nixpkgs for other hosts
+  nix.package = pkgs.lixPackageSets.stable.lix;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
