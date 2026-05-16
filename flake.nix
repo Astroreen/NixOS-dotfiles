@@ -36,6 +36,26 @@
   outputs =
     { nixpkgs, home-manager, ... }@inputs: # Put everything else inside of 'inputs' argument
     let
+      # Define systems we support to instantiate pkgs once per system
+      supportedSystems = [ "x86_64-linux" ];
+      
+      # Helper function to generate an attribute set '{ x86_64-linux = ...; }'
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+
+      # Instantiate pkgs exactly once per system
+      pkgsFor = forAllSystems (system: import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+        config.android_sdk.accept_license = true;
+      });
+
+      # Instantiate stable pkgs exactly once per system
+      pkgsStableFor = forAllSystems (system: import inputs.nixpkgs-stable {
+        inherit system;
+        config.allowUnfree = true;
+        config.android_sdk.accept_license = true;
+      });
+
       createHost =
         {
           host,
@@ -46,16 +66,19 @@
           extraModules ? [ ],
           ...
         }:
+        let
+          hostPkgs = pkgsFor.${systemVersion};
+          hostPkgsStable = pkgsStableFor.${systemVersion};
+        in
         {
           nixosConfigurations.${host} = nixpkgs.lib.nixosSystem rec {
-            # Arguments
+            # Pass pre-instantiated pkgs via modules
+            pkgs = hostPkgs;
             system = systemVersion;
+            
             specialArgs = {
               inherit inputs host;
-              pkgs-stable = import inputs.nixpkgs-stable {
-                inherit system;
-                config.allowUnfree = true;
-              };
+              pkgs-stable = hostPkgsStable;
             }
             // extraSpecialArgs; # Allow passing extra special args from host configuration
 
@@ -69,19 +92,12 @@
           };
 
           homeConfigurations."${username}@${host}" = home-manager.lib.homeManagerConfiguration {
-            pkgs = import nixpkgs {
-              system = systemVersion;
-              config.allowUnfree = true;
-              config.android_sdk.accept_license = true;
-            };
+            # Use the exact same pre-instantiated pkgs
+            pkgs = hostPkgs;
 
             extraSpecialArgs = {
               inherit inputs host;
-              pkgs-stable = import inputs.nixpkgs-stable {
-                system = systemVersion;
-                config.allowUnfree = true;
-                config.android_sdk.accept_license = true;
-              };
+              pkgs-stable = hostPkgsStable;
             };
 
             modules = [

@@ -4,7 +4,7 @@
 }:
 {
   # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+  # nixpkgs.config.allowUnfree = true;
   # Automatically creates a loader in /lib/* to avoid patching stuff
   # To disable it temporarily use
   # unset NIX_LD

@@ -1,8 +1,8 @@
 _:
 {
-  nixpkgs.config = {
-    android_sdk.accept_license = true;
-  };
+  # nixpkgs.config = {
+  #   android_sdk.accept_license = true;
+  # };
 
   # Enable KVM for Android Emulator hardware acceleration
   virtualisation.libvirtd.enable = true;
