@@ -61,30 +61,36 @@ in
     };
   };
 
-  home.activation = {
-    # Copy AGENTS.md
-    copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      copyFile ../CustomPrompt.md "${baseCfg.settings.configDir}/AGENTS.md"
-    );
+  home = {
+    activation = {
+      # Copy AGENTS.md
+      copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyFile ../CustomPrompt.md "${baseCfg.settings.configDir}/AGENTS.md"
+      );
 
-    # Copy oh-my-opencode config
-    copyOhMyOpencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      copyFile ./oh-my-opencode.jsonc "${baseCfg.settings.configDir}/oh-my-openagent.jsonc"
-    );
+      # Copy oh-my-opencode config
+      copyOhMyOpencodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyFile ./oh-my-opencode.jsonc "${baseCfg.settings.configDir}/oh-my-openagent.jsonc"
+      );
 
-    # Copy vibeguard config
-    copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      copyFile ./vibeguard.config.json "${baseCfg.settings.configDir}/vibeguard.config.json"
-    );
+      # Copy vibeguard config
+      copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyFile ./vibeguard.config.json "${baseCfg.settings.configDir}/vibeguard.config.json"
+      );
 
-    # Copy agents folder
-    copyOpencodeAgentsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      copyDir ../agents "${baseCfg.settings.configDir}/agents"
-    );
+      # Copy agents folder
+      copyOpencodeAgentsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyDir ../agents "${baseCfg.settings.configDir}/agents"
+      );
 
-    # Copy commands folder
-    copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      copyDir ../commands "${baseCfg.settings.configDir}/commands"
-    );
+      # Copy commands folder
+      copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyDir ../commands "${baseCfg.settings.configDir}/commands"
+      );
+    };
+
+    shellAliases = {
+      oc = "opencode";
+    };
   };
 }
