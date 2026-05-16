@@ -17,30 +17,54 @@
     ../modules/wm/hyprland # Window manager Hyprland
   ];
 
-  # Bootloader.
-  boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
-    };
-    # systemd-boot.enable = true;
-    grub =
-      let
-        grub-theme-pkg = pkgs.sleek-grub-theme.override {
-          withStyle = "dark";
-          withBanner = "AstroGrub Bootloader";
-        };
-      in
-      {
-        enable = true;
-        efiSupport = true;
-        devices = [ "nodev" ];
-        useOSProber = false;
-        efiInstallAsRemovable = false;
-        theme = "${grub-theme-pkg}";
-      };
+  # Bootloader + Plymouth splash.
+  boot = {
+    consoleLogLevel = 3;
+    kernelParams = [
+      "quiet"
+      "splash"
+      "rd.udev.log_level=3"
+      "udev.log_level=3"
+      "vt.global_cursor_default=0"
+      "fbcon=nodefer"
+    ];
 
-    timeout = 3; # seconds
+    initrd = {
+      systemd.enable = true;
+      verbose = false;
+      kernelModules = [ "i915" ]; # Intel KMS early for framebuffer handoff
+    };
+
+    plymouth = {
+      enable = true;
+      theme = "loader_2";
+      themePackages = [ pkgs.adi1090x-plymouth-themes ];
+    };
+
+    loader = {
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
+      };
+      # systemd-boot.enable = true;
+      grub =
+        let
+          grub-theme-pkg = pkgs.sleek-grub-theme.override {
+            withStyle = "dark";
+            withBanner = "AstroGrub Bootloader";
+          };
+        in
+        {
+          enable = true;
+          efiSupport = true;
+          devices = [ "nodev" ];
+          useOSProber = false;
+          efiInstallAsRemovable = false;
+          theme = "${grub-theme-pkg}";
+        };
+
+      timeout = 3; # seconds
+    };
   };
 
   # Enable networking
@@ -152,14 +176,15 @@
     };
   };
 
+  # Intel-first env: NVIDIA stays dormant (PRIME offload + finegrained power management).
+  # NVIDIA is still used by:
+  #   - flutter module (VK_ICD/GLX) for Android Emulator hardware acceleration
+  #   - `nvidia-offload <cmd>` wrapper for explicit GPU offload
   environment.sessionVariables = {
+    # Electron hardware video decode/encode via VA-API
     ELECTRON_ENABLE_FEATURES = "VaapiVideoDecoder,VaapiVideoEncoder";
-    LIBVA_DRIVER_NAME = "nvidia"; # VAAPI → NVIDIA
-    VDPAU_DRIVER = "nvidia"; # VDPAU → NVIDIA
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # OpenGL → NVIDIA
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json"; # Vulkan → NVIDIA
-    GBM_BACKEND = "nvidia-drm"; # Wayland GBM → NVIDIA
-    NVD_BACKEND = "direct"; # nvidia-vaapi-driver: direct mode
+    # VAAPI → Intel iGPU (intel-media-driver, Broadwell+)
+    LIBVA_DRIVER_NAME = "iHD";
   };
 
   # Docker settings

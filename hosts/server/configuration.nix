@@ -18,29 +18,63 @@
   ];
 
   # Bootloader.
-  boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
-    };
-    # systemd-boot.enable = true;
-    grub =
-      let
-        grub-theme-pkg = pkgs.sleek-grub-theme.override {
-          withStyle = "dark";
-          withBanner = "AstroGrub Bootloader";
-        };
-      in
-      {
-        enable = true;
-        efiSupport = true;
-        devices = [ "nodev" ];
-        useOSProber = true;
-        efiInstallAsRemovable = false;
-        theme = "${grub-theme-pkg}";
-      };
+  boot = {
+    consoleLogLevel = 3;
+    kernelParams = [
+      "quiet"
+      "splash"
+      "rd.udev.log_level=3"
+      "nvidia-drm.modeset=1"
+      "nvidia-drm.fbdev=1"
+      "vt.global_cursor_default=0"
+      "udev.log_level=3"
+      "fbcon=nodefer"
+    ];
 
-    timeout = 5; # seconds
+    loader = {
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
+      };
+      # systemd-boot.enable = true;
+      grub =
+        let
+          grub-theme-pkg = pkgs.sleek-grub-theme.override {
+            withStyle = "dark";
+            withBanner = "AstroGrub Bootloader";
+          };
+        in
+        {
+          enable = true;
+          efiSupport = true;
+          devices = [ "nodev" ];
+          useOSProber = true;
+          efiInstallAsRemovable = false;
+          theme = "${grub-theme-pkg}";
+        };
+
+      timeout = 5; # seconds
+    };
+
+    plymouth = {
+      enable = true;
+      theme = "loader_2";
+      themePackages = [ pkgs.adi1090x-plymouth-themes ];
+    };
+
+    initrd = {
+      systemd.enable = true;
+      verbose = false;
+      kernelModules = [
+        "nvidia"
+        "nvidia_modeset"
+        "nvidia_uvm"
+        "nvidia_drm"
+      ];
+      systemd.services.plymouth-start.serviceConfig.ExecStartPre = [
+        "${pkgs.coreutils}/bin/sleep 4"
+      ];
+    };
   };
 
   # Enable networking
@@ -204,7 +238,14 @@
     "/mnt/windows" = {
       device = "/dev/disk/by-uuid/0E8696038695EC09";
       fsType = "ntfs";
-      options = [ "uid=1000" "gid=100" "rw" "user" "exec" "umask=003" ];
+      options = [
+        "uid=1000"
+        "gid=100"
+        "rw"
+        "user"
+        "exec"
+        "umask=003"
+      ];
     };
   };
 
