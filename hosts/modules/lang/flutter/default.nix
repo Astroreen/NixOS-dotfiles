@@ -14,10 +14,4 @@ _:
   # Programs that need to be available system-wide
   # This options no longer works
   # programs.adb.enable = true; # Android Debug Bridge
-
-  # Prefer NVIDIA Vulkan ICD for host-accelerated Android Emulator on this machine
-  environment.sessionVariables = {
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json";
-    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-  };
 }
