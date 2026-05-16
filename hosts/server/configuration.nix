@@ -195,10 +195,17 @@
   };
 
   # Mount configuration
-  fileSystems."/mnt/nextcloud_storage" = {
-    device = "/dev/disk/by-uuid/be83c981-ab7e-40fb-b0fc-836eaaf07324";
-    fsType = "ext4";
-    options = [ "defaults" ];
+  fileSystems = {
+    "/mnt/nextcloud_storage" = {
+      device = "/dev/disk/by-uuid/be83c981-ab7e-40fb-b0fc-836eaaf07324";
+      fsType = "ext4";
+      options = [ "defaults" ];
+    };
+    "/mnt/windows" = {
+      device = "/dev/disk/by-uuid/0E8696038695EC09";
+      fsType = "ntfs";
+      options = [ "uid=1000" "gid=100" "rw" "user" "exec" "umask=003" ];
+    };
   };
 
   environment.sessionVariables = {
