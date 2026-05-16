@@ -1,8 +1,4 @@
 _: {
-  imports = [
-    ../wm/hyprland/settings/binds.nix
-  ];
-
   programs.kitty = {
     enable = true;
     enableGitIntegration = true;
@@ -29,7 +25,13 @@ _: {
     };
   };
 
-  custom.binds.global.bind = [
-    "$mod, T, exec, [float; size 1200 800] kitty" # Terminal
-  ];
+  wayland.windowManager.hyprland = {
+    settings.windowrule = [
+      "match:class ^(kitty)$, size 1200 800, float on, center on"
+    ];
+
+    submaps.global.settings.bind = [
+      "$mod, T, exec, [float; size 1200 800] kitty" # Terminal
+    ];
+  };
 }

@@ -1,5 +1,4 @@
-_:
-{
+_: {
   xdg = {
     desktopEntries."org.gnome.Nautilus" = {
       name = "Files";
@@ -32,5 +31,15 @@ _:
         "application/x-gnome-saved-search" = "org.gnome.Nautilus.desktop";
       };
     };
+  };
+
+  wayland.windowManager.hyprland = {
+    settings.windowrule = [
+      "match:class ^org.gnome.Nautilus, size 1400 800, center on, float on"
+    ];
+
+    submaps.global.settings.bind = [
+      "$mod, E, exec, [float; size 1400 800] nautilus" # File manager
+    ];
   };
 }

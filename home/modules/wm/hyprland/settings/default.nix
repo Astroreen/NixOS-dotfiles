@@ -21,9 +21,6 @@ with lib;
 
   # Base exec-once commands
   exec-once = [
-    "wl-clip-persist"
-    "wl-paste --type text --watch cliphist store"
-    "wl-paste --type image --watch cliphist store"
     "power-profiles-daemon"
     "nm-applet --no-agent"
 

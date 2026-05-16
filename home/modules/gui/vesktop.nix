@@ -22,4 +22,14 @@ in
     enable = true;
     package = vesktop-gpu;
   };
+
+  wayland.windowManager.hyprland.settings = {
+    exec-once = [
+      "[workspace 3 silent] vesktop"
+    ];
+
+    windowrule = [
+      "match:class discord|vesktop, fullscreen on, workspace 3 silent"
+    ];
+  };
 }

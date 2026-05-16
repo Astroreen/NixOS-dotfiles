@@ -1,6 +1,7 @@
 _: {
   imports = [
     # Apps (gui)
+    ./modules/gui/clipboard.nix # Clipboard ui
     ./modules/gui/apps.nix # Standard apps to install
     ./modules/gui/vesktop.nix # VDesktop configuration
     ./modules/gui/vscode # VSCode

@@ -14,4 +14,8 @@ in
   };
 
   home.packages = with pkgs; [ nixfmt ]; # format Nix files
+
+  wayland.windowManager.hyprland.settings.windowrule = [
+    "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
+  ];
 }

@@ -12,4 +12,10 @@
   home.packages = with pkgs; [
     realvnc-vnc-viewer
   ];
+
+  wayland.windowManager.hyprland.settings.windowrule = [
+    # VNC viewer should float and be centered
+    "match:class ^(realvnc-vncviewer)$, float on, center on"
+    "match:class ^(Vncviewer)$, float on, center on" # VNC viewer should float and be centered
+  ];
 }

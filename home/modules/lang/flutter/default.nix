@@ -188,6 +188,11 @@ in
       "$HOME/.pub-cache/bin"
     ];
   };
+
+  wayland.windowManager.hyprland.settings.windowrule = [
+    "match:class ^(Emulator)$, center on, float on" # Always center Android Emulator
+  ];
+
   # ===== AVD Creation Helper =====
   # To create an Android Virtual Device with optimal hardware settings, run:
   #

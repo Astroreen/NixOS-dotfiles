@@ -22,4 +22,14 @@ in
       CHROME_EXECUTABLE = "${vivaldi-gpu}/bin/vivaldi";
     };
   };
+
+  wayland.windowManager.hyprland.settings = {
+    exec-once = [
+      "[workspace 2 silent] vivaldi"
+    ];
+
+    windowrule = [
+      "match:class ^(vivaldi-stable)$, fullscreen off, workspace 2 silent"
+    ];
+  };
 }

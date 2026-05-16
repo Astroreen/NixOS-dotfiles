@@ -27,4 +27,14 @@ in
     pkgs.spotify
     (withGpuAccel "pear-desktop" pkgs.pear-desktop)
   ];
+
+  wayland.windowManager.hyprland.settings = {
+    exec-once = [
+      "[workspace 4 silent] pear-desktop"
+    ];
+
+    windowrule = [
+      "match:class ^com.github.th_ch.youtube_music|youtube_music|spotify, fullscreen on, workspace 4 silent"
+    ];
+  };
 }

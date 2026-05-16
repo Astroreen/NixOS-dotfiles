@@ -8,9 +8,6 @@ let
   cfg = config.custom.caelestia;
 in
 {
-  imports = [
-    ../../../../modules/wm/hyprland/settings/binds.nix
-  ];
 
   options = with lib; {
     custom.caelestia = {
@@ -65,7 +62,7 @@ in
         fi
       '';
 
-    custom.binds.global = lib.mkIf cfg.enableDefaultKeyboardBinds {
+    wayland.windowManager.hyprland.submaps.global.settings = lib.mkIf cfg.enableDefaultKeyboardBinds {
       bind = [
         "$mod, Q, global, caelestia:launcher" # Menu/Launcher
 

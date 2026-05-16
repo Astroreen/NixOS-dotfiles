@@ -24,7 +24,6 @@ in
     # Windows manager (wm)
     ../../modules/wm/hyprland # Hyprland window manager
     ../../modules/wm/hyprland/caelestia # Caelestia shell
-    ../../modules/wm/hyprland/settings/binds.nix # Binds configuration
     inputs.caelestia-shell.homeManagerModules.default # Caelestia shell module
   ];
 
@@ -35,6 +34,4 @@ in
     # Hyprland settings
     settings = import ./hyprland/settings.nix;
   };
-
-  custom.binds.enable = true;
 }

@@ -1,8 +1,4 @@
 _: {
-  imports = [
-    ../wm/hyprland/settings/binds.nix
-  ];
-
   # Clipboard history settings
   services.cliphist = {
     enable = true;
@@ -17,10 +13,26 @@ _: {
   };
   services.copyq.enable = true;
 
-  # If it is not enabled, service may not even start.
-  wayland.windowManager.sway.systemd.enable = true;
+  wayland.windowManager = {
+    # If it is not enabled, service may not even start.
+    sway.systemd.enable = true;
+    # Bind for clipboard
+    hyprland = {
+      settings = {
+        exec-once = [
+          "wl-clip-persist"
+          "wl-paste --type text --watch cliphist store"
+          "wl-paste --type image --watch cliphist store"
+        ];
 
-  custom.binds.global.bind = [
-    "$mod, V, exec, copyq toggle" # Clipboard menu
-  ];
+        windowrule = [
+          "match:class ^(com.github.hluk.copyq)$, size 1100 600, center on, float on"
+        ];
+      };
+
+      submaps.global.settings.bind = [
+        "$mod, V, exec, copyq toggle" # Clipboard menu
+      ];
+    };
+  };
 }
