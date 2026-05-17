@@ -1,77 +1,57 @@
 # AGENTS.md — NixOS Configuration Repository
 
-This is a NixOS flake-based dotfiles repository managing two hosts (`laptop`, `server`) for user `astroreen`, using home-manager embedded inside NixOS configurations.
+NixOS flake-based dotfiles. Two hosts (`laptop`, `server`), user `astroreen`. Home-manager embedded in NixOS via `home-manager.nixosModules.home-manager` (not standalone).
 
 ---
 
-## Build, Lint, and Validation Commands
+## Build Commands
 
-All scripts below are available inside the `devenv` shell (auto-activated via `.envrc` + direnv).
+All scripts run inside the `devenv` shell (auto-activated via `.envrc` + direnv).
 
-### Validation (run before applying)
+### NixOS — `nixos <action> <host>` (alias: `nx`)
 
 ```bash
-dry-build-laptop       # Show what store paths would be built — no side effects
-dry-build-server
-dry-activate-laptop    # Show what activation scripts would do — no side effects
-dry-activate-server
+nixos dry-build laptop      # Evaluate + show store paths — no side effects
+nixos dry-activate laptop   # Show what activation would do — no side effects
+nixos test laptop           # Build + activate, no bootloader entry (safe)
+nixos switch laptop         # Build + activate + bootloader entry
+nixos build laptop          # Build only, no activation
+nixos rollback laptop       # Roll back to previous generation
 ```
 
-**Always run `dry-build-<host>` before applying changes to catch evaluation errors.**
+Replace `laptop` with `server` for server. **Always `dry-build` before applying.**
 
-### Applying configuration
+Every `nixos` call runs `git add .` first — unstaged changes are invisible to nixos-rebuild.
+Every `nixos` call uses `sudo` after `git add .` — some changes require sudo priveleges.
+
+### Home Manager — `home <action> <host>` (alias: `hm`)
 
 ```bash
-test-laptop            # Build + activate, no bootloader entry (safe for testing)
-test-server
-switch-laptop          # Build + activate + add bootloader entry
-switch-server
+home switch laptop          # Build + activate HM config
+home build laptop           # Build only
+home rollback laptop        # Roll back HM generation
 ```
 
-### Build only (no activation)
+HM configs are `homeConfigurations."astroreen@<host>"` in the flake — managed independently from the NixOS system.
+
+### Other
 
 ```bash
-build-laptop
-build-server
+update-flake                # nix flake update
+delete-garbage              # nix-collect-garbage --delete-older-than 7d + nix-store --gc
+start-whisper               # whisper-server on port 7777 (medium model)
+start-work / end-work       # OpenVPN + DNS setup/teardown for work
+add-work-dns / delete-work-dns  # DNS only (no VPN start/stop)
 ```
 
-### Other operations
+### Linting / Formatting
 
 ```bash
-update-flake           # Update flake.lock
-rollback-laptop        # Rollback to previous generation
-rollback-server
-delete-garbage         # nix-collect-garbage --delete-older-than 7d && nix-store --gc
-```
-
-### devenv tasks (ordered pipelines)
-
-```bash
-devenv tasks run nixos:switch-laptop   # update-flake → switch-laptop → delete-garbage
-devenv tasks run nixos:switch-server
-```
-
-### Linting
-
-```bash
-statix check .         # Static analysis: antipatterns, deprecated options
-statix fix .           # Auto-fix statix warnings
-deadnix .              # Find unused bindings and arguments
-deadnix --edit .       # Auto-remove dead code
-```
-
-### Formatting
-
-```bash
-nixfmt <file>.nix      # Format a single file (tab size 2)
-```
-
-### Important: unstaged changes are invisible to nixos-rebuild
-
-Every rebuild script already runs `git add .` first. If calling `nixos-rebuild` manually, stage changes first:
-
-```bash
-git add . && sudo nixos-rebuild dry-build --flake .#laptop
+statix check .              # Static analysis: antipatterns, deprecated options
+statix fix .                # Auto-fix statix warnings
+deadnix .                   # Find unused bindings/args
+deadnix --edit .            # Auto-remove dead code
+nixfmt <file>.nix           # Format single file (2-space indent)
 ```
 
 ---
@@ -79,225 +59,157 @@ git add . && sudo nixos-rebuild dry-build --flake .#laptop
 ## Repository Structure
 
 ```
-flake.nix                  # Root flake — only nixosConfigurations.{laptop,server}
-devenv.nix                 # Dev shell: scripts, tasks, env vars
-overlays/                  # nixpkgs overlays (default.nix aggregator + per-overlay files)
+flake.nix                  # Root: nixosConfigurations + homeConfigurations, createHost helper
+devenv.nix                 # Dev shell: nixos/home/nx/hm scripts, VPN helpers, start-whisper
+overlays/                  # nixpkgs overlays (default.nix aggregator)
 hosts/                     # NixOS system-level modules
   common-settings.nix      # Shared: timezone, locale, nix GC, fonts
   common-services.nix      # Shared: audio, display manager, printing
-  common-apps.nix          # Shared: imports all hosts/modules/*
+  common-apps.nix          # Shared: steam, nautilus, wireshark, gns3, tailscale, ssh, flutter
   certificates.nix         # Corporate PKI (inline PEM)
-  nix-ld.nix               # nix-ld with library list for prebuilt binaries
-  laptop/                  # Laptop-specific: GRUB, NVIDIA prime, docker
-  server/                  # Server-specific: WoL, Ollama, no sleep
+  nix-ld.nix               # nix-ld + library list for prebuilt ELF binaries
+  laptop/                  # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
+  server/                  # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
   modules/                 # System modules: gui/, tui/, lang/, style/, wm/
 home/                      # Home-manager configuration
-  common-apps.nix          # Shared HM imports
-  astroreen/common/        # Shared HM config (hyprland, shell, AI tools…)
-  astroreen/laptop/        # Laptop HM overrides (monitor, caelestia)
+  common-apps.nix          # Shared HM: gui apps, kitty, shell, AI tools, languages
+  astroreen/common/        # Shared HM config (hyprland, shell, AI tools)
+  astroreen/laptop/        # Laptop HM overrides (monitor layout, caelestia)
   astroreen/server/        # Server HM overrides
   modules/                 # HM modules: gui/, tui/, lang/, style/, wm/
-scripts/                   # Shell scripts (monitor management, hyprland wrapper)
+    tui/ai/                # AI tooling — see tui/ai/AGENTS.md for details
+scripts/                   # Shell scripts: Hyprland monitor hotplug/layout
 .opencode/opencode.json    # OpenCode plugin config (oh-my-opencode)
 ```
 
 ---
 
-## Code Style Guidelines
+## Host Differences
 
-### Indentation and formatting
+| | laptop | server |
+|---|---|---|
+| GPU | Intel (primary) + NVIDIA PRIME offload | NVIDIA only (nvidiaPersistenced=true for Ollama) |
+| NVIDIA mode | Finegrained power mgmt, offload on demand | Always-on, full power |
+| `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A |
+| Sleep/suspend | Normal | Disabled (systemd targets off) |
+| Wake-on-LAN | No | Yes (enp5s0, magic packet) |
+| Extra services | — | Pi-hole (8573), Ollama (11434), Whisper (7777), KitchenOwl (9167), Minecraft (25565) |
+| Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit |
 
-- 2-space indentation throughout — enforced by `nixfmt`
-- Blank lines between logical sections within a file
-- Closing brackets on their own line for multi-line attribute sets
+Both use Lix (`nix.package = pkgs.lixPackageSets.stable.lix`) instead of stock Nix.
 
-### Function argument style
+---
 
-Single or few args — one line:
+## AI Tooling (home/modules/tui/ai/)
+
+See `home/modules/tui/ai/AGENTS.md` for the authoritative reference. Quick index:
+
+| Task | File |
+|------|------|
+| Add MCP server | `mcps.nix` — add to `servers` attrset |
+| Enable MCP per-host | host HM config — `programs.mcp.servers.<name>.disabled = false` |
+| Add opencode plugin | `opencode/default.nix` — `programs.opencode.settings.plugin` |
+| Add agent definition | `agents/` — `.md` file, deployed via `home.activation` |
+| Add slash command | `commands/` — `.md` file, deployed via `home.activation` |
+| Meridian proxy config | `meridian.nix` — port 3456, systemd user service |
+
+- All MCPs disabled by default (`lib.mkDefault true`) — opt-in per-host
+- Opencode config deployed via `home.activation` copy (chmod 777), **not symlinked** — files must stay mutable
+- Meridian installed via `npm install` in activation (not a Nix package); nix-ld provides libsql support
+
+---
+
+## Code Style
+
+### Indentation / formatting
+- 2-space indent, enforced by `nixfmt`
+- Blank lines between logical sections; closing `}` on its own line
+
+### Function args
 ```nix
-{ pkgs, ... }:
-```
-
-Many args — multi-line block:
-```nix
-{
+{ pkgs, ... }:          # few args — one line
+{                       # many args — multi-line
   config,
   pkgs,
   lib,
   ...
 }:
-```
-
-File with no needed args:
-```nix
-_:
-```
-
-### `let-in` usage
-
-Use `let-in` at file scope to define local helpers, computed values, or imported sub-configs:
-
-```nix
-{ config, lib, pkgs, ... }:
-let
-  cfg = config.custom.myFeature;
-  mySettings = import ./settings.nix;
-in
-{
-  # ...
-}
+_:                      # no args needed
 ```
 
 ### `with` usage
-
-Only inside list literals — never at file scope:
-
+Only inside list literals — **never at file scope**:
 ```nix
-# Correct
-environment.systemPackages = with pkgs; [ git curl wget ];
-
-# Wrong — do not use with pkgs; at file scope
+environment.systemPackages = with pkgs; [ git curl wget ];  # correct
 ```
+`with lib;` acceptable at top of `options = { ... }` blocks.
+Two legacy file-scope violations exist — do not add more, fix when touching those files.
 
-`with lib;` is acceptable at the top of `options = { ... }` blocks.
+### `let-in`, imports, naming
+- `let cfg = config.custom.<module>;` is the conventional alias
+- Custom options: `custom.<name>` namespace
+- Module files named after the program (`steam.nix`); aggregators named `default.nix` or `common-apps.nix`
+- Pure data files (plain attrsets, no function args) imported directly via `import ./file.nix`
+- Module files go in `imports = [ ... ]` — the module system handles arg passing
 
-### Import patterns
+### `mkIf` / `mkDefault` / merging
+- `config = lib.mkIf cfg.enable { ... }` — wrap entire config block
+- `lib.mkDefault value` for host-overridable defaults
+- `lib.recursiveUpdate` for deep merge; `//` for shallow
+- Prefer native module merging over explicit `mkMerge`
 
-Pure data files (returning plain attrsets, no function args) are imported directly:
-```nix
-# settings.nix is just: { option = value; }
-let settings = import ./settings.nix;
-```
+### System vs HM module distinction
+`hosts/modules/` — sets `programs.*` (system), `services.*`, `environment.*`, `hardware.*`, `networking.*`, `virtualisation.*`
+`home/modules/` — sets `programs.*` (HM), `home.packages`, `home.file.*`, `home.activation.*`, `wayland.windowManager.*`
 
-Module files (needing `pkgs`, `lib`, `config`) go in the `imports` list — the module system handles arg passing:
-```nix
-imports = [
-  ./steam.nix
-  ./tailscale.nix
-  inputs.hyprland.nixosModules.default
-];
-```
-
-### Naming conventions
-
-- Custom options live under the `custom.<name>` namespace: `custom.caelestia.enable`, `custom.caelestia.settings`
-- Module files are named after the program/service they configure (`steam.nix`, `tailscale.nix`)
-- Aggregator modules that only import others are named `default.nix` or `common-apps.nix`
-- Pure data files use descriptive names: `settings.nix`, `animations.nix`, `binds.nix`
-- `cfg = config.custom.<module>` is the conventional alias for the module's own config
-
-### Declaring custom options
-
-```nix
-{ pkgs, lib, config, ... }:
-let
-  cfg = config.custom.myFeature;
-in
-{
-  options = with lib; {
-    custom.myFeature = {
-      enable = mkEnableOption "description of the feature";
-      someOption = mkOption {
-        type = types.str;
-        default = "";
-        description = "What this option does";
-      };
-    };
-  };
-
-  config = lib.mkIf cfg.enable {
-    # actual settings
-  };
-}
-```
-
-### `mkIf`, `mkDefault`, `mkMerge`
-
-- Wrap the entire `config` block with `lib.mkIf cfg.enable { ... }` in conditional modules
-- Use `lib.mkDefault value` for values that host-specific configs should be able to override
-- Use `lib.recursiveUpdate base override` for deep-merging attrsets
-- Use `//` for shallow attrset merges
-- Prefer the NixOS module system's native merging (via multiple `imports`) over explicit `mkMerge`
-
-### System vs Home-manager module distinction
-
-`hosts/modules/` — NixOS system modules; set:
-- `programs.*` (system-level), `services.*`, `environment.*`
-- `hardware.*`, `security.*`, `networking.*`, `virtualisation.*`
-
-`home/modules/` — Home Manager modules; set:
-- `programs.*` (HM namespace), `home.packages`, `home.sessionVariables`
-- `home.file.*`, `home.activation.*`
-- `wayland.windowManager.*`, `dconf.*`, `gtk.*`
-
-Some program names exist in both layers with different semantics (e.g. `programs.zsh` system = enable the shell; HM = full config with plugins, aliases, etc.).
-
-### File organization
-
-- One concern per file (`steam.nix` only configures Steam)
-- Multi-file modules use a `default.nix` as entry point
-- Host-specific overrides are minimal — bulk config goes in `common/`
-- Pure data (keybinds, animation curves, VSCode settings) lives in separate plain-attrset files
+Some names exist in both with different semantics (e.g. `programs.zsh`).
 
 ---
 
 ## Do Not Touch
 
-- `system.stateVersion` and `home.stateVersion` — currently `"25.11"` on both hosts; never change
-- `hardware-configuration.nix` files — auto-generated from hardware scan; edit only if hardware changed
+- `system.stateVersion` and `home.stateVersion` — `"25.11"` on both hosts; never change
+- `hardware-configuration.nix` — auto-generated; edit only if hardware changed
 - `.devenv/`, `.direnv/` — build artifacts, gitignored
-- Any secrets files (`*.age`, `*.ovpn`) — gitignored and never committed
+- Secrets (`*.age`, `*.ovpn`) — gitignored, never commit
 
 ---
 
 ## Import Chain
 
-The module system forms two parallel trees:
-
-**System modules:**
+**System:**
 ```
-flake.nix (createHost function)
+flake.nix (createHost)
   → hosts/{laptop,server}/configuration.nix
-    → hosts/common-settings.nix, common-services.nix, common-apps.nix
+    → hosts/common-{settings,services,apps}.nix
     → hosts/certificates.nix, nix-ld.nix
     → hosts/modules/{gui,tui,lang,style,wm}/*
 ```
 
-**Home Manager modules:**
+**Home Manager:**
 ```
-flake.nix (home-manager.users.astroreen)
+flake.nix (homeConfigurations."astroreen@<host>")
   → home/astroreen/{laptop,server}/home.nix
     → home/astroreen/common/home.nix
-    → home/common-apps.nix
-    → home/modules/{gui,tui,lang,style,wm}/*
+      → home/common-apps.nix
+        → home/modules/{gui,tui,lang,style,wm}/*
 ```
 
-**Server-only additions:** Ollama, Whisper
-
-**Unimported files** (exist but not in any import chain): `blender.nix` in `home/modules/gui/`, `ssh.nix` in `home/modules/tui/`, `claude/` in `home/modules/tui/ai/` — all dormant/WIP, do not import.
-
----
-
-## Additional Constraints
-
-- Never enable both display managers simultaneously (SDDM + GDM conflict)
-- Never enable `xdg-desktop-portal-wlr` alongside Hyprland (use Hyprland's own portal)
-- VPN helper scripts (`add-work-dns`, `start-vpn`, `start-work`) are defined in devenv.nix, not in NixOS config
-- `scripts/` directory contains shell scripts for Hyprland monitor management (hotplug, layout)
-- Two legacy `with pkgs;` violations exist at file scope — do not add more, fix when touching those files
+**Dormant / unimported** (do not import):
+- `home/modules/gui/blender.nix`
+- `home/modules/tui/ssh.nix`
+- `home/modules/tui/ai/claude/` — incomplete, sub-AGENTS.md says never import
 
 ---
 
-## Key Facts for Agents
+## Key Facts
 
-- Both hosts use the same username `astroreen`
-- `nixpkgs.config.allowUnfree = true` is set — unfree packages are allowed
-- Hyprland comes from the upstream flake input (`inputs.hyprland`), not nixpkgs — necessary for cachix binary cache correctness
-- `nix-ld` is enabled on both hosts — prebuilt ELF binaries run without patching
-- There is no automated test suite — validation is `dry-build` / `dry-activate` before switching
-- The `caelestia-shell` config is written via `home.activation` (not symlinked) so the shell can mutate it at runtime
-- `home-manager` is embedded in NixOS configs via `home-manager.nixosModules.home-manager`, not a standalone `home-manager switch`
-- Meridian (`@rynfar/meridian`) runs as a systemd user service on port 3456 — local proxy routing opencode → Claude Pro/Max API
-- Opencode config (AGENTS.md, agents/, commands/, skills/) deployed via `home.activation` copy (chmod 777), NOT symlinked — files must stay mutable for runtime edits
-- All MCPs defined in `home/modules/tui/ai/mcps.nix` are disabled by default (`lib.mkDefault true`) — enable individually per-host config
-- `home/modules/tui/ai/agents/` and `commands/` contain opencode agent definitions and slash commands, copied to `~/.config/opencode/` at activation
+- `nixpkgs.config.allowUnfree = true` + `android_sdk.accept_license = true` — set in flake, not per-host
+- Hyprland from upstream flake input (`inputs.hyprland`), not nixpkgs — required for cachix cache correctness
+- `nix-ld` enabled on both hosts — prebuilt ELF binaries run without patching
+- No automated test suite — validation is `dry-build` / `dry-activate`
+- `caelestia-shell` config written via `home.activation` (not symlinked) — shell mutates it at runtime
+- Opencode alias: `oc = "opencode"`
+- Opencode theme: `gruvbox`; plugins include vibeguard, dcp (context compression), md-table-formatter
+- `inputs.caveman` (flake=false) is a plain source tree for the caveman opencode skill
+- `nixpkgs-stable` (`nixos-25.11`) available as `pkgs-stable` in all module specialArgs
