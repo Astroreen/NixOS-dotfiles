@@ -1,14 +1,14 @@
 { pkgs, lib, ... }:
 let
   # Chromium flags to enable NVIDIA hardware video acceleration
-  nvidia-vaapi-flags = [
-    "--enable-features=VaapiVideoDecoder,VaapiIgnoreDriverChecks,VaapiOnNvidiaGPUs,AcceleratedVideoDecodeLinuxGL,WaylandLinuxDrmSyncobj"
+  flags = [
+    "--enable-features=VaapiVideoDecoder,VaapiIgnoreDriverChecks,VaapiOnNvidiaGPUs,AcceleratedVideoDecodeLinuxGL,WaylandLinuxDrmSyncobj,TouchpadOverscrollHistoryNavigation"
     "--ignore-gpu-blocklist"
     "--enable-gpu-rasterization"
   ];
 
   vivaldi-gpu = pkgs.vivaldi.override {
-    commandLineArgs = lib.concatStringsSep " " nvidia-vaapi-flags;
+    commandLineArgs = lib.concatStringsSep " " flags;
   };
 in
 {

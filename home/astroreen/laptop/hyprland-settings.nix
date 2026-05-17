@@ -13,5 +13,8 @@
 
   gesture = [
     "4, horizontal, workspace"
+    "4, vertical, special, special"
+    "3, swipe, move"
+    "3, pinch, resize"
   ];
 }
