@@ -1,13 +1,8 @@
 {
-  pkgs,
   inputs,
   config,
-  lib,
   ...
 }:
-let
-  cfg = config.custom.caelestia;
-in
 {
 
   imports = [

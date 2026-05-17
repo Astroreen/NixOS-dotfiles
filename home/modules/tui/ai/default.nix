@@ -1,7 +1,4 @@
-{ config, lib, ... }:
-let
-  cfg = config.custom.ai;
-in
+{ lib, ... }:
 {
   imports = [
     ./mcps.nix

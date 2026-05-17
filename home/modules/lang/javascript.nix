@@ -1,11 +1,9 @@
 {
   pkgs,
-  config,
   ...
 }:
 let
   node-package = pkgs.nodejs_24;
-  settingsPath = "${config.home.homeDirectory}/.config/Code/User/settings.json";
 
   javascriptSettings = {
     "sonarlint.pathToNodeExecutable" = "${node-package}/bin/node";

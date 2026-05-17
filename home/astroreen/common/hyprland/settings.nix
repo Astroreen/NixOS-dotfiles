@@ -19,9 +19,6 @@
 
   # Windows rules
   windowrule =
-    let
-      left-bottom-corner = "(monitor_w-window_w-50) (monitor_h-window_h-50)";
-    in
     [ 
       # Make all modal windows float (e.g. Popups)
       "match:modal true, float on"

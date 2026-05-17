@@ -1,9 +1,8 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
   home.packages = with pkgs; [
     uv
-    
-    # Python with packages
+
     (python3.withPackages (
       ps: with ps; [
         pip
@@ -11,8 +10,18 @@
         numpy
         pyaudio
         inotify
+        tkinter
       ]
     ))
-
   ];
+
+  home.sessionVariables.LD_LIBRARY_PATH = "${
+    lib.makeLibraryPath (
+      with pkgs;
+      [
+        zlib
+        openssl
+      ]
+    )
+  }:$LD_LIBRARY_PATH";
 }
