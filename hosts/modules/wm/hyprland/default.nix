@@ -58,9 +58,9 @@
 
   # Adding Hyprland's Cachix cache for faster builds and updates
   nix.settings = {
-    substituters = ["https://hyprland.cachix.org"];
-    trusted-substituters = ["https://hyprland.cachix.org"];
-    trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
+    substituters = [ "https://hyprland.cachix.org" ];
+    trusted-substituters = [ "https://hyprland.cachix.org" ];
+    trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
   };
 
   # Essential services for Wayland
@@ -83,8 +83,17 @@
       inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland
       xdg-desktop-portal-gtk
       xdg-desktop-portal
+      wayland
       wayland-utils
+      libxxf86vm # Extension library
+      libxcursor # X cursor managment library
+      libxrandr # xlib extension library
+      libxi
+      libxinerama # Extension to x11
+      libxtst # Library for the xtest and record x11 extension
+      libx11 # Core x11 protocol client library
       polkit_gnome # Polkit authentication agent
+      wl-screenrec # Screen recording for wayland (mostly for Caelestia shell)
     ];
 
     # Additional environment variables for Hyprland

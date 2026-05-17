@@ -122,5 +122,9 @@ with lib;
     };
   };
 
+  environment.systemPackages = with pkgs; [
+    foo2zjs # Printer drivers
+  ];
+
   programs.dconf.enable = true; # configuration database primarily for GNOME apps
 }
