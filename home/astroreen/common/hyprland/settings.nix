@@ -6,7 +6,7 @@
   input = {
     kb_layout = "us,ru,lt";
     kb_variant = ",phonetic,";
-    kb_options = "grp:alt_shift_toggle"; # Alt + Shift to switch layouts
+    kb_options = ""; # Layout switching handled by Hyprland binds (SHIFT+ALT+E/R/L)
 
     follow_mouse = 1;
 
