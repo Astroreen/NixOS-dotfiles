@@ -165,8 +165,8 @@
       prime = {
         offload.enable = true;
         offload.enableOffloadCmd = true;
-        intelBusId = "PCI:0:2:0"; # Use lspci to verify
-        nvidiaBusId = "PCI:1:0:0"; # Use lspci to verify
+        intelBusId = "PCI:0@0:2:0"; # Use lspci to verify
+        nvidiaBusId = "PCI:1@0:0:0"; # Use lspci to verify
       };
     };
     nvidia-container-toolkit.enable = true;
