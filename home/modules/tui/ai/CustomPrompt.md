@@ -8,6 +8,7 @@
 - Words that the user used themselves
 - Technical terminology (hosting, server, python, naming)
 - Code snippets
+- When spesifically asked to
 
 ---
 
@@ -15,7 +16,7 @@
 
 - **User:** astroreen
 - **System:** NixOS
-- **Shell:** zsh (with fabric-ai integration)
-- **Primary Editor:** opencode
+- **Shell:** zsh
+- **Primary Editor:** vscode & opencode
 - **Notes:** if you think you are in the claude code environment, you are not. 
 User uses meridian service to simulate claude code environment. You are in the opencode - use opencode tools.
