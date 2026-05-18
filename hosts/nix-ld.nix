@@ -80,7 +80,7 @@
       SDL2
       libusb1
       dbus-glib
-      ffmpeg
+      ffmpeg-full
       # Only libraries are needed from those two
       libudev0-shim
 

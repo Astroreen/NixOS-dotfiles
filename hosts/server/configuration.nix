@@ -205,7 +205,7 @@
     };
 
     nvidia = {
-      modesetting.enable = true;
+      modesetting.enable = true; # Wayland requires kernel mode setting (KMS) to be enabled
       powerManagement.enable = false; # Disable for Desktop stability
       powerManagement.finegrained = false; # Disable (this is for laptops, requires offload)
       open = false; # Use proprietary driver

@@ -154,7 +154,7 @@
     };
 
     nvidia = {
-      modesetting.enable = true;
+      modesetting.enable = true; # Wayland requires kernel mode setting (KMS) to be enabled
       powerManagement.enable = true;
       powerManagement.finegrained = true; # Requires offload below
       open = false; # Use proprietary driver
@@ -162,6 +162,8 @@
       package = config.boot.kernelPackages.nvidiaPackages.stable;
       nvidiaPersistenced = false;
 
+      # PRIME is a technology developed to facilitate the cooperation between the two GPUs and is critical for the laptop's graphical performance. 
+      # Depending on your needs, you can configure PRIME in one of three modes, which have different tradeoffs in terms of performance and battery life.
       prime = {
         offload.enable = true;
         offload.enableOffloadCmd = true;
