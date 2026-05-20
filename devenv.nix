@@ -136,6 +136,45 @@
       '';
     };
 
+    find-large-files.exec = ''
+      COUNT="''${1:-30}"        # how much files to search for (default: 30)
+      SEARCH_DIR="''${2:-/}"    # from where to search (default: entire disk)
+
+      EXCLUDE_DIRS=(
+        /proc
+        /sys
+        /dev
+        /run
+        /nix/store
+        /mnt
+      )
+
+      # Строим аргументы -prune для find
+      PRUNE_ARGS=()
+      for dir in "''${EXCLUDE_DIRS[@]}"; do
+        PRUNE_ARGS+=(-path "$dir" -prune -o)
+      done
+
+      echo "🔍 Searching for top-$COUNT files in $SEARCH_DIR ..."
+      echo "   (excluded: ''${EXCLUDE_DIRS[*]})"
+      echo ""
+
+      find "$SEARCH_DIR" \
+        "''${PRUNE_ARGS[@]}" \
+        -type f -printf '%s\t%p\n' 2>/dev/null \
+        | sort -rn \
+        | head -n "$COUNT" \
+        | awk '
+          function human(bytes) {
+            if (bytes >= 1073741824) return sprintf("%.1f GB", bytes/1073741824)
+            if (bytes >= 1048576)    return sprintf("%.1f MB", bytes/1048576)
+            if (bytes >= 1024)       return sprintf("%.1f KB", bytes/1024)
+            return bytes " B"
+          }
+          { printf "%-10s %s\n", human($1), $2 }
+        '
+    '';
+
     start-whisper = {
       # Start whisper server for voice transcription
       # ggml-tiny.bin ggml-base.bin ggml-large-v3-turbo-q5_0.bin
