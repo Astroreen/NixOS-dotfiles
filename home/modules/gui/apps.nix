@@ -5,9 +5,6 @@
 }:
 {
   home.packages = with pkgs; [
-    # Games
-    prismlauncher # Minecraft launcher
-
     # Communication
     telegram-desktop # Telegram
     viber # Viber

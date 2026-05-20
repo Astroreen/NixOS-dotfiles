@@ -13,6 +13,7 @@ _: {
     ./modules/gui/tailscale.nix # Tailscale tray and client configuration
     ./modules/gui/browser.nix # Browser configuration
     ./modules/gui/music.nix # Music apps configuration
+    ./modules/gui/minecraft.nix # Minecraft configuration
 
     # Terminal apps (tui)
     ./modules/tui/wine.nix # Wine configuration
