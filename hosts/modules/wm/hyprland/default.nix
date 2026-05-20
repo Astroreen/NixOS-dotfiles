@@ -116,7 +116,7 @@
       # Electron apps
       NIXOS_OZONE_WL = "1";
 
-      # CRITICAL: Ensure proper backend selection
+      # Ensure proper backend selection
       WLR_NO_HARDWARE_CURSORS = "1"; # Sometimes needed for certain hardware
     };
 
