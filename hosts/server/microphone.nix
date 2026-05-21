@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   # Linking the virtual microphones
   systemd.user.services.obs-pipewire-links = {
     description = "OBS PipeWire audio links";
@@ -14,10 +15,11 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStartPre = "/bin/sh -c 'sleep 3'"; # ждём пока pipewire поднимется
+      Environment = "PIPEWIRE_RUNTIME_DIR=/run/user/1000";
+      ExecStartPre = "/bin/sh -c 'sleep 3'";
       ExecStart = pkgs.writeShellScript "obs-links" ''
-        ${pkgs.pipewire}/bin/pw-link "OBS Monitor Sink:monitor_FL" "OBS Virtual Mic:input_FL"
-        ${pkgs.pipewire}/bin/pw-link "OBS Monitor Sink:monitor_FR" "OBS Virtual Mic:input_FR"
+        ${pkgs.pipewire}/bin/pw-link "OBS Monitor Sink:monitor_FL" "OBS Virtual Mic:input_FL" || true
+        ${pkgs.pipewire}/bin/pw-link "OBS Monitor Sink:monitor_FR" "OBS Virtual Mic:input_FR" || true
       '';
     };
   };
