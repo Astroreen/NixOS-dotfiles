@@ -7,6 +7,8 @@
   imports = [
     ./hardware-configuration.nix # Required.
 
+    ./microphone.nix # Virtual microphone for OBS Studio
+
     ../common-settings.nix # Common settings for all hosts
     ../common-services.nix # Services configuration
     ../common-apps.nix # Common applications
