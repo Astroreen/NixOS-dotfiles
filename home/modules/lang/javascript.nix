@@ -9,8 +9,7 @@ let
     "sonarlint.pathToNodeExecutable" = "${node-package}/bin/node";
 
     # Disable path suggestions since we are using Path Intellisense
-    "typescript.suggest.paths" = false;
-    "javascript.suggest.paths" = false;
+    "js/ts.suggest.paths" = false;
 
     "[javascript]" = {
       "editor.defaultFormatter" = "esbenp.prettier-vscode";
