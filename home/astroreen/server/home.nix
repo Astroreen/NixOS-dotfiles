@@ -5,6 +5,7 @@
 
     # ../../modules/tui/ollama.nix
     ../../modules/tui/whisper.nix
+    ../../modules/tui/ai/lmstudio.nix
   ];
 
   # Host specific settings - properly merged
