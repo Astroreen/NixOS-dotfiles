@@ -69,6 +69,9 @@
     ethtool # Ethernet tool
     iproute2 # Networking tools
     dnsutils # DNS utilities
+    cudaPackages.cudatoolkit # NVIDIA CUDA toolkit
+    cmake # CMake build system
+    gcc14 # GNU Compiler Collection
   ];
 
   # Fonts

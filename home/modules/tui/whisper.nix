@@ -2,6 +2,9 @@
 
 {
   home.packages = with pkgs; [
-    whisper-cpp
+    (whisper-cpp.override {
+      cudaSupport = true;
+      withFFmpegSupport = true; # for converting audio
+    })
   ];
 }
