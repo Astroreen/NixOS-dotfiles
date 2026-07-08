@@ -163,6 +163,7 @@
       "dialout"
       "kvm"
       "libvirtd"
+      "dialout"
     ];
 
     shell = pkgs.zsh;
