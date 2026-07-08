@@ -22,6 +22,7 @@
     # inkscape                      # Vector graphics editor
     qview # Image viewer
     furmark # GPU stress test
+    freecad # 3D CAD modeler
 
     # Productivity
     libreoffice # Office suite
@@ -40,5 +41,6 @@
 
     # Security
     bitwarden-desktop # Password manager
+    anydesk # Remote desktop application
   ];
 }
