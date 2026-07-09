@@ -1,9 +1,10 @@
+{ lib }:
+let
+  dsp = lib.generators.mkLuaInline;
+in
 {
-  # Activate global submap on every config reload
-  exec = "hyprctl dispatch submap global";
-
-  # Keyboard settings for hyprland
-  input = {
+  # Keyboard and input — goes inside hl.config({...})
+  config.input = {
     kb_layout = "us,ru,lt";
     kb_variant = ",phonetic,";
     kb_options = ""; # Layout switching handled by Hyprland binds (SHIFT+ALT+E/R/L)
@@ -17,27 +18,30 @@
     sensitivity = 0;
   };
 
-  # Windows rules
-  windowrule =
-    [ 
-      # Make all modal windows float (e.g. Popups)
-      "match:modal true, float on"
-      "match:class me.astroreen, float on" # For development, make all my programs float when ran
-      "match:class ^(\s*)$, float on" # All windows without class should float (e.g. vivaldi notifications)
+  # Window rules — each element → hl.window_rule({...})
+  window_rule = [
+    # Modal windows float
+    { match.modal = true; float = true; }
+    # My own apps float during development
+    { match.class = "me.astroreen"; float = true; }
+    # Windows without a class float (e.g. vivaldi notifications)
+    { match.class = "^(\\s*)$"; float = true; }
 
-      "match:class ^(com.interversehq.qView)$, size 1400 800, center on, float on, content photo"
-      "match:class ^(xdg-desktop-portal-gtk)$, size 1400 800, center on, float on"
-      "match:class ^(localsend_app)$, size 1400 800, center on, float on"
-      "match:class ^(Postman)$, size 1400 800, center on, float on"
+    # App-specific rules
+    { match.class = "^(com.interversehq.qView)$"; size = "1400 800"; center = true; float = true; content = "photo"; }
+    { match.class = "^(xdg-desktop-portal-gtk)$"; size = "1400 800"; center = true; float = true; }
+    { match.class = "^(localsend_app)$"; size = "1400 800"; center = true; float = true; }
+    { match.class = "^(Postman)$"; size = "1400 800"; center = true; float = true; }
 
-      # Content managment
-      "match:content 3, float on" # All games should float
-      "match:content 1, float on" # All photo should float
-      "match:content 2, fullscreen on" # All video should be opened with fullscreen
-    ];
+    # Content-based rules
+    { match.content = 3; float = true; }      # Games float
+    { match.content = 1; float = true; }      # Photos float
+    { match.content = 2; fullscreen = true; } # Videos fullscreen
+  ];
 
+  # Env vars — each element → hl.env(key, value)
   env = [
-    "QT_QPA_PLATFORMTHEME, qt6ct"
-    "QUICKSHELL_ENABLE_PORTAL, 1"
+    { _args = [ "QT_QPA_PLATFORMTHEME" "qt6ct" ]; }
+    { _args = [ "QUICKSHELL_ENABLE_PORTAL" "1" ]; }
   ];
 }

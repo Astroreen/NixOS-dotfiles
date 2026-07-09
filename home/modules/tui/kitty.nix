@@ -1,4 +1,5 @@
-_: {
+{ lib, ... }:
+{
   programs.kitty = {
     enable = true;
     enableGitIntegration = true;
@@ -26,12 +27,22 @@ _: {
   };
 
   wayland.windowManager.hyprland = {
-    settings.windowrule = [
-      "match:class ^(kitty)$, size 1200 800, float on, center on"
+    settings.window_rule = [
+      {
+        match.class = "^(kitty)$";
+        size = "1200 800";
+        float = true;
+        center = true;
+      }
     ];
 
-    submaps.global.settings.bind = [
-      "$mod, T, exec, [float; size 1200 800] kitty" # Terminal
+    settings.bind = [
+      {
+        _args = [
+          "SUPER + T"
+          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"[float; size 1200 800] kitty\")")
+        ];
+      } # Terminal
     ];
   };
 }

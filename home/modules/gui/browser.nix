@@ -24,12 +24,21 @@ in
   };
 
   wayland.windowManager.hyprland.settings = {
-    exec-once = [
-      "[workspace 2 silent] vivaldi"
+    on = [
+      {
+        _args = [
+          "hyprland.start"
+          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 2 silent] vivaldi\")\nend")
+        ];
+      }
     ];
 
-    windowrule = [
-      "match:class ^(vivaldi-stable)$, fullscreen off, workspace 2 silent"
+    window_rule = [
+      {
+        match.class = "^(vivaldi-stable)$";
+        fullscreen = false;
+        workspace = "2 silent";
+      }
     ];
   };
 }

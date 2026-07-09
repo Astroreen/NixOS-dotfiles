@@ -15,7 +15,11 @@ in
 
   home.packages = with pkgs; [ nixfmt ]; # format Nix files
 
-  wayland.windowManager.hyprland.settings.windowrule = [
-    "match:class ^(Code)$, center on, float on" # Always center VSCode and it's notifications
+  wayland.windowManager.hyprland.settings.window_rule = [
+    {
+      match.class = "^(Code)$";
+      center = true;
+      float = true;
+    } # Always center VSCode and it's notifications
   ];
 }

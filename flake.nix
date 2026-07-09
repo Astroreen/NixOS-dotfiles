@@ -20,9 +20,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # quickshell moved from outfoxxed/quickshell to quickshell/quickshell
+    quickshell = {
+      url = "git+https://git.outfoxxed.me/quickshell/quickshell";
+      # Must share our nixpkgs so quickshell and caelestia-qml-plugin link
+      # against the same Qt6 build; otherwise quickshell loads plugins built
+      # against a different Qt6 minor version and refuses them as ABI-incompatible.
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     caelestia-shell = {
       url = "github:caelestia-dots/shell";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.quickshell.follows = "quickshell";
     };
 
     # Caveman: opencode skill for terse, token-efficient responses.
@@ -106,7 +116,7 @@
                 home = {
                   inherit username;
                   homeDirectory = "/home/${username}";
-                  stateVersion = "25.11";
+                  stateVersion = "26.05";
                 };
                 programs.home-manager.enable = true;
               }

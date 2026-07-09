@@ -62,79 +62,237 @@ in
         fi
       '';
 
-    wayland.windowManager.hyprland.submaps.global.settings = lib.mkIf cfg.enableDefaultKeyboardBinds {
-      bind = [
-        "$mod, Q, global, caelestia:launcher" # Menu/Launcher
+    wayland.windowManager.hyprland.settings = lib.mkIf cfg.enableDefaultKeyboardBinds (
+      let
+        lua = lib.generators.mkLuaInline;
+        exec = cmd: lua "hl.dsp.exec_cmd(\"${cmd}\")";
+        dispatch = args: lua "hl.dsp.exec_cmd(\"hyprctl dispatch ${args}\")";
+        focus = dir: lua "hl.dsp.focus({ direction = \"${dir}\" })";
+      in
+      {
+        bind = [
+          { _args = [ "SUPER + Q" (dispatch "global caelestia:launcher") ]; } # Menu/Launcher
 
-        # Caelestia shell integration
-        "$mod, K, global, caelestia:showall"
-        "$mod, L, global, caelestia:lock"
-        "$mod SHIFT, L, exec, systemctl suspend-then-hibernate"
-        "CTRL ALT, Delete, global, caelestia:session"
-        "$mod, M, exit,"
+          # Caelestia shell integration
+          { _args = [ "SUPER + K" (dispatch "global caelestia:showall") ]; }
+          { _args = [ "SUPER + L" (dispatch "global caelestia:lock") ]; }
+          { _args = [ "SUPER + SHIFT + L" (exec "systemctl suspend-then-hibernate") ]; }
+          { _args = [ "CTRL + ALT + Delete" (dispatch "global caelestia:session") ]; }
+          { _args = [ "SUPER + M" (dispatch "exit") ]; }
 
-        # Caelestia utilities
-        "$mod, Period, exec, pkill fuzzel || caelestia emoji -p" # Emoji picker
-        "CTRL $mod SHIFT, R, exec, systemctl --user restart caelestia" # Kill/restart Caelestia shell
-        ", PRINT, global, caelestia:screenshotFreeze" # Screenshots (enhanced from original)
-        "$mod SHIFT, C, exec, hyprpicker -a" # Color picker (just like from powertoys on windows)
-        "CTRL, Q, global, caelestia:launcherInterrupt" # Disable closing program with CTRL Q
+          # Caelestia utilities
+          { _args = [ "SUPER + Period" (exec "pkill fuzzel || caelestia emoji -p") ]; } # Emoji picker
+          { _args = [ "CTRL + SUPER + SHIFT + R" (exec "systemctl --user restart caelestia") ]; } # Kill/restart Caelestia shell
+          { _args = [ "Print" (dispatch "global caelestia:screenshotFreeze") ]; } # Screenshots (enhanced from original)
+          { _args = [ "SUPER + SHIFT + C" (exec "hyprpicker -a") ]; } # Color picker (just like from powertoys on windows)
+          { _args = [ "CTRL + Q" (dispatch "global caelestia:launcherInterrupt") ]; } # Disable closing program with CTRL Q
 
-        # Special workspaces (from Caelestia)
-        "$mod, S, exec, caelestia toggle specialws"
-        "CTRL $mod, up, movetoworkspace, special:special"
-        "CTRL $mod, down, movetoworkspace, e+0"
+          # Special workspaces (from Caelestia)
+          { _args = [ "SUPER + S" (exec "caelestia toggle specialws") ]; }
+          { _args = [ "CTRL + SUPER + up" (dispatch "movetoworkspace special:special") ]; }
+          { _args = [ "CTRL + SUPER + down" (dispatch "movetoworkspace e+0") ]; }
 
-        # Enhanced window movement from Caelestia
-        "$mod SHIFT, left, movewindow, l"
-        "$mod SHIFT, right, movewindow, r"
-        "$mod SHIFT, up, movewindow, u"
-        "$mod SHIFT, down, movewindow, d"
-        "$mod, left, movefocus, l"
-        "$mod, right, movefocus, r"
-        "$mod, up, movefocus, u"
-        "$mod, down, movefocus, d"
-      ];
+          # Enhanced window movement from Caelestia
+          { _args = [ "SUPER + SHIFT + left" (dispatch "movewindow l") ]; }
+          { _args = [ "SUPER + SHIFT + right" (dispatch "movewindow r") ]; }
+          { _args = [ "SUPER + SHIFT + up" (dispatch "movewindow u") ]; }
+          { _args = [ "SUPER + SHIFT + down" (dispatch "movewindow d") ]; }
+          { _args = [ "SUPER + left" (focus "left") ]; }
+          { _args = [ "SUPER + right" (focus "right") ]; }
+          { _args = [ "SUPER + up" (focus "up") ]; }
+          { _args = [ "SUPER + down" (focus "down") ]; }
 
-      bindin = [
-        # "$mod, catchall, global, caelestia:launcherInterrupt"
-        "$mod, mouse:272, global, caelestia:launcherInterrupt"
-        "$mod, mouse:273, global, caelestia:launcherInterrupt"
-        "$mod, mouse:274, global, caelestia:launcherInterrupt"
-        "$mod, mouse:275, global, caelestia:launcherInterrupt"
-        "$mod, mouse:276, global, caelestia:launcherInterrupt"
-        "$mod, mouse:277, global, caelestia:launcherInterrupt"
-        "$mod, mouse_up, global, caelestia:launcherInterrupt"
-        "$mod, mouse_down, global, caelestia:launcherInterrupt"
-      ];
+          # Catchall mouse binds to interrupt launcher (ignore mods, non-consuming)
+          {
+            _args = [
+              "SUPER + mouse:272"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + mouse:273"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + mouse:274"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + mouse:275"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + mouse:276"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + mouse:277"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + mouse_up"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + mouse_down"
+              (dispatch "global caelestia:launcherInterrupt")
+              {
+                ignore_mods = true;
+                non_consuming = true;
+              }
+            ];
+          }
 
-      bindl = [
-        # Media controls (original + Caelestia enhancements)
-        ", XF86AudioNext, exec, playerctl next"
-        ", XF86AudioPause, exec, playerctl play-pause"
-        ", XF86AudioPlay, exec, playerctl play-pause"
-        ", XF86AudioPrev, exec, playerctl previous"
-        ", XF86AudioStop, global, caelestia:mediaStop"
+          # Media controls (original + Caelestia enhancements), locked (work while session locked)
+          {
+            _args = [
+              "XF86AudioNext"
+              (exec "playerctl next")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "XF86AudioPause"
+              (exec "playerctl play-pause")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "XF86AudioPlay"
+              (exec "playerctl play-pause")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "XF86AudioPrev"
+              (exec "playerctl previous")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "XF86AudioStop"
+              (dispatch "global caelestia:mediaStop")
+              { locked = true; }
+            ];
+          }
 
-        # Enhanced media with Caelestia
-        "CTRL $mod, S, global, caelestia:mediaToggle"
-        "CTRL $mod, Equal, global, caelestia:mediaNext"
-        "CTRL $mod, Minus, global, caelestia:mediaPrev"
+          {
+            _args = [
+              "CTRL + SUPER + S"
+              (dispatch "global caelestia:mediaToggle")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "CTRL + SUPER + Equal"
+              (dispatch "global caelestia:mediaNext")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "CTRL + SUPER + Minus"
+              (dispatch "global caelestia:mediaPrev")
+              { locked = true; }
+            ];
+          }
 
-        # Brightness
-        ", XF86MonBrightnessUp, global, caelestia:brightnessUp"
-        ", XF86MonBrightnessDown, global, caelestia:brightnessDown"
+          {
+            _args = [
+              "XF86MonBrightnessUp"
+              (dispatch "global caelestia:brightnessUp")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "XF86MonBrightnessDown"
+              (dispatch "global caelestia:brightnessDown")
+              { locked = true; }
+            ];
+          }
 
-        # Notifications
-        "CTRL ALT, C, global, caelestia:clearNotifs"
+          {
+            _args = [
+              "CTRL + ALT + C"
+              (dispatch "global caelestia:clearNotifs")
+              { locked = true; }
+            ];
+          }
 
-        # Lock restore
-        "$mod ALT, L, exec, caelestia shell -d"
-        "$mod ALT, L, global, caelestia:lock"
+          # Lock restore
+          {
+            _args = [
+              "SUPER + ALT + L"
+              (exec "caelestia shell -d")
+              { locked = true; }
+            ];
+          }
+          {
+            _args = [
+              "SUPER + ALT + L"
+              (dispatch "global caelestia:lock")
+              { locked = true; }
+            ];
+          }
 
-        # Test notification
-        "$mod ALT, f12, exec, notify-send -u low -i dialog-information-symbolic 'Test notification' \"Here's a really long message to test truncation and wrapping\\nYou can middle click or flick this notification to dismiss it!\" -a 'Shell' -A \"Test1=I got it!\" -A \"Test2=Another action\""
-      ];
-    };
+          # Test notification (message simplified during hyprlang->Lua migration to avoid
+          # triple-nested quote escaping; same key/purpose as before)
+          {
+            _args = [
+              "SUPER + ALT + f12"
+              (exec "notify-send -u low -i dialog-information-symbolic 'Test notification' 'Truncation and wrapping test message' -a Shell")
+              { locked = true; }
+            ];
+          }
+        ];
+      }
+    );
   };
 }

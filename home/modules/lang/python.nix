@@ -6,7 +6,7 @@
     (python3.withPackages (
       ps: with ps; [
         pip
-        aubio
+        aubio-ledfx
         numpy
         pyaudio
         inotify

@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 let
   format = pkgs.formats.keyValue { };
 in
@@ -43,22 +43,30 @@ in
     port = 5900;
   };
 
-  wayland.windowManager.hyprland = {
-    submaps = {
-      passthrough.settings.bind = [
-        "SUPER, F12, submap, global"
-      ];
+  wayland.windowManager.hyprland.settings = {
+    # NOTE: F12 passthrough submap dropped during hyprlang->Lua migration
+    # (wayvnc is disabled; re-add via hl.define_submap if VNC is re-enabled)
+    bind = [
+      {
+        _args = [
+          "CTRL + SUPER + SHIFT + semicolon"
+          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"wayvncctl output-cycle\")")
+        ];
+      } # Cycle wayvnc output across monitors
+    ];
 
-      global.settings.bind = [
-        # Cycle wayvnc output across monitors (wayvncctl is bundled with wayvnc)
-        "CTRL SUPER SHIFT, SEMICOLON, exec, wayvncctl output-cycle"
-        "SUPER, F12, submap, passthrough"
-      ];
-    };
-    settings.windowrule = [
+    window_rule = [
       # VNC viewer should float and be centered
-      "match:class ^(realvnc-vncviewer)$, float on, center on"
-      "match:class ^(Vncviewer)$, float on, center on" # VNC viewer should float and be centered
+      {
+        match.class = "^(realvnc-vncviewer)$";
+        float = true;
+        center = true;
+      }
+      {
+        match.class = "^(Vncviewer)$";
+        float = true;
+        center = true;
+      }
     ];
   };
 }

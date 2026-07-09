@@ -46,9 +46,12 @@
   # Wayland settings
   wayland.windowManager.hyprland = {
     enable = true;
+    configType = "lua";
     systemd.enable = true;
     systemd.variables = [ "--all" ];
-    settings = import ./settings { inherit lib pkgs; };
-    submaps = import ./settings/binds.nix;
+    settings = lib.mkMerge [
+      (import ./settings { inherit lib pkgs; })
+      (import ./settings/binds.nix { inherit lib; })
+    ];
   };
 }

@@ -24,12 +24,21 @@ in
   };
 
   wayland.windowManager.hyprland.settings = {
-    exec-once = [
-      "[workspace 3 silent] vesktop"
+    on = [
+      {
+        _args = [
+          "hyprland.start"
+          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 3 silent] vesktop\")\nend")
+        ];
+      }
     ];
 
-    windowrule = [
-      "match:class discord|vesktop, fullscreen on, workspace 3 silent"
+    window_rule = [
+      {
+        match.class = "discord|vesktop";
+        fullscreen = true;
+        workspace = "3 silent";
+      }
     ];
   };
 }

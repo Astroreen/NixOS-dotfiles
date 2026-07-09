@@ -1,4 +1,5 @@
-_: {
+{ lib, ... }:
+{
   xdg = {
     desktopEntries."org.gnome.Nautilus" = {
       name = "Files";
@@ -34,12 +35,22 @@ _: {
   };
 
   wayland.windowManager.hyprland = {
-    settings.windowrule = [
-      "match:class ^org.gnome.Nautilus, size 1400 800, center on, float on"
+    settings.window_rule = [
+      {
+        match.class = "^org.gnome.Nautilus";
+        size = "1400 800";
+        center = true;
+        float = true;
+      }
     ];
 
-    submaps.global.settings.bind = [
-      "$mod, E, exec, [float; size 1400 800] nautilus" # File manager
+    settings.bind = [
+      {
+        _args = [
+          "SUPER + E"
+          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"[float; size 1400 800] nautilus\")")
+        ];
+      } # File manager
     ];
   };
 }

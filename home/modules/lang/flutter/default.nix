@@ -44,8 +44,8 @@ let
 
     abiVersions = [ "x86_64" ];
     toolsVersion = "26.1.1";
-    platformToolsVersion = "35.0.1";
-    emulatorVersion = "35.1.4";
+    platformToolsVersion = "36.0.1";
+    emulatorVersion = "37.1.4";
     cmakeVersions = [ "3.22.1" ];
     ndkVersions = [
       "23.1.7779620"
@@ -59,7 +59,7 @@ let
       "30.0.3"
       "33.0.1"
       "34.0.0"
-      "35.0.0"
+      "35.0.1"
     ];
     platformVersions = [
       "28" # For compatibility
@@ -189,8 +189,12 @@ in
     ];
   };
 
-  wayland.windowManager.hyprland.settings.windowrule = [
-    "match:class ^(Emulator)$, center on, float on" # Always center Android Emulator
+  wayland.windowManager.hyprland.settings.window_rule = [
+    {
+      match.class = "^(Emulator)$";
+      center = true;
+      float = true;
+    } # Always center Android Emulator
   ];
 
   # ===== AVD Creation Helper =====

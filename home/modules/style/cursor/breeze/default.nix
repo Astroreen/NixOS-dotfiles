@@ -7,6 +7,7 @@
 
     # Add cursor configuration
     pointerCursor = {
+      enable = true;
       name = "breeze_cursors";
       package = pkgs.kdePackages.breeze;
       size = 24;

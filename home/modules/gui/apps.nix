@@ -16,7 +16,6 @@
     celluloid # MPV's frontend
     kdePackages.kdenlive
 
-
     # Graphics & Design
     # gimp                          # GNU Image Manipulation Program
     # inkscape                      # Vector graphics editor
@@ -40,7 +39,6 @@
     qbittorrent # Torrent client
 
     # Security
-    bitwarden-desktop # Password manager
     anydesk # Remote desktop application
   ];
 }

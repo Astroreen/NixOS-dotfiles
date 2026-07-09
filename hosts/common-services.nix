@@ -33,7 +33,7 @@ with lib;
 
     # Display managers
     displayManager = {
-      # CAUTION: DO NOT ENABLE BOTH!
+      # CAUTION: ENABLE ONLY ONE DISPLAY MANAGER AT A TIME
       sddm = {
         enable = false;
         wayland.enable = true;
@@ -41,7 +41,6 @@ with lib;
       };
       gdm = {
         enable = true;
-        wayland = true;
       };
 
       # Enable automatic login for the user.
@@ -52,27 +51,8 @@ with lib;
 
       # Defaul session to log in to. Perfect with auto login :)
       defaultSession = "hyprland";
-
-      # Wrapper for Hyprland
-      # since the official DE won't rename the required option to work properly
-      # sessionPackages = [
-      #   (pkgs.stdenv.mkDerivation {
-      #     name = "hyprland-session";
-      #     src = null;
-      #     dontUnpack = true;
-      #     installPhase = ''
-      #       mkdir -p $out/share/wayland-sessions
-      #       cat > $out/share/wayland-sessions/hyprland.desktop <<EOF
-      #       [Desktop Entry]
-      #       Name=Hyprland
-      #       Exec=/home/astroreen/.local/share/nixos/scripts/hyprland-wrapper
-      #       Type=Application
-      #       EOF
-      #     '';
-      #     passthru.providedSessions = [ "hyprland" ];
-      #   })
-      # ];
     };
+
     greetd = {
       enable = false;
       settings = {

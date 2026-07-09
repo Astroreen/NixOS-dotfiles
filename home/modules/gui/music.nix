@@ -29,12 +29,21 @@ in
   ];
 
   wayland.windowManager.hyprland.settings = {
-    exec-once = [
-      "[workspace 4 silent] pear-desktop"
+    on = [
+      {
+        _args = [
+          "hyprland.start"
+          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 4 silent] pear-desktop\")\nend")
+        ];
+      }
     ];
 
-    windowrule = [
-      "match:class ^com.github.th_ch.youtube_music|youtube_music|spotify, fullscreen on, workspace 4 silent"
+    window_rule = [
+      {
+        match.class = "^com.github.th_ch.youtube_music|youtube_music|spotify";
+        fullscreen = true;
+        workspace = "4 silent";
+      }
     ];
   };
 }
