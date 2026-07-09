@@ -1,70 +1,69 @@
 {
     "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
 
-    // GitHub Copilot setup (proxied models via github-copilot provider)
     "agents": {
         "sisyphus": {
             "model": "anthropic/claude-opus-4-6",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
         "sisyphus-junior": {
-            "model": "github-copilot/gpt-5.2",
+            "model": "anthropic/claude-sonnet-4-6",
             "variant": "high",
-            "fallback_models": ["anthropic/claude-sonnet-4-6", "github-copilot/gpt-5.3-codex"],
+            "fallback_models": [],
         },
         "oracle": {
-            "model": "github-copilot/gpt-5.2",
+            "model": "anthropic/claude-sonnet-4-6",
             "variant": "high",
-            "fallback_models": ["anthropic/claude-sonnet-4-6", "github-copilot/gpt-5.3-codex"],
+            "fallback_models": [],
         },
         "explore": {
-            "model": "github-copilot/grok-code-fast-1",
-            "fallback_models": ["github-copilot/claude-haiku-4.5", "github-copilot/gemini-3-flash-preview"],
+            "model": "anthropic/claude-haiku-4-5",
+            "fallback_models": [],
         },
         "librarian": {
-            "model": "github-copilot/gemini-3-flash-preview",
-            "fallback_models": ["anthropic/claude-haiku-4-5", "github-copilot/claude-haiku-4.5", "github-copilot/gemini-3-flash-preview"],
+            "model": "anthropic/claude-haiku-4-5",
+            "fallback_models": [],
         },
         "prometheus": {
             "model": "anthropic/claude-opus-4-6",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
         "multimodal-looker": {
             "model": "anthropic/claude-sonnet-4-6",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
     },
 
     "categories": {
         "quick": {
-            "model": "github-copilot/claude-haiku-4.5",
-            "fallback_models": ["github-copilot/gemini-3-flash-preview", "anthropic/claude-haiku-4-5"],
+            "model": "anthropic/claude-haiku-4-5",
+            "fallback_models": [],
         },
         "unspecified-low": {
             "model": "anthropic/claude-sonnet-4-6",
-            "fallback_models": ["github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
         "unspecified-high": {
             "model": "anthropic/claude-opus-4-6",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
         "writing": {
             "model": "anthropic/claude-sonnet-4-6",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
         "visual-engineering": {
             "model": "anthropic/claude-sonnet-4-6",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
         "ultrabrain": {
-            "model": "github-copilot/gpt-5.2",
+            "model": "anthropic/claude-sonnet-4-6",
             "variant": "xhigh",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
         "deep": {
-            "model": "github-copilot/gpt-5.3-codex",
+            "model": "anthropic/claude-opus-4-6",
             "variant": "medium",
-            "fallback_models": ["github-copilot/gemini-3.1-pro-preview", "github-copilot/gemini-2.5-pro", "anthropic/claude-sonnet-4-6"],
+            "fallback_models": ["anthropic/claude-sonnet-4-6"],
         },
     },
 
