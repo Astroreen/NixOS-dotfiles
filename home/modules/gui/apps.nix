@@ -31,6 +31,7 @@
     # github-desktop                # GitHub desktop client
     postman # API development environment
     thonny # Python IDE
+    orca-slicer # 3D printing slicer
 
     # File management
     localsend # Cross-platform file transfer
