@@ -66,37 +66,43 @@ in
       let
         lua = lib.generators.mkLuaInline;
         exec = cmd: lua "hl.dsp.exec_cmd(\"${cmd}\")";
-        dispatch = args: lua "hl.dsp.exec_cmd(\"hyprctl dispatch ${args}\")";
+        # NOTE: `hyprctl dispatch <legacy args>` (space-separated, non-Lua) is
+        # rejected under Lua config ("')' expected near ..."), so dispatchers
+        # without a plain shell-command equivalent must use their real
+        # hl.dsp.* function directly instead of shelling out.
+        global = name: lua "hl.dsp.global(\"${name}\")";
+        toWorkspace = ws: lua "hl.dsp.window.move({ workspace = \"${ws}\" })";
         focus = dir: lua "hl.dsp.focus({ direction = \"${dir}\" })";
+        swap = dir: lua "hl.dsp.window.swap({ direction = \"${dir}\" })";
       in
       {
         bind = [
-          { _args = [ "SUPER + Q" (dispatch "global caelestia:launcher") ]; } # Menu/Launcher
+          { _args = [ "SUPER + Q" (global "caelestia:launcher") ]; } # Menu/Launcher
 
           # Caelestia shell integration
-          { _args = [ "SUPER + K" (dispatch "global caelestia:showall") ]; }
-          { _args = [ "SUPER + L" (dispatch "global caelestia:lock") ]; }
+          { _args = [ "SUPER + K" (global "caelestia:showall") ]; }
+          { _args = [ "SUPER + L" (global "caelestia:lock") ]; }
           { _args = [ "SUPER + SHIFT + L" (exec "systemctl suspend-then-hibernate") ]; }
-          { _args = [ "CTRL + ALT + Delete" (dispatch "global caelestia:session") ]; }
-          { _args = [ "SUPER + M" (dispatch "exit") ]; }
+          { _args = [ "CTRL + ALT + Delete" (global "caelestia:session") ]; }
+          { _args = [ "SUPER + M" (lua "hl.dsp.exit()") ]; }
 
           # Caelestia utilities
           { _args = [ "SUPER + Period" (exec "pkill fuzzel || caelestia emoji -p") ]; } # Emoji picker
           { _args = [ "CTRL + SUPER + SHIFT + R" (exec "systemctl --user restart caelestia") ]; } # Kill/restart Caelestia shell
-          { _args = [ "Print" (dispatch "global caelestia:screenshotFreeze") ]; } # Screenshots (enhanced from original)
+          { _args = [ "Print" (global "caelestia:screenshotFreeze") ]; } # Screenshots (enhanced from original)
           { _args = [ "SUPER + SHIFT + C" (exec "hyprpicker -a") ]; } # Color picker (just like from powertoys on windows)
-          { _args = [ "CTRL + Q" (dispatch "global caelestia:launcherInterrupt") ]; } # Disable closing program with CTRL Q
+          { _args = [ "CTRL + Q" (global "caelestia:launcherInterrupt") ]; } # Disable closing program with CTRL Q
 
           # Special workspaces (from Caelestia)
           { _args = [ "SUPER + S" (exec "caelestia toggle specialws") ]; }
-          { _args = [ "CTRL + SUPER + up" (dispatch "movetoworkspace special:special") ]; }
-          { _args = [ "CTRL + SUPER + down" (dispatch "movetoworkspace e+0") ]; }
+          { _args = [ "CTRL + SUPER + up" (toWorkspace "special:special") ]; }
+          { _args = [ "CTRL + SUPER + down" (toWorkspace "e+0") ]; }
 
           # Enhanced window movement from Caelestia
-          { _args = [ "SUPER + SHIFT + left" (dispatch "movewindow l") ]; }
-          { _args = [ "SUPER + SHIFT + right" (dispatch "movewindow r") ]; }
-          { _args = [ "SUPER + SHIFT + up" (dispatch "movewindow u") ]; }
-          { _args = [ "SUPER + SHIFT + down" (dispatch "movewindow d") ]; }
+          { _args = [ "SUPER + SHIFT + left" (swap "left") ]; }
+          { _args = [ "SUPER + SHIFT + right" (swap "right") ]; }
+          { _args = [ "SUPER + SHIFT + up" (swap "up") ]; }
+          { _args = [ "SUPER + SHIFT + down" (swap "down") ]; }
           { _args = [ "SUPER + left" (focus "left") ]; }
           { _args = [ "SUPER + right" (focus "right") ]; }
           { _args = [ "SUPER + up" (focus "up") ]; }
@@ -106,7 +112,7 @@ in
           {
             _args = [
               "SUPER + mouse:272"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -116,7 +122,7 @@ in
           {
             _args = [
               "SUPER + mouse:273"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -126,7 +132,7 @@ in
           {
             _args = [
               "SUPER + mouse:274"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -136,7 +142,7 @@ in
           {
             _args = [
               "SUPER + mouse:275"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -146,7 +152,7 @@ in
           {
             _args = [
               "SUPER + mouse:276"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -156,7 +162,7 @@ in
           {
             _args = [
               "SUPER + mouse:277"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -166,7 +172,7 @@ in
           {
             _args = [
               "SUPER + mouse_up"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -176,7 +182,7 @@ in
           {
             _args = [
               "SUPER + mouse_down"
-              (dispatch "global caelestia:launcherInterrupt")
+              (global "caelestia:launcherInterrupt")
               {
                 ignore_mods = true;
                 non_consuming = true;
@@ -216,7 +222,7 @@ in
           {
             _args = [
               "XF86AudioStop"
-              (dispatch "global caelestia:mediaStop")
+              (global "caelestia:mediaStop")
               { locked = true; }
             ];
           }
@@ -224,21 +230,21 @@ in
           {
             _args = [
               "CTRL + SUPER + S"
-              (dispatch "global caelestia:mediaToggle")
+              (global "caelestia:mediaToggle")
               { locked = true; }
             ];
           }
           {
             _args = [
               "CTRL + SUPER + Equal"
-              (dispatch "global caelestia:mediaNext")
+              (global "caelestia:mediaNext")
               { locked = true; }
             ];
           }
           {
             _args = [
               "CTRL + SUPER + Minus"
-              (dispatch "global caelestia:mediaPrev")
+              (global "caelestia:mediaPrev")
               { locked = true; }
             ];
           }
@@ -246,14 +252,14 @@ in
           {
             _args = [
               "XF86MonBrightnessUp"
-              (dispatch "global caelestia:brightnessUp")
+              (global "caelestia:brightnessUp")
               { locked = true; }
             ];
           }
           {
             _args = [
               "XF86MonBrightnessDown"
-              (dispatch "global caelestia:brightnessDown")
+              (global "caelestia:brightnessDown")
               { locked = true; }
             ];
           }
@@ -261,7 +267,7 @@ in
           {
             _args = [
               "CTRL + ALT + C"
-              (dispatch "global caelestia:clearNotifs")
+              (global "caelestia:clearNotifs")
               { locked = true; }
             ];
           }
@@ -277,7 +283,7 @@ in
           {
             _args = [
               "SUPER + ALT + L"
-              (dispatch "global caelestia:lock")
+              (global "caelestia:lock")
               { locked = true; }
             ];
           }
