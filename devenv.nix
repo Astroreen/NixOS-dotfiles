@@ -20,6 +20,14 @@
       description = "Update the Nix flake";
     };
 
+    delete-garbage = {
+      exec = ''
+        nix-collect-garbage --delete-older-than 7d
+        nix-store --gc
+      '';
+      description = "Delete old NixOS generations and unused packages";
+    };
+
     nixos = {
       description = "Manage NixOS configuration (switch, test, boot, build, dry-build, dry-activate, rollback)";
       exec = ''
@@ -52,12 +60,19 @@
     };
     hm.exec = "home $@"; # Alias for home manager
 
-    delete-garbage = {
+    list-generations = {
+      description = "List NixOS generations";
+      exec = "nixos-rebuild list-generations";
+    };
+
+    delete-generations = {
+      description = "Delete old NixOS generations";
       exec = ''
-        nix-collect-garbage --delete-older-than 7d
-        nix-store --gc
+        # How many generations to keep (default: 5)
+        KEEP_COUNT="''${1:-5}"
+        echo "Deleting old NixOS generations, keeping the last $KEEP_COUNT generations..."
+        sudo nix-env -p /nix/var/nix/profiles/system --delete-generations +$KEEP_COUNT
       '';
-      description = "Delete old NixOS generations and unused packages";
     };
 
     add-work-dns = {
@@ -113,7 +128,7 @@
       '';
     };
 
-    end-work = {
+    stop-work = {
       description = "Stop work VPN and remove DNS configuration";
       exec = ''
         echo "Stopping work environment..."

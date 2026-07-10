@@ -32,6 +32,12 @@ in
     { match.class = "^(xdg-desktop-portal-gtk)$"; size = "1400 800"; center = true; float = true; }
     { match.class = "^(localsend_app)$"; size = "1400 800"; center = true; float = true; }
     { match.class = "^(Postman)$"; size = "1400 800"; center = true; float = true; }
+    # gcr-prompter (GNOME keyring/credential prompt) - float + center on
+    # whatever monitor it lands on. Present on every host. Multi-monitor
+    # hosts additionally pin it to a specific monitor+workspace in their
+    # own host-specific hyprland-settings.nix, since a single generic rule
+    # can't know which output is "the right one" per host.
+    { match.class = "^(gcr-prompter)$"; center = true; float = true; }
 
     # Content-based rules
     { match.content = 3; float = true; }      # Games float

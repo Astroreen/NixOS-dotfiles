@@ -31,6 +31,23 @@
       "vt.global_cursor_default=0"
       "udev.log_level=3"
       "fbcon=nodefer"
+      # GRUB's gfxmodeEfi request doesn't reliably survive the UEFI GOP ->
+      # kernel handoff (firmware may silently negotiate a lower resolution
+      # regardless of what GRUB asked for), so Plymouth was inheriting a
+      # small framebuffer and rendering its animation unscaled in the
+      # top-left corner instead of filling the panel. Force the initial
+      # framebuffer resolution explicitly via the kernel's own video= param
+      # before nvidia_drm/Plymouth take over. Connector name confirmed to
+      # match Hyprland's "DP-3" 1:1 via /sys/class/drm/card1-DP-3/status.
+      # NOTE: confirmed via dmesg timeline that this DID fix the early
+      # simple-framebuffer stage (215x45 text grid == exactly 3440x1440 at
+      # a 16x32 font), but Plymouth STILL renders small - suspected because
+      # proprietary nvidia-drm KMS doesn't honor video= at all (that's an
+      # fbdev/generic-DRM convention; nvidia picks its own mode from EDID)
+      # and may be choosing a non-native mode on its own takeover. Keeping
+      # this param since it's still correct/harmless for the pre-nvidia
+      # stage; investigating the post-nvidia-drm mode separately below.
+      "video=DP-3:3440x1440@165"
     ];
 
     loader = {
@@ -53,6 +70,16 @@
           useOSProber = true;
           efiInstallAsRemovable = false;
           theme = "${grub-theme-pkg}";
+          # Without an explicit gfxmode, GRUB's "auto" mode picks a
+          # conservative resolution (e.g. 1024x768) that doesn't match the
+          # center monitor's native 3440x1440. The theme's boxes are
+          # percentage-positioned, so on a smaller unscaled framebuffer they
+          # render into a small canvas anchored at the display's top-left
+          # corner instead of filling/centering on the full screen.
+          gfxmodeEfi = "3440x1440";
+          # Keep GRUB's video mode across the Linux/Plymouth handoff instead
+          # of switching modes again (matches quiet/splash kernel params).
+          gfxpayloadEfi = "keep";
         };
 
       timeout = 5; # seconds
@@ -61,7 +88,49 @@
     plymouth = {
       enable = true;
       theme = "loader_2";
-      themePackages = [ pkgs.adi1090x-plymouth-themes ];
+      # Root cause confirmed by isolation test (swapping to the stock
+      # "bgrt" theme rendered correctly, proving this is theme-specific,
+      # not a system-wide DRM/resolution issue) plus reading the actual
+      # theme script: loader_2.script centers the question/password/message
+      # sprites via `screen.half.w/h = Window.GetWidth(0)/GetHeight(0) / 2`
+      # (no offset - correct), but the flyingman logo-animation sprite is
+      # the ONE place in the whole script that instead does
+      # `Window.GetX() + (Window.GetWidth(0)/2 - ...)`. Window.GetX()/GetY()
+      # return THIS screen's absolute offset in Plymouth's own multi-head
+      # layout (detected independently of Hyprland, since Plymouth runs
+      # before Wayland starts) while GetWidth(0)/GetHeight(0) hard-codes
+      # screen index 0's size - if DP-3 isn't screen 0 in Plymouth's own
+      # enumeration order, position offset and size come from two
+      # different screens, producing exactly the observed small/offset
+      # render. Patch the upstream theme to drop the stray GetX()/GetY()
+      # offsets, matching the same centering convention used everywhere
+      # else in this same script.
+      themePackages = [
+        (pkgs.runCommand "adi1090x-plymouth-themes-patched" { } ''
+          mkdir -p "$out"
+          cp -r ${pkgs.adi1090x-plymouth-themes}/* "$out"/
+          chmod -R u+w "$out"
+          substituteInPlace "$out/share/plymouth/themes/loader_2/loader_2.script" \
+            --replace-fail \
+              'flyingman_sprite.SetX(Window.GetX() + (Window.GetWidth(0) / 2 - flyingman_image[0].GetWidth() / 2));' \
+              'flyingman_sprite.SetX((Window.GetWidth(0) / 2 - flyingman_image[0].GetWidth() / 2));' \
+            --replace-fail \
+              'flyingman_sprite.SetY(Window.GetY() + (Window.GetHeight(0) / 2 - flyingman_image[0].GetHeight() / 2));' \
+              'flyingman_sprite.SetY((Window.GetHeight(0) / 2 - flyingman_image[0].GetHeight() / 2));'
+          # loader_2.plymouth's ImageDir=/ScriptFile= are ABSOLUTE paths baked
+          # in at the ORIGINAL package's build time, still pointing at
+          # ${pkgs.adi1090x-plymouth-themes} (the unpatched store path) even
+          # after copying the tree here - NixOS's plymouth module reads these
+          # fields verbatim (see nixos/modules/system/boot/plymouth.nix,
+          # themesEnv buildEnv symlinks loader_2/ correctly to THIS derivation,
+          # but the .plymouth file's own text still repoints Plymouth back to
+          # the stale original script). Rewrite them to point at $out instead.
+          for f in "$out"/share/plymouth/themes/*/*.plymouth; do
+            substituteInPlace "$f" \
+              --replace-quiet "${pkgs.adi1090x-plymouth-themes}" "$out"
+          done
+        '')
+      ];
     };
 
     initrd = {
@@ -257,7 +326,7 @@
     LIBVA_DRIVER_NAME = "nvidia"; # VAAPI → NVIDIA
     VDPAU_DRIVER = "nvidia"; # VDPAU → NVIDIA
     __GLX_VENDOR_LIBRARY_NAME = "nvidia"; # OpenGL → NVIDIA
-    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json"; # Vulkan → NVIDIA
+    VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json"; # Vulkan → NVIDIA
     GBM_BACKEND = "nvidia-drm"; # Wayland GBM → NVIDIA
     NVD_BACKEND = "direct"; # nvidia-vaapi-driver: direct mode
   };

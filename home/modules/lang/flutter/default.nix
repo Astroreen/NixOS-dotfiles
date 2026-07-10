@@ -123,8 +123,19 @@ in
     file."Android/emulator-wrapper/bin/emulator" = {
       text = ''
         #!/usr/bin/env bash
+        # The Android emulator ships its OWN bundled Qt install
+        # (emulator/lib64/qt/plugins) which does NOT include a "wayland"
+        # platform plugin at all - confirmed via its own error output:
+        # "Available platform plugins are: offscreen, xcb, linuxfb, vnc,
+        # minimal". So QT_QPA_PLATFORM=wayland can never work here; xcb
+        # (via XWayland) is the only GUI-capable option this bundle ships.
+        # (Also: the previous "wayland;xcb" value was a bash quoting bug -
+        # unquoted ';' is a command separator, not part of the assignment,
+        # so it silently ran `export QT_QPA_PLATFORM=wayland` then tried to
+        # execute a nonexistent "xcb" command - see the "xcb: command not
+        # found" error.)
         export QT_QPA_PLATFORM=xcb
-        export VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
+        export VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json
         export __GLX_VENDOR_LIBRARY_NAME=nvidia
         export __NV_PRIME_RENDER_OFFLOAD=1
         export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
@@ -136,6 +147,11 @@ in
             pkgs.libglvnd # same, explicit
             pkgs.libX11
             pkgs.libXext
+            pkgs.libxcb # libxcb.so.1 itself
+            pkgs.xcb-util-cursor # libxcb-cursor.so.0 - the Qt xcb platform
+            # plugin's own error explicitly names this as the missing
+            # dependency ("xcb-cursor0 or libxcb-cursor0 is needed to
+            # load the Qt xcb platform plugin")
           ]
         }:/run/opengl-driver/lib:$LD_LIBRARY_PATH"
         if ! printf '%s\n' "$@" | grep -q -- '-gpu'; then
@@ -191,10 +207,31 @@ in
 
   wayland.windowManager.hyprland.settings.window_rule = [
     {
+      # `center = true` alone was landing the emulator's windows (both the
+      # main device window and its separate toolbar window - same class,
+      # spawned as two top-level Emulator windows) far outside any physical
+      # monitor's bounds (e.g. observed at x=4712 on a host whose widest
+      # monitor only spans 0-3440px). Both drifted the same direction by a
+      # similar offset, which points at Hyprland's centering math going
+      # wrong specifically for monitors that use a `transform` (rotated
+      # side monitors on the server host) - if center-on-monitor uses the
+      # pre-transform width/height instead of the rotated logical size, the
+      # computed center point ends up way off-screen. Use explicit move
+      # coordinates instead of relying on `center`'s per-monitor math.
+      #
+      # Deliberately NOT pinning `monitor = ...` here: this module is
+      # shared across hosts with different monitor names/topologies (e.g.
+      # server's "DP-3" vs laptop's single "eDP-1") - a hardcoded monitor
+      # name would silently fail to match on hosts that don't have that
+      # output, leaving the emulator off-screen there too. `move "500 300"`
+      # alone lands within bounds on any single reasonably-sized monitor;
+      # multi-monitor hosts that still see this drift should add their own
+      # `monitor = "..."` override in their host-specific hyprland-settings.nix
+      # (cumulative window_rule, same pattern as the gcr-prompter rule).
       match.class = "^(Emulator)$";
-      center = true;
+      move = "500 300";
       float = true;
-    } # Always center Android Emulator
+    } # Pin Android Emulator windows to a known-visible position
   ];
 
   # ===== AVD Creation Helper =====
