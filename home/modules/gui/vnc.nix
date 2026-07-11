@@ -1,10 +1,30 @@
-{ pkgs, config, lib, ... }:
-let
-  format = pkgs.formats.keyValue { };
-in
+{ pkgs, lib, ... }:
 {
+  # Plain home-manager wayvnc module: single instance, default (first)
+  # output, flat address/port config - this is what was in place before
+  # the hyprlang->Lua migration and "worked flawlessly". Two known,
+  # confirmed-upstream (not config-fixable) limitations to be aware of:
+  #   - `wayvncctl output-cycle`/`output-set` doesn't actually switch the
+  #     video stream (wayvnc 0.10.0: wayvnc_display->image_source is set
+  #     once at creation in wayvnc_display_add and never reassigned;
+  #     switch_to_output() only updates self->image_source, so
+  #     on_capture_done()'s wayvnc_display_find_by_source() lookup stops
+  #     matching after a switch and frames are silently dropped - input
+  #     still follows correctly since that path reads self->image_source
+  #     directly). No keybind for it below since it wouldn't do anything
+  #     useful.
+  #   - Pointer clicks are mismapped on any monitor with a non-zero
+  #     Hyprland `transform` (see monitor = [...] in
+  #     home/astroreen/server/hyprland-settings.nix - DP-2/HDMI-A-1):
+  #     wayvnc only re-applies its (correct) rotation-compensation math
+  #     when the active screencopy backend reports
+  #     SCREENCOPY_CAP_TRANSFORM and the compositor sends a `transform`
+  #     frame event; whichever of those isn't happening for this
+  #     Hyprland/wayvnc pairing leaves the pointer uncompensated. Not
+  #     reproducible on an untransformed output (confirmed: DP-3, the
+  #     default/first output here, has correct clicks).
   services.wayvnc = {
-    enable = false;
+    enable = true;
     autoStart = true;
     settings = {
       address = "0.0.0.0";
@@ -13,35 +33,8 @@ in
   };
 
   home.packages = with pkgs; [
-    wayvnc  # VNC server for Wayland
-    tigervnc # VNC viewer 
+    tigervnc # VNC viewer
   ];
-
-  systemd.user.services."wayvnc" = {
-    Unit = {
-      Description = "wayvnc VNC server";
-      Documentation = [ "man:wayvnc(1)" ];
-      After = [
-        config.wayland.systemd.target
-      ];
-      PartOf = [
-        config.wayland.systemd.target
-      ];
-    };
-    Service = {
-      ExecStart = [ "${pkgs.wayvnc}/bin/wayvnc 0.0.0.0 5900" ];
-      Restart = "on-failure";
-      RestartSec = "3s";
-    };
-    Install.WantedBy = [
-      config.wayland.systemd.target
-    ];
-  };
-
-  xdg.configFile."wayvnc/config".source = format.generate "wayvnc.conf" {
-    address = "0.0.0.0";
-    port = 5900;
-  };
 
   wayland.windowManager.hyprland.settings = {
     # NOTE: F12 passthrough submap dropped during hyprlang->Lua migration
@@ -57,11 +50,6 @@ in
 
     window_rule = [
       # VNC viewer should float and be centered
-      {
-        match.class = "^(realvnc-vncviewer)$";
-        float = true;
-        center = true;
-      }
       {
         match.class = "^(Vncviewer)$";
         float = true;
