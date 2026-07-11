@@ -48,9 +48,9 @@ in
     settings = {
       plugin = [
         "@franlol/opencode-md-table-formatter@latest"
-        "@mohak34/opencode-notifier@0.1.36"
+        "@mohak34/opencode-notifier"
         "opencode-vibeguard@latest"
-        "@tarquinen/opencode-dcp@3.1.6"
+        "@tarquinen/opencode-dcp"
         "opencode-anthropic-auth"
         "opencode-claude-auth"
       ];
