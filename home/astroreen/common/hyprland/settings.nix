@@ -27,7 +27,7 @@ _:
     # App-specific rules
     { match.class = "^(com.interversehq.qView)$"; size = "1400 800"; center = true; float = true; content = "photo"; }
     { match.class = "^(xdg-desktop-portal-gtk)$"; size = "1400 800"; center = true; float = true; }
-    { match.class = "^(localsend_app)$"; size = "1400 800"; center = true; float = true; }
+    { match.class = "^(localsend_app)$"; size = "400 580"; center = true; float = true; }
     { match.class = "^(Postman)$"; size = "1400 800"; center = true; float = true; }
     # gcr-prompter (GNOME keyring/credential prompt) - float + center on
     # whatever monitor it lands on. Present on every host. Multi-monitor
