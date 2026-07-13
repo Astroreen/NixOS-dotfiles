@@ -24,6 +24,12 @@
       # Window
       window_padding_width = "10 20 10 20";
     };
+
+    keybindings = {
+      "ctrl+c" = "copy_or_interrupt";
+      "ctrl+v" = "paste_from_clipboard";
+      "ctrl+escape" = "send_text all \\x03";
+    };
   };
 
   wayland.windowManager.hyprland = {
