@@ -130,6 +130,8 @@
     ignoreShellProgramCheck = true;
   };
 
+  services.xserver.videoDrivers = [ "nvidia" ];
+
   # Drivers for hardware
   hardware = {
     # Has been moved to graphics section below.

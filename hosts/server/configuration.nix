@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
@@ -247,6 +248,8 @@
       HandleLidSwitchDocked = "ignore";
     };
 
+    xserver.videoDrivers = [ "nvidia" ];
+
     # Power management settings
     power-profiles-daemon.enable = false; # Enable power profiles
     upower.enable = false; # Enable upower for battery management
@@ -265,13 +268,10 @@
       enable = true;
       enable32Bit = true; # Enable 32-bit graphics support
       extraPackages = with pkgs; [
-        # Intel VAAPI drivers
-        intel-media-driver # For newer Intel GPUs (Broadwell+)
-        intel-vaapi-driver # For older Intel GPUs
         libva-vdpau-driver # VDPAU backend for VAAPI
         libvdpau-va-gl # VDPAU driver with OpenGL/VAAPI backend
 
-        # NVIDIA VAAPI (if you want to use NVIDIA for encoding)
+        # NVIDIA VAAPI (server is NVIDIA-only, no Intel GPU present)
         nvidia-vaapi-driver
       ];
     };
@@ -292,7 +292,10 @@
       #   nvidiaBusId = "PCI:1:0:0"; # Use lspci to verify
       # };
     };
-    nvidia-container-toolkit.enable = true;
+    nvidia-container-toolkit = {
+      enable = true;
+      mount-nvidia-executables = true; # ensure nvidia-smi etc. are mounted into containers
+    };
 
     bluetooth = {
       enable = true;
@@ -332,10 +335,38 @@
   };
 
   # Docker settings
+  # DO NOT try to "cleanly" reimplement enableNvidia manually again - tried
+  # twice on 2026-07-13 and failed production twice:
+  #   attempt 1: dropped enableNvidia entirely, registered nothing manually
+  #     -> daemon deregistered the "nvidia" runtime name -> `docker start`
+  #     failed with "unknown or invalid runtime name: nvidia" for ALL 26
+  #     containers, GPU or not (enableNvidia sets default-runtime for every
+  #     container, and Docker bakes the runtime name into HostConfig at
+  #     creation time - can't be changed without recreating the container).
+  #   attempt 2: manually replicated daemon.settings.runtimes.nvidia +
+  #     default-runtime = "nvidia", but NOT the
+  #     environment.etc."nvidia-container-runtime/config.toml" that
+  #     virtualisation.docker.enableNvidia ALSO writes (see nixpkgs
+  #     nixos/modules/services/hardware/nvidia-container-toolkit/default.nix,
+  #     the `mkIf config.virtualisation.docker.enableNvidia` block). Without
+  #     that config.toml's `[nvidia-container-runtime] runtimes = ["docker-runc"
+  #     "runc" "crun"]`, nvidia-container-runtime can't locate the low-level
+  #     runtime and errors "no runtime binary found from candidate list:
+  #     [runc crun]" -> dockerd reports "could not select device driver
+  #     nvidia with capabilities: [[gpu]]" -> nextcloud-aio-nextcloud (the
+  #     one real GPU consumer, via legacy Docker DeviceRequest API) can't
+  #     start, breaking the whole Nextcloud AIO stack.
+  # enableNvidia atomically writes ALL THREE required pieces together and is
+  # the only proven-correct config. The "deprecated" warning is cosmetic;
+  # do not remove this option without first fully reproducing everything in
+  # nixos/modules/services/hardware/nvidia-container-toolkit/default.nix's
+  # `mkIf config.virtualisation.docker.enableNvidia` block by hand AND testing
+  # end-to-end (incl. `docker exec nextcloud-aio-nextcloud nvidia-smi`) before
+  # touching the live production server.
   virtualisation.docker = {
     enable = true;
     enableOnBoot = true;
-    enableNvidia = true; # Enable NVIDIA support, deprecated
+    enableNvidia = true; # deprecated but the only config verified to fully work - see comment above
     rootless = {
       enable = false;
       setSocketVariable = false;

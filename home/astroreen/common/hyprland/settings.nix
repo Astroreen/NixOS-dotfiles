@@ -1,7 +1,4 @@
-{ lib }:
-let
-  dsp = lib.generators.mkLuaInline;
-in
+_:
 {
   # Keyboard and input — goes inside hl.config({...})
   config.input = {

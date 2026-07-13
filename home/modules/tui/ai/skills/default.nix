@@ -9,12 +9,6 @@ let
   cfg = config.custom.ai.skill;
   baseCfg = config.custom.ai;
 
-  copyFile = src: dest: ''
-    mkdir -p $(dirname ${dest})
-    cp ${src} ${dest}
-    chmod 777 ${dest}
-  '';
-
   copyDir = src: dest: ''
     mkdir -p ${dest}
     for item in ${src}/*; do

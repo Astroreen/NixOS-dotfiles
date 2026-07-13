@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ lib, ... }:
 let
   # hl.exec_once does not exist in the real Lua API (HM's naive key->function
   # mapping produces an invalid call); the official pattern is

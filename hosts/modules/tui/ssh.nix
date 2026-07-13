@@ -20,15 +20,13 @@ _: {
     interfaces."tailscale0".allowedTCPPorts = [ 22 ];
   };
 
-  # Make sshd wait for tailscale interface
+  # sshd waits for network, but NOT specifically for tailscale - a tailscale
+  # outage (expired auth, network flap, broken update) must never block
+  # SSH/console recovery access on a headless/WoL host. The firewall rule
+  # above applies dynamically once tailscale0 appears, so no startup
+  # ordering against tailscaled is needed for that either.
   systemd.services.sshd = {
-    after = [
-      "tailscaled.service"
-      "network-online.target"
-    ];
-    wants = [
-      "tailscaled.service"
-      "network-online.target"
-    ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
   };
 }

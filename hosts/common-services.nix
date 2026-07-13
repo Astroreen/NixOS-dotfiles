@@ -1,7 +1,6 @@
 { pkgs, lib, ... }:
-with lib;
 {
-  services = {
+  services = with lib; {
     # Configure keymap in X11
     xserver = {
       enable = true;
@@ -10,7 +9,6 @@ with lib;
         variant = ",phonetic,";
         options = "grp:alt_shift_toggle";
       };
-      videoDrivers = [ "nvidia" ];
     };
     libinput = {
       enable = true;
@@ -84,6 +82,10 @@ with lib;
       settings.Resolve = {
         DNSStubListener = "no";
       };
+      fallbackDns = [
+        "192.168.50.1"
+        "8.8.8.8"
+      ];
     };
 
     gvfs.enable = true; # Enables trash

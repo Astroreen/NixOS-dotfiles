@@ -4,7 +4,7 @@ _: {
       spotx = import ./spotx.nix self super;
     })
 
-    (final: prev: {
+    (_final: prev: {
       flutter = prev.flutter.overrideAttrs (oldAttrs: {
         postInstall = (oldAttrs.postInstall or "") + ''
           # Fix: missing engine.realm in nixpkgs 3.41.6

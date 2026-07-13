@@ -10,15 +10,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    flake-utils.url = "github:numtide/flake-utils";
-
     # Do not override nixpkgs version of Hyprland, as it may break cachix and other things.
     hyprland.url = "github:hyprwm/Hyprland";
-
-    app2unit = {
-      url = "github:soramanew/app2unit";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # quickshell moved from outfoxxed/quickshell to quickshell/quickshell
     quickshell = {

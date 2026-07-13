@@ -198,7 +198,6 @@ flake.nix (homeConfigurations."astroreen@<host>")
 **Dormant / unimported** (do not import):
 - `home/modules/gui/blender.nix`
 - `home/modules/tui/ssh.nix`
-- `home/modules/tui/ai/claude/` — incomplete, sub-AGENTS.md says never import
 
 ---
 
