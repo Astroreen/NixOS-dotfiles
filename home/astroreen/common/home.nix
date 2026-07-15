@@ -1,25 +1,19 @@
-{
-  inputs,
-  config,
-  lib,
-  ...
-}:
+{ config, lib, ... }:
 {
 
   imports = [
     ./hyprland/caelestia # Custom Caelestia shell module
 
     # Style
-    ../../modules/style/cursor/breeze # Breeze cursor style
-    ../../modules/style/theme/dark/adwaita # Adwaita dark theme
+    ../profiles/style/cursor/breeze # Breeze cursor style
+    ../profiles/style/theme/dark/adwaita # Adwaita dark theme
 
     # Apps
-    ../../common-apps.nix
+    ./imports.nix # Default apps configuration
 
     # Windows manager (wm)
-    ../../modules/wm/hyprland # Hyprland window manager
-    ../../modules/wm/hyprland/caelestia # Caelestia shell
-    inputs.caelestia-shell.homeManagerModules.default # Caelestia shell module
+    ../profiles/wm/hyprland # Hyprland window manager
+    ../profiles/wm/hyprland/caelestia # Caelestia shell
   ];
 
   # Wayland, X, etc. support for session vars

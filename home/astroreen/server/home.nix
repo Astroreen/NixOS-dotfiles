@@ -4,14 +4,14 @@
     ../common/home.nix
 
     # ../../modules/tui/ollama.nix
-    ../../modules/tui/whisper.nix
-    ../../modules/tui/ai/lmstudio.nix
+    ../profiles/terminal/whisper.nix
+    ../../modules/terminal/ai/lmstudio.nix
 
-    ../../modules/gui/arduino.nix
+    ../profiles/apps/arduino.nix
   ];
 
   # Host specific settings - properly merged
-  wayland.windowManager.hyprland.settings = import ./hyprland-settings.nix { inherit lib; };
+  wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix { inherit lib; };
 
   custom.caelestia = {
     enable = true;

@@ -12,6 +12,7 @@
   env = {
     OPENVPN_CONFIG = "/home/astroreen/.local/share/nixos/hosts/modules/tui/openvpn/work.ovpn";
     COMPANY_DNS = "192.168.1.8";
+    CURRENT_USER = "astroreen";
   };
 
   scripts = {
@@ -31,14 +32,14 @@
     nixos = {
       description = "Manage NixOS configuration (switch, test, boot, build, dry-build, dry-activate, rollback)";
       exec = ''
-        action="''${1:?Usage: nixos <action> <host>}"
-        host="''${2:?Usage: nixos <action> <host>}"
+        ACTION="''${1:?Usage: nixos <action> <host>}"
+        HOST="''${2:?Usage: nixos <action> <host>}"
 
-        if [ "$action" = "rollback" ]; then
-          sudo nixos-rebuild switch --no-reexec --flake ".#$host" --rollback
+        if [ "$ACTION" = "rollback" ]; then
+          sudo nixos-rebuild switch --no-reexec --flake ".#$CURRENT_USER@$HOST" --rollback
         else
           git add .
-          sudo nixos-rebuild "$action" --no-reexec --flake ".#$host"
+          sudo nixos-rebuild "$ACTION" --no-reexec --flake ".#$CURRENT_USER@$HOST"
         fi
       '';
     };
@@ -47,14 +48,14 @@
     home = {
       description = "Manage Home Manager configuration (switch, build, rollback)";
       exec = ''
-        action="''${1:?Usage: home <action> <host>}"
-        host="''${2:?Usage: home <action> <host>}"
+        ACTION="''${1:?Usage: home <action> <host>}"
+        HOST="''${2:?Usage: home <action> <host>}"
 
-        if [ "$action" = "rollback" ]; then
-          home-manager switch --rollback --flake ".#astroreen@$host"
+        if [ "$ACTION" = "rollback" ]; then
+          home-manager switch --rollback --flake ".#$CURRENT_USER@$HOST"
         else
           git add .
-          home-manager "$action" --flake ".#astroreen@$host"
+          home-manager "$ACTION" --flake ".#$CURRENT_USER@$HOST"
         fi
       '';
     };

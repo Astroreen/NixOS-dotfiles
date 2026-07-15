@@ -1,0 +1,160 @@
+{
+  config,
+  pkgs,
+  ...
+}:
+{
+  imports = [
+    ./hardware-configuration.nix # Required.
+
+    ../common # Common settings for all hosts
+
+    ../profiles/style/theme/dark/adwaita # Adwaita dark theme
+    ../profiles/wm/hyprland # Window manager Hyprland
+  ];
+
+  # Bootloader + Plymouth splash.
+  boot = {
+    consoleLogLevel = 3;
+    kernelParams = [
+      "quiet"
+      "splash"
+      "rd.udev.log_level=3"
+      "udev.log_level=3"
+      "vt.global_cursor_default=0"
+      "fbcon=nodefer"
+    ];
+
+    initrd = {
+      systemd.enable = true;
+      verbose = false;
+      kernelModules = [ "i915" ]; # Intel KMS early for framebuffer handoff
+    };
+
+    plymouth = {
+      enable = true;
+      theme = "loader_2";
+      themePackages = [ pkgs.adi1090x-plymouth-themes ];
+    };
+
+    loader = {
+      efi = {
+        canTouchEfiVariables = true;
+        efiSysMountPoint = "/boot"; # We will align this with output of `lsblk` command
+      };
+      # systemd-boot.enable = true;
+      grub =
+        let
+          grub-theme-pkg = pkgs.sleek-grub-theme.override {
+            withStyle = "dark";
+            withBanner = "AstroGrub Bootloader";
+          };
+        in
+        {
+          enable = true;
+          efiSupport = true;
+          devices = [ "nodev" ];
+          useOSProber = false;
+          efiInstallAsRemovable = false;
+          theme = "${grub-theme-pkg}";
+        };
+
+      timeout = 3; # seconds
+    };
+  };
+
+  # Enable networking
+  networking = {
+    hostName = "laptop"; # Define your hostname.
+
+    firewall = {
+      allowedTCPPorts = [
+        4096 # OpenCode server port
+      ];
+
+      # Allow all traffic on docker interfaces
+      trustedInterfaces = [ "docker0" ];
+    };
+  };
+
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  # Drivers for hardware
+  hardware = {
+    # Has been moved to graphics section below.
+    #opengl = {
+    #    enable = true;
+    #    driSupport = true;  # Enable DRI support
+    #    driSupport32Bit = true;  # Enable 32-bit DRI support
+    #};
+
+    graphics = {
+      extraPackages = with pkgs; [
+        # Intel VAAPI drivers
+        intel-media-driver # For newer Intel GPUs (Broadwell+)
+        intel-vaapi-driver # For older Intel GPUs
+        libva-vdpau-driver # VDPAU backend for VAAPI
+        libvdpau-va-gl # VDPAU driver with OpenGL/VAAPI backend
+
+        # NVIDIA VAAPI (if you want to use NVIDIA for encoding)
+        nvidia-vaapi-driver
+      ];
+    };
+
+    nvidia = {
+      modesetting.enable = true; # Wayland requires kernel mode setting (KMS) to be enabled
+      powerManagement.enable = true;
+      powerManagement.finegrained = true; # Requires offload below
+      open = false; # Use proprietary driver
+      nvidiaSettings = true;
+      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      nvidiaPersistenced = false;
+
+      # PRIME is a technology developed to facilitate the cooperation between the two GPUs and is critical for the laptop's graphical performance. 
+      # Depending on your needs, you can configure PRIME in one of three modes, which have different tradeoffs in terms of performance and battery life.
+      prime = {
+        offload.enable = true;
+        offload.enableOffloadCmd = true;
+        intelBusId = "PCI:0@0:2:0"; # Use lspci to verify
+        nvidiaBusId = "PCI:1@0:0:0"; # Use lspci to verify
+      };
+    };
+    nvidia-container-toolkit.enable = true;
+
+    bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+    };
+  };
+
+  # Intel-first env: NVIDIA stays dormant (PRIME offload + finegrained power management).
+  # NVIDIA is still used by:
+  #   - flutter module (VK_ICD/GLX) for Android Emulator hardware acceleration
+  #   - `nvidia-offload <cmd>` wrapper for explicit GPU offload
+  environment.sessionVariables = {
+    # Electron hardware video decode/encode via VA-API
+    ELECTRON_ENABLE_FEATURES = "VaapiVideoDecoder,VaapiVideoEncoder";
+    # VAAPI → Intel iGPU (intel-media-driver, Broadwell+)
+    LIBVA_DRIVER_NAME = "iHD";
+  };
+
+  # Docker settings
+  virtualisation.docker = {
+    enable = true;
+    enableOnBoot = true;
+    # enableNvidia = true; # Enable NVIDIA support, deprecated
+    rootless = {
+      enable = false;
+      setSocketVariable = false;
+    };
+  };
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "25.11"; # Did you read the comment?
+
+}

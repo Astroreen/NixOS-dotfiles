@@ -5,7 +5,7 @@
   ];
 
   # Host specific settings - properly merged
-  wayland.windowManager.hyprland.settings = import ./hyprland-settings.nix;
+  wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix;
 
   custom.caelestia = {
     enable = true;

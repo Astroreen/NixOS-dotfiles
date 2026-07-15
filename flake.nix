@@ -74,7 +74,7 @@
           hostPkgsStable = pkgsStableFor.${systemVersion};
         in
         {
-          nixosConfigurations.${host} = nixpkgs.lib.nixosSystem rec {
+          nixosConfigurations."${username}@${host}" = nixpkgs.lib.nixosSystem rec {
             # Pass pre-instantiated pkgs via modules
             pkgs = hostPkgs;
             system = systemVersion;
@@ -88,7 +88,7 @@
             # Modules
             modules = [
               ./overlays # Overlays
-              ./hosts/${host}/configuration.nix # Host configuration
+              ./hosts/${username}/${host}/configuration.nix # Host configuration
               inputs.hyprland.nixosModules.default # Hyprland default module
             ]
             ++ extraModules; # Allow passing extra modules from host configuration
@@ -106,12 +106,12 @@
             modules = [
               ./home/${username}/${host}/home.nix
               {
+                programs.home-manager.enable = true;
                 home = {
                   inherit username;
                   homeDirectory = "/home/${username}";
                   stateVersion = "26.05";
                 };
-                programs.home-manager.enable = true;
               }
             ] ++ (if extraHomeModuleSettings != {} then [ extraHomeModuleSettings ] else []);
           };
