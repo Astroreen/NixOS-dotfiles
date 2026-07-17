@@ -1,8 +1,4 @@
-{
-  pkgs,
-  inputs,
-  ...
-}:
+{ pkgs, lib, inputs, ... }:
 
 {
   programs = {

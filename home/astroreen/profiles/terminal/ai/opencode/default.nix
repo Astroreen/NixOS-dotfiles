@@ -84,7 +84,7 @@ in
 
       # Copy commands folder
       copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir ../commands "${baseCfg.settings.configDir}/commands"
+        copyDir ../../../../../modules/terminal/ai/commands "${baseCfg.settings.configDir}/commands"
       );
     };
 

@@ -6,31 +6,33 @@
   networking = {
     networkmanager.enable = true;
 
-    allowedTCPPorts = [
-      53317 # Localsend port
-    ];
+    firewall = {
+      allowedTCPPorts = [
+        53317 # Localsend port
+      ];
 
-    allowedUDPPorts = [
-      53317 # Localsend port
-    ];
+      allowedUDPPorts = [
+        53317 # Localsend port
+      ];
 
-    # Open TCP ports
-    allowedTCPPortRanges = [
-      # KDE Connect
-      {
-        from = 1714;
-        to = 1764;
-      }
-    ];
+      # Open TCP ports
+      allowedTCPPortRanges = [
+        # KDE Connect
+        {
+          from = 1714;
+          to = 1764;
+        }
+      ];
 
-    # Open UDP ports
-    allowedUDPPortRanges = [
-      # KDE Connect
-      {
-        from = 1714;
-        to = 1764;
-      }
-    ];
+      # Open UDP ports
+      allowedUDPPortRanges = [
+        # KDE Connect
+        {
+          from = 1714;
+          to = 1764;
+        }
+      ];
+    };
   };
 
   services = {
