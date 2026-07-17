@@ -1,13 +1,18 @@
-{ pkgs, config, ... }:
 {
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+{
+  # zsh-powerlevel10k and fzf/zoxide are pulled in as `programs.zsh.plugins`
+  # / `programs.fzf`/`programs.zoxide` packages below - only the Nerd Font
+  # needs to be installed explicitly here.
   home.packages = with pkgs; [
-    zsh-powerlevel10k
     meslo-lgs-nf
-    fzf
-    zoxide
   ];
 
-  # Copy p10k.zsh to home directory
+  # p10k user config (generated via `p10k configure`), sourced from initContent below.
   home.file.".config/powerlevel10k/p10k.zsh".source = ./p10k.zsh;
 
   programs.zsh = {
@@ -70,40 +75,84 @@
     # Keybindings
     defaultKeymap = "emacs";
 
-    initContent = ''
-      # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-      if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
-        source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
-      fi
+    # Plugins fetched/pinned by Nix instead of a runtime plugin manager (zinit) -
+    # reproducible, and no more runtime `git clone` that can print to stdout
+    # after the instant-prompt block (see initContent note below).
+    plugins = [
+      {
+        name = "powerlevel10k";
+        src = pkgs.zsh-powerlevel10k;
+        file = "share/zsh-powerlevel10k/powerlevel10k.zsh-theme";
+      }
+      {
+        name = "fzf-tab";
+        src = pkgs.zsh-fzf-tab;
+        file = "share/fzf-tab/fzf-tab.plugin.zsh";
+      }
+    ];
 
-      ZINIT_HOME="''${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
-      if [[ ! -d $ZINIT_HOME ]]; then
-        mkdir -p "$(dirname $ZINIT_HOME)"
-        git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
-      fi
+    # home-manager merges initContent fragments from every module (compinit=570,
+    # autosuggestions=700, zoxide=851, plugins=900, fzf=910, ...) by ascending
+    # `mkOrder`. Fragments below are explicitly ordered relative to those.
+    initContent = lib.mkMerge [
+      # fastfetch MUST run before p10k's instant-prompt starts capturing
+      # stdout. Anything that prints *after* the instant-prompt block gets
+      # baked into the instant-prompt replay cache
+      # (~/.cache/p10k-instant-prompt-*.zsh) and is replayed verbatim on the
+      # *next* shell start. Since fastfetch's output changes every run
+      # (date, CPU, uptime), that stale cached output is what corrupted
+      # later terminal rendering (e.g. `lsd`) - see romkatv/powerlevel10k
+      # README "How do I configure instant prompt?" (chatty-script example).
+      # fastfetch's separator module has no built-in terminal-width auto-fill
+      # (only a literal `string` + repeat `length`, see default.nix) - but it
+      # does expose a generic `--<module>-<option>` CLI override, so build the
+      # separator here from zsh's own live $COLUMNS instead of a fixed string.
+      (lib.mkOrder 50 ''
+        fastfetch
+      '')
 
-      source "''${ZINIT_HOME}/zinit.zsh"
+      # Enable Powerlevel10k instant prompt. Must stay as close to the top
+      # of initContent as possible - only console-output-only code
+      # (fastfetch above) may run before it.
+      (lib.mkOrder 100 ''
+        if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
+          source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
+        fi
+      '')
 
-      # Add in zsh plugins
-      zinit light Aloxaf/fzf-tab
+      # p10k user config, sourced right after the theme plugin loads
+      # (home-manager sources `plugins` entries at mkOrder 900).
+      (lib.mkOrder 901 ''
+        source "${config.home.homeDirectory}/.config/powerlevel10k/p10k.zsh"
+      '')
 
-      zinit cdreplay -q # replay all cached completions
+      # Completion + fzf-tab styling
+      (lib.mkOrder 950 ''
+        zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+        zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+        zstyle ':completion:*' menu no
+        zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
+        zstyle ':fzf-tab:complete:ls:*' fzf-preview 'lsd $realpath'
+        zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'lsd $realpath'
+      '')
+    ];
+  };
 
-      source ${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k/powerlevel10k.zsh-theme
-      source ${config.home.homeDirectory}/.config/powerlevel10k/p10k.zsh
+  # Shell integrations - replaces manual `eval "$(fzf --zsh)"` /
+  # `eval "$(zoxide init --cmd cd zsh)"`. home-manager wires these in at
+  # their own correctly-ordered initContent slots (zoxide: 851, fzf: 910).
+  programs.fzf = {
+    enable = true;
+    enableZshIntegration = true;
+  };
 
-      # Completion styling
-      zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
-      zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
-      zstyle ':completion:*' menu no
-      zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd $realpath'
-      zstyle ':fzf-tab:complete:ls:*' fzf-preview 'lsd $realpath'
-      zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'lsd $realpath'
-
-      # Shell integrations
-      eval "$(fzf --zsh)"
-      eval "$(zoxide init --cmd cd zsh)"
-    '';
+  programs.zoxide = {
+    enable = true;
+    enableZshIntegration = true;
+    options = [
+      "--cmd"
+      "cd"
+    ];
   };
 
   # Optional: Set zsh as default shell
