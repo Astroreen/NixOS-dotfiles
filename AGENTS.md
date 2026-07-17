@@ -61,26 +61,31 @@ nixfmt <file>.nix           # Format single file (2-space indent)
 ```
 flake.nix                  # Root: nixosConfigurations + homeConfigurations, createHost helper
 devenv.nix                 # Dev shell: nixos/home/nx/hm scripts, VPN helpers, start-whisper
-overlays/                  # nixpkgs overlays (default.nix aggregator)
-hosts/                     # NixOS system-level modules
-  common-settings.nix      # Shared: timezone, locale, nix GC, fonts
-  common-services.nix      # Shared: audio, display manager, printing
-  common-apps.nix          # Shared: steam, nautilus, wireshark, gns3, tailscale, ssh, flutter
-  certificates.nix         # Corporate PKI (inline PEM)
-  nix-ld.nix               # nix-ld + library list for prebuilt ELF binaries
-  laptop/                  # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
-  server/                  # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
-  modules/                 # System modules: gui/, tui/, lang/, style/, wm/
-home/                      # Home-manager configuration
-  common-apps.nix          # Shared HM: gui apps, kitty, shell, AI tools, languages
-  astroreen/common/        # Shared HM config (hyprland, shell, AI tools)
-  astroreen/laptop/        # Laptop HM overrides (monitor layout, caelestia)
-  astroreen/server/        # Server HM overrides
-  modules/                 # HM modules: gui/, tui/, lang/, style/, wm/
-    tui/ai/                # AI tooling — see tui/ai/AGENTS.md for details
-scripts/                   # Shell scripts: Hyprland monitor hotplug/layout
+overlays/                  # nixpkgs overlays: default.nix (aggregator), spotx.nix
+hosts/
+  astroreen/
+    common/                # Shared system settings (was hosts/common-*.nix, certificates.nix, nix-ld.nix pre-reorg)
+    laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
+    server/configuration.nix   # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
+    profiles/              # System-level profiles (replaces old hosts/modules/{gui,tui,lang,style,wm} split)
+      apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
+  modules/                 # Legacy system module dir — mostly superseded by hosts/astroreen/profiles/
+home/
+  astroreen/
+    common/                # Shared HM config (hyprland/caelestia, assets)
+    laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia)
+    server/home.nix        # Server HM overrides
+    profiles/              # HM profiles (replaces old home/modules/{gui,tui,lang,style,wm} split)
+      apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/hyprland/
+  modules/
+    terminal/ai/           # AI tooling (moved from modules/tui/ai) — see terminal/ai/AGENTS.md
 .opencode/opencode.json    # OpenCode plugin config (oh-my-opencode)
 ```
+
+> **2026-07 reorg note**: `hosts/modules/{gui,tui,lang,style,wm}` and `home/modules/{gui,tui,lang,style,wm}`
+> were replaced by `hosts/astroreen/profiles/*` and `home/astroreen/profiles/*`. Host/home entry files also
+> moved under the username: `hosts/${username}/${host}/configuration.nix`, `home/${username}/${host}/home.nix`
+> (see `flake.nix` `createHost`). `home/modules/` now holds only `terminal/ai/`.
 
 ---
 
@@ -100,21 +105,22 @@ Both use Lix (`nix.package = pkgs.lixPackageSets.stable.lix`) instead of stock N
 
 ---
 
-## AI Tooling (home/modules/tui/ai/)
+## AI Tooling
 
-See `home/modules/tui/ai/AGENTS.md` for the authoritative reference. Quick index:
+Split across two locations — see `home/modules/terminal/ai/AGENTS.md` for the module reference:
 
 | Task | File |
 |------|------|
-| Add MCP server | `mcps.nix` — add to `servers` attrset |
+| Add MCP server | `home/modules/terminal/ai/mcps.nix` — add to `servers` attrset |
 | Enable MCP per-host | host HM config — `programs.mcp.servers.<name>.disabled = false` |
-| Add opencode plugin | `opencode/default.nix` — `programs.opencode.settings.plugin` |
-| Add agent definition | `agents/` — `.md` file, deployed via `home.activation` |
-| Add slash command | `commands/` — `.md` file, deployed via `home.activation` |
-| Meridian proxy config | `meridian.nix` — port 3456, systemd user service |
+| Add/edit opencode plugin config | `home/astroreen/profiles/terminal/ai/opencode/default.nix` (user-level profile, NOT under `modules/`) |
+| Add agent definition | `home/astroreen/profiles/terminal/ai/agents/` — `.md` file |
+| Add slash command | `home/modules/terminal/ai/commands/` — `.md` file |
+| Add/edit skill (learn, caveman) | `home/modules/terminal/ai/skills/` — toggled via `custom.ai.skill.{learn,caveman}.enable` |
+| Meridian proxy config | `home/modules/terminal/ai/meridian.nix` — `custom.ai.meridian.*`, port 3456, systemd user service |
 
 - All MCPs disabled by default (`lib.mkDefault true`) — opt-in per-host
-- Opencode config deployed via `home.activation` copy (chmod 777), **not symlinked** — files must stay mutable
+- Skill/agent files deployed via `home.activation` copy (chmod 777), **not symlinked** — files must stay mutable
 - Meridian installed via `npm install` in activation (not a Nix package); nix-ld provides libsql support
 
 ---
@@ -143,7 +149,7 @@ Only inside list literals — **never at file scope**:
 environment.systemPackages = with pkgs; [ git curl wget ];  # correct
 ```
 `with lib;` acceptable at top of `options = { ... }` blocks.
-Two legacy file-scope violations exist — do not add more, fix when touching those files.
+No current file-scope `with` violations found (previously-noted legacy violations have been cleaned up).
 
 ### `let-in`, imports, naming
 - `let cfg = config.custom.<module>;` is the conventional alias
@@ -168,7 +174,8 @@ Some names exist in both with different semantics (e.g. `programs.zsh`).
 
 ## Do Not Touch
 
-- `system.stateVersion` and `home.stateVersion` — `"25.11"` on both hosts; never change
+- `system.stateVersion` — `"25.11"` on both hosts (`hosts/astroreen/{laptop,server}/configuration.nix`); never change
+- `home.stateVersion` — `"26.05"` (set once in `flake.nix` `createHost`, applies to both hosts); never change. Note: intentionally differs from `system.stateVersion` — not a typo.
 - `hardware-configuration.nix` — auto-generated; edit only if hardware changed
 - `.devenv/`, `.direnv/` — build artifacts, gitignored
 - Secrets (`*.age`, `*.ovpn`) — gitignored, never commit
@@ -180,24 +187,42 @@ Some names exist in both with different semantics (e.g. `programs.zsh`).
 **System:**
 ```
 flake.nix (createHost)
-  → hosts/{laptop,server}/configuration.nix
-    → hosts/common-{settings,services,apps}.nix
-    → hosts/certificates.nix, nix-ld.nix
-    → hosts/modules/{gui,tui,lang,style,wm}/*
+  → hosts/${username}/${host}/configuration.nix   (e.g. hosts/astroreen/laptop/configuration.nix)
+    → ./hardware-configuration.nix
+    → ../common                                    (hosts/astroreen/common/default.nix)
+        → nix-ld.nix, generic.nix, user.nix, language.nix, services.nix, network.nix,
+          display-manager.nix, graphics.nix, audio.nix, fonts.nix, certificates.nix, printing.nix
+    → ../profiles/style/theme/dark/adwaita
+    → ../profiles/wm/{hyprland,plasma}
+    → ../profiles/apps/*, ../profiles/terminal/{shell,openvpn,ssh,tailscale}.nix, ../profiles/lang/flutter.nix
 ```
+`hosts/modules/` is currently empty — fully superseded by `hosts/astroreen/profiles/`.
 
 **Home Manager:**
 ```
 flake.nix (homeConfigurations."astroreen@<host>")
-  → home/astroreen/{laptop,server}/home.nix
-    → home/astroreen/common/home.nix
-      → home/common-apps.nix
-        → home/modules/{gui,tui,lang,style,wm}/*
+  → home/${username}/${host}/home.nix              (e.g. home/astroreen/laptop/home.nix)
+    → ../common/home.nix
+        → ./hyprland/caelestia/default.nix
+        → ../profiles/style/{cursor/breeze, theme/dark/adwaita}
+        → ./imports.nix
+            → ../profiles/apps/*  (16 files, e.g. apps, clipboard, vesktop, vscode, obs, lutris,
+              nautilus, kdeconnect, vnc, tailscale, browser, music, minecraft)
+            → ../profiles/terminal/{wine,shell,htop,devenv,ranger}.nix
+            → ../profiles/terminal/ai/{fabric,opencode,claude}
+            → ../profiles/lang/{java,javascript,csharp,python,flutter}.nix
+        → ../profiles/wm/hyprland/{default.nix, caelestia}
+    → ./hyprland/settings.nix                      (host-specific Hyprland binds/monitors)
 ```
+(server only, in `home/astroreen/server/home.nix`): also imports `../profiles/apps/arduino.nix`,
+`../profiles/terminal/whisper.nix`, and `../../modules/terminal/ai/lmstudio.nix` directly (server-only LMStudio package).
 
-**Dormant / unimported** (do not import):
-- `home/modules/gui/blender.nix`
-- `home/modules/tui/ssh.nix`
+Reusable HM module (not a profile): `home/modules/terminal/ai/` — imported separately, provides
+MCP servers, Meridian proxy, skills/commands infra (see AI Tooling section above).
+
+**Dormant / unimported** (exist but not referenced in `home/astroreen/common/imports.nix` or any host `home.nix`):
+- `home/astroreen/profiles/apps/blender.nix`
+- `home/astroreen/profiles/terminal/ssh.nix`
 
 ---
 
