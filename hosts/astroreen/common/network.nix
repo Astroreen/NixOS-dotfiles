@@ -42,11 +42,11 @@
       # Disable systemd-resolved DNS stub listener to free port 53 for Pi-hole
       settings.Resolve = {
         DNSStubListener = "no";
+        FallbackDNS = [
+          "192.168.50.1"
+          "8.8.8.8"
+        ];
       };
-      fallbackDns = [
-        "192.168.50.1"
-        "8.8.8.8"
-      ];
     };
   };
 
