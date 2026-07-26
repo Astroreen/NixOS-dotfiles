@@ -36,7 +36,7 @@
     settings.window_rule = [
       {
         match.class = "^(kitty)$";
-        size = "1200 800";
+        size = "1300 800";
         float = true;
         center = true;
       }
@@ -46,7 +46,7 @@
       {
         _args = [
           "SUPER + T"
-          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"[float; size 1200 800] kitty\")")
+          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"[float; size 1300 800] kitty\")")
         ];
       } # Terminal
     ];

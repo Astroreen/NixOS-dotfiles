@@ -108,7 +108,7 @@
       # does expose a generic `--<module>-<option>` CLI override, so build the
       # separator here from zsh's own live $COLUMNS instead of a fixed string.
       (lib.mkOrder 50 ''
-        fastfetch
+        fastfetch-random
       '')
 
       # Enable Powerlevel10k instant prompt. Must stay as close to the top
