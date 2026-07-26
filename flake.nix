@@ -34,6 +34,27 @@
       url = "github:JuliusBrussee/caveman";
       flake = false;
     };
+
+    # Hyprland plugins — follow this flake's hyprland input so plugin ABI
+    # matches exactly what's actually running.
+    # NOTE: gloview was tried and dropped (2026-07-26) — its pinned source
+    # includes "hyprland/src/managers/PointerManager.hpp", but that header
+    # was moved to "src/pointer/PointerManager.hpp" in our pinned Hyprland
+    # rev. Real upstream incompatibility, not a packaging issue. Revisit
+    # once upstream gloview catches up.
+    hypr-dynamic-cursors = {
+      url = "github:VirtCode/hypr-dynamic-cursors";
+      inputs.hyprland.follows = "hyprland";
+    };
+
+    # NOTE: HyprCapture was tried and dropped (2026-07-26) — after fixing
+    # several generated-header path issues (version.h, protocols/,
+    # Monitor.hpp relocation), it hit a hard wall: its C++ source calls
+    # `g_pCompositor->m_windows` / `->m_monitors`, members that don't exist
+    # under those names in our pinned Hyprland rev. Real internal API break
+    # between Hyprland versions (plugin targets ~0.55.4/0.54.3, we're on a
+    # newer rolling rev), not a packaging issue. Revisit once upstream
+    # catches up, or use Satty for screenshot+annotate in the meantime.
   };
 
   outputs =

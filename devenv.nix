@@ -10,7 +10,7 @@
   ];
 
   env = {
-    OPENVPN_CONFIG = "/home/astroreen/.local/share/nixos/hosts/modules/tui/openvpn/work.ovpn";
+    OPENVPN_CONFIG = "/home/astroreen/.local/share/nixos/hosts/astroreen/profiles/terminal/openvpn/work.ovpn";
     COMPANY_DNS = "192.168.1.8";
     CURRENT_USER = "astroreen";
   };

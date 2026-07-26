@@ -53,6 +53,30 @@ in
     };
 
     animations.enabled = true;
+
+    plugin = {
+      dynamic_cursors = {
+        enabled = true;
+        mode = "tilt";
+        threshold = 2;
+        tilt = {
+          limit = 5000;
+          activation = "negative_quadratic";
+          window = 100;
+          full = 60;
+        };
+        shake = {
+          enabled = true;
+          threshold = 6.0;
+          base = 4.0;
+          timeout = 2000;
+        };
+        hyprcursor = {
+          enabled = true;
+          nearest = 1;
+        };
+      };
+    };
   };
 
   # Bezier curves — each element → hl.curve(name, { type = "bezier", points = { {x0,y0}, {x1,y1} } })

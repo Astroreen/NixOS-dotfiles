@@ -52,5 +52,8 @@
       (import ./settings { inherit lib pkgs; })
       (import ./settings/binds.nix { inherit lib; })
     ];
+    plugins = [
+      inputs.hypr-dynamic-cursors.packages.${pkgs.stdenv.hostPlatform.system}.hypr-dynamic-cursors
+    ];
   };
 }
