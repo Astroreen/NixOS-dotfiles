@@ -29,6 +29,16 @@
       "ctrl+c" = "copy_or_interrupt";
       "ctrl+v" = "paste_from_clipboard";
       "ctrl+escape" = "send_text all \\x03";
+      # Unmap kitty's default kitty_mod (=ctrl+shift) tab-switching so the
+      # raw key reaches the shell instead - zsh's zle uses ctrl+shift+arrow
+      # for shift-select-by-word. Mapping to an empty action removes the
+      # default binding (kitty's `map <key>` with no action = unmap).
+      "ctrl+shift+right" = "";
+      "ctrl+shift+left" = "";
+      # Moved tab-switching here instead. Note: this overrides kitty's
+      # default ctrl+shift+up/down (scroll_line_up/scroll_line_down).
+      "ctrl+shift+up" = "next_tab";
+      "ctrl+shift+down" = "previous_tab";
     };
   };
 

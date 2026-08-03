@@ -147,6 +147,16 @@
         # of one solid block - that's the glitchy look, not a bug.
         zle_highlight=('region:bg=24,fg=15')
 
+        # Treat path segments as separate "words" for Ctrl+Arrow/word-kill/
+        # shift-select-word. $WORDCHARS (a plain variable read directly by
+        # the forward-word/backward-word builtins, independent of any
+        # zle/zstyle dispatch chain) includes `/` by default, so
+        # /home/astroreen/apps was treated as one giant word - strip it out
+        # (verified via `zsh -i -c` that WORDCHARS keeps `/` unless done this
+        # way; `select-word-style bash` was tried first but does not
+        # actually touch $WORDCHARS at all, so it had no effect here).
+        WORDCHARS=''${WORDCHARS//\//}
+
         # Cursor movement: if a selection is active, the first press just
         # collapses the cursor to the selection's edge (GUI behavior) instead
         # of moving one further step from wherever the cursor already sits.
@@ -158,7 +168,7 @@
         # silently clear the selection too, not just real keypresses.
         _move-or-collapse-selection() {
           emulate -L zsh
-          local real=$1 dir=$2
+          local real=$1 dir=$2 dispatch=$3
           if (( REGION_ACTIVE )); then
             local edge
             if [[ $dir == fwd ]]; then
@@ -168,14 +178,26 @@
             fi
             zle deactivate-region
             CURSOR=$edge
+          elif [[ $dispatch == bare ]]; then
+            # No dot prefix: zsh-autosuggestions wraps the real `forward-char`
+            # widget (by name) to accept the grey suggestion text on Right -
+            # dispatch through the current widget definition so that wrapper
+            # still runs, instead of bypassing it with the raw builtin.
+            zle $real
           else
+            # Dot prefix: word movement bypasses autosuggestions' own
+            # word-boundary handling entirely, which doesn't reliably honor
+            # `select-word-style bash` - calling the raw builtin keeps
+            # Ctrl+Arrow's path-segment-stop behavior consistent with
+            # Shift+Ctrl+Arrow (shift-select), at the cost of losing
+            # autosuggestions' accept-suggestion-by-word on Ctrl+Right.
             zle .$real
           fi
         }
-        _my-forward-char()  { _move-or-collapse-selection forward-char  fwd }
-        _my-backward-char() { _move-or-collapse-selection backward-char back }
-        _my-forward-word()  { _move-or-collapse-selection forward-word  fwd }
-        _my-backward-word() { _move-or-collapse-selection backward-word back }
+        _my-forward-char()  { _move-or-collapse-selection forward-char  fwd  bare }
+        _my-backward-char() { _move-or-collapse-selection backward-char back bare }
+        _my-forward-word()  { _move-or-collapse-selection forward-word  fwd  dot }
+        _my-backward-word() { _move-or-collapse-selection backward-word back dot }
         zle -N _my-forward-char
         zle -N _my-backward-char
         zle -N _my-forward-word
@@ -187,6 +209,34 @@
         bindkey '^[[1;5C' _my-forward-word                # Ctrl+Right
         bindkey '^[[1;5D' _my-backward-word                # Ctrl+Left
         bindkey '^H' backward-kill-word      # Ctrl+Backspace
+
+        # Shift+Arrow / Shift+Ctrl+Arrow: GUI-style shift-select. Starts (or
+        # extends) the region from the cursor's current position - no
+        # auto-copy to clipboard here (select manually with the mouse/kitty
+        # if you want it copied); Backspace already deletes an active region
+        # (smart-backspace above), so that still works here for free.
+        # Movement uses dot-prefixed builtins on purpose (not the
+        # autosuggestion-aware dispatch used by plain arrows) - extending a
+        # selection should never accidentally accept a suggestion.
+        _shift-select-move() {
+          emulate -L zsh
+          local real=$1
+          (( REGION_ACTIVE )) || zle .set-mark-command
+          zle .$real
+        }
+        _shift-select-forward-char()  { _shift-select-move forward-char }
+        _shift-select-backward-char() { _shift-select-move backward-char }
+        _shift-select-forward-word()  { _shift-select-move forward-word }
+        _shift-select-backward-word() { _shift-select-move backward-word }
+        zle -N _shift-select-forward-char
+        zle -N _shift-select-backward-char
+        zle -N _shift-select-forward-word
+        zle -N _shift-select-backward-word
+
+        bindkey '^[[1;2C' _shift-select-forward-char    # Shift+Right
+        bindkey '^[[1;2D' _shift-select-backward-char   # Shift+Left
+        bindkey '^[[1;6C' _shift-select-forward-word    # Shift+Ctrl+Right
+        bindkey '^[[1;6D' _shift-select-backward-word   # Shift+Ctrl+Left
 
         # Ctrl+A selects AND immediately copies to the kill-ring (synced to
         # the system clipboard below) - Ctrl+C can't be used for an explicit
