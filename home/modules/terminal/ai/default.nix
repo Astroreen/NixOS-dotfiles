@@ -4,6 +4,7 @@
     ./mcps.nix
     ./skills
     ./meridian.nix
+    ./deepseek-harness.nix
   ];
 
   options = with lib; {

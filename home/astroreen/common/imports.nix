@@ -24,6 +24,7 @@ _: {
     ../profiles/terminal/ai/fabric # Fabric AI CLI tool
     ../profiles/terminal/ai/opencode # Open Code
     ../profiles/terminal/ai/claude # Claude Code
+    ../profiles/terminal/ai/dsh # DeepSeek Harness (dsh) coding-agent CLI and web UI server
 
     # Languages
     ../profiles/lang/java.nix
