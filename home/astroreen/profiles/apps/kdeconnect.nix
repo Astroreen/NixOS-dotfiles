@@ -3,7 +3,14 @@
   services.kdeconnect = {
     enable = true;
     indicator = true;
-    package = pkgs.kdePackages.kdeconnect-kde;
+    # nautilus-python extension shipped by this package adds ~1.1s to nautilus
+    # startup (heavy `import asyncio` cascade in kdeconnect-share.py, no
+    # bytecode cache reuse observed via strace). Daemon itself is unaffected.
+    package = pkgs.kdePackages.kdeconnect-kde.overrideAttrs (old: {
+      postInstall = (old.postInstall or "") + ''
+        rm -rf $out/share/nautilus-python
+      '';
+    });
   };
 
   wayland.windowManager.hyprland.settings.window_rule = [
