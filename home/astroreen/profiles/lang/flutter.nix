@@ -44,8 +44,8 @@ let
 
     abiVersions = [ "x86_64" ];
     toolsVersion = "26.1.1";
-    platformToolsVersion = "36.0.1";
-    emulatorVersion = "37.1.4";
+    platformToolsVersion = "37.0.1";
+    emulatorVersion = "37.2.4";
     cmakeVersions = [ "3.22.1" ];
     ndkVersions = [
       "23.1.7779620"
