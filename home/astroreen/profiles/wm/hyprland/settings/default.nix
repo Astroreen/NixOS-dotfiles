@@ -21,7 +21,7 @@ in
       gaps_in = 5;
       gaps_out = 20;
       border_size = 2;
-      resize_on_border = true;
+      resize_on_border = false;
     };
 
     decoration = {
