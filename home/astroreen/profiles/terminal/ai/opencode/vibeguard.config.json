@@ -23,7 +23,7 @@
             { "pattern": "(?i)(private[_-]?key|secret[_-]?key)\\s*[:=]\\s*['\"][^'\"]+['\"]", "category": "SECRET_ASSIGNMENT" },
             { "pattern": "(?i)(pass(?:word)?|user(?:name)?)\\s*=\\s*\\S+", "category": "CREDENTIAL_ASSIGNMENT" },
             { "pattern": "(?i)\"(pass(?:word)?|user(?:name)?)\"\\s*:\\s*\"[^\"]+\"", "category": "JSON_CREDENTIAL" },
-            { "pattern": "(?i)[\\w\\.]*(id|code)\\s*=\\s*\\S+", "category": "IDENTIFIER_ASSIGNMENT" }
+            { "pattern": "(?i)(api|client|secret|access|auth)[_\\-\\.]?(id|code)\\s*=\\s*\\S+", "category": "IDENTIFIER_ASSIGNMENT" }
         ],
         "builtin": ["email", "china_phone", "china_id", "uuid", "ipv4", "mac"],
         "exclude": ["test.com", "test.test", "example.com", "localhost", "127.0.0.1", "0.0.0.0"]

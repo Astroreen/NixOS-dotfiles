@@ -49,10 +49,8 @@ in
       plugin = [
         "@franlol/opencode-md-table-formatter@latest"
         "@mohak34/opencode-notifier"
-        "opencode-vibeguard@latest"
         "@tarquinen/opencode-dcp"
-        "opencode-anthropic-auth"
-        "opencode-claude-auth"
+        "opencode-vibeguard@latest"
       ];
     };
     tui = {
