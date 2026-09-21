@@ -117,11 +117,22 @@ in
         copyDir inputs.astrocode.packages.${pkgs.system}.default "${baseCfg.settings.configDir}/plugins/.astrocode-src"
       );
 
+      # Relative target so it resolves inside the link's own directory
+      # (configDir is a relative path; an absolute-looking target here would
+      # be interpreted relative to plugins/ and end up broken).
       linkAstrocodePlugin = lib.hm.dag.entryAfter [ "copyAstrocodePlugin" ] ''
         mkdir -p "${baseCfg.settings.configDir}/plugins"
-        ln -sf "${baseCfg.settings.configDir}/plugins/.astrocode-src/src/index.ts" \
+        ln -sf ".astrocode-src/src/index.ts" \
                "${baseCfg.settings.configDir}/plugins/astrocode.ts"
       '';
+
+      # astrocode's own config (model, agents, fallback, skills, reasoning).
+      # Deployed to ~/.opencode/astrocode.jsonc: astrocode walks from each
+      # project dir up to $HOME collecting astrocode.jsonc layers, so this
+      # applies to every project while a project-local file still wins.
+      copyAstrocodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyFile ./astrocode.jsonc "${config.home.homeDirectory}/.opencode/astrocode.jsonc"
+      );
     };
 
     shellAliases = {
