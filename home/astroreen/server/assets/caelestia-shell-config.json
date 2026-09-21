@@ -419,7 +419,7 @@
         ]
     },
     "lock": {
-        "enabled": true,
+        "enabled": false,
         "useWallpaper": false,
         "recolourLogo": true,
         "enableFprint": true,
