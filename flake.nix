@@ -35,6 +35,12 @@
       flake = false;
     };
 
+    # Astrocode: model-aware opencode plugin (agent personas, fallback, slash
+    # commands). Real flake — packages.default is a minimal filtered copy
+    # (agents/, skills/, src/, package.json, tsconfig.json, README.md),
+    # deployed via home.activation into ~/.config/opencode/plugins.
+    astrocode.url = "github:Astroreen/astrocode";
+
     # Hyprland plugins — follow this flake's hyprland input so plugin ABI
     # matches exactly what's actually running.
     # NOTE: gloview was tried and dropped (2026-07-26) — its pinned source

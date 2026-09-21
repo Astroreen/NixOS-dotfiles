@@ -39,3 +39,5 @@ devenv.local.nix
 .claude/
 .sisyphus/
 .omo
+result
+result-*

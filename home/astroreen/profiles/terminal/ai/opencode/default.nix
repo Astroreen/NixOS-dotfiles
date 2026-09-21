@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  inputs,
   ...
 }:
 let
@@ -106,6 +107,21 @@ in
       copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
         copyDir ../../../../../modules/terminal/ai/commands "${baseCfg.settings.configDir}/commands"
       );
+
+      # Astrocode plugin: copy the full source tree from the flake input
+      # (local-plugin-dir mechanism requires imports/agents/skills alongside
+      # the entry file, so it can't be a single copied file) into a writable
+      # subdirectory, then symlink a top-level entry file into plugins/ so
+      # opencode's loader discovers it even if it only scans top-level files.
+      copyAstrocodePlugin = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyDir inputs.astrocode.packages.${pkgs.system}.default "${baseCfg.settings.configDir}/plugins/.astrocode-src"
+      );
+
+      linkAstrocodePlugin = lib.hm.dag.entryAfter [ "copyAstrocodePlugin" ] ''
+        mkdir -p "${baseCfg.settings.configDir}/plugins"
+        ln -sf "${baseCfg.settings.configDir}/plugins/.astrocode-src/src/index.ts" \
+               "${baseCfg.settings.configDir}/plugins/astrocode.ts"
+      '';
     };
 
     shellAliases = {
