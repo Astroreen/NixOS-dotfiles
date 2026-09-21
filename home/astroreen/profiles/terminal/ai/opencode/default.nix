@@ -52,6 +52,8 @@ in
         "@mohak34/opencode-notifier"
         "@tarquinen/opencode-dcp"
         "opencode-vibeguard@latest"
+        "opencode-anthropic-auth" 
+        "opencode-claude-auth"
       ];
     };
     tui = {
