@@ -4,7 +4,7 @@
     prismlauncher
 
     # Map Viewer - Unmined
-    # (pkgs.callPackage ../../../package/unmined.nix { }) # Broken hash
+    (pkgs.callPackage ../../../package/unmined.nix { })
   ];
 
   wayland.windowManager.hyprland.settings.window_rule = [
