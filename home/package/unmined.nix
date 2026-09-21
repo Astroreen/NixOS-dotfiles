@@ -34,7 +34,7 @@ let
 
     src = fetchurl {
       url = "https://unmined.net/download/unmined-gui-linux-x64-dev/";
-      sha256 = "0ndxnky0yak6b6387zk2mx8i985n8lf6qy67gckrx7sx4qi8s0c4";
+      hash = "sha256-1MKC2vaYSFB2cGRa3S5OJEp1mxU2MyW3Foym2z60tg0=";
       name = "unmined-gui.tar.gz";
     };
 
