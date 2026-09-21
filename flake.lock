@@ -39,11 +39,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1790013939,
-        "narHash": "sha256-lzMTKHKowJtiiAKW98z7I7U04zCKsBFTAJTS0f313y0=",
+        "lastModified": 1790028363,
+        "narHash": "sha256-9WvCgMAyou1wQlMm1e+oBm+gdb+0WAil4acy8uOwmH0=",
         "owner": "Astroreen",
         "repo": "astrocode",
-        "rev": "91d44e454b1eac6c02c2c94977261f28d2098716",
+        "rev": "dced071dc398e12495547ebb1db04cbee8bad66a",
         "type": "github"
       },
       "original": {
