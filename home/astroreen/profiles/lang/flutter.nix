@@ -59,7 +59,9 @@ let
       "30.0.3"
       "33.0.1"
       "34.0.0"
+      "35.0.0" # Default for AGP 8.11.x (Flutter 3.47)
       "35.0.1"
+      "36.0.0" # Required by AGP 9.1.0 (Flutter 3.47)
     ];
     platformVersions = [
       "28" # For compatibility
@@ -68,6 +70,7 @@ let
       "34"
       "35"
       "36" # Required by Flutter
+      "37" # Required by permission_handler_android (Flutter 3.47)
     ];
 
     includeExtras = [
