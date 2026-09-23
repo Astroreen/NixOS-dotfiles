@@ -451,7 +451,7 @@
         "enableMicrophone": false
     },
     "services": {
-        "weatherLocation": "",
+        "weatherLocation": "54.728995, 25.217455",
         "weatherUnits": "Celsius",
         "sensorUnits": "Celsius",
         "dataUnits": "Binary",
