@@ -108,7 +108,14 @@
       # does expose a generic `--<module>-<option>` CLI override, so build the
       # separator here from zsh's own live $COLUMNS instead of a fixed string.
       (lib.mkOrder 50 ''
-        fastfetch-random
+        # Skip inside `devenv shell` - devenv spawns a fresh interactive zsh,
+        # which would otherwise re-run this and reprint the banner again.
+        # DEVENV_CMDLINE is set (non-empty) only by `devenv shell`; a
+        # direnv-activated devenv env leaves it empty.
+        # Skip inside the VSCode integrated terminal (TERM_PROGRAM=vscode) too.
+        if [[ -z "$DEVENV_CMDLINE" && "$TERM_PROGRAM" != "vscode" ]]; then
+          fastfetch-random
+        fi
       '')
 
       # Enable Powerlevel10k instant prompt. Must stay as close to the top
