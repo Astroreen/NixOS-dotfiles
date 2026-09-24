@@ -13,40 +13,159 @@
             "workspaces": "Rubik",
             "headline": {
                 "family": "GoogleSansFlex",
-                "large": { "size": 32, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } },
-                "medium": { "size": 28, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } },
-                "small": { "size": 24, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } }
+                "large": {
+                    "size": 32,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "medium": {
+                    "size": 28,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "small": {
+                    "size": 24,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                }
             },
             "title": {
                 "family": "GoogleSansFlex",
-                "large": { "size": 22, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } },
-                "medium": { "size": 16, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } },
-                "small": { "size": 14, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } }
+                "large": {
+                    "size": 22,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "medium": {
+                    "size": 16,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "small": {
+                    "size": 14,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                }
             },
             "body": {
                 "family": "GoogleSansFlex",
-                "large": { "size": 16, "weight": 400, "italic": false, "vaxes": { "ROND": 25 } },
-                "medium": { "size": 14, "weight": 400, "italic": false, "vaxes": { "ROND": 25 } },
-                "small": { "size": 12, "weight": 400, "italic": false, "vaxes": { "ROND": 25 } }
+                "large": {
+                    "size": 16,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "medium": {
+                    "size": 14,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "small": {
+                    "size": 12,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                }
             },
             "label": {
                 "family": "GoogleSansFlex",
-                "large": { "size": 14, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } },
-                "medium": { "size": 12, "weight": 500, "italic": false, "vaxes": { "ROND": 25 } },
-                "small": { "size": 11, "weight": 400, "italic": false, "vaxes": { "ROND": 25 } }
+                "large": {
+                    "size": 14,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "medium": {
+                    "size": 12,
+                    "weight": 500,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                },
+                "small": {
+                    "size": 11,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {
+                        "ROND": 25
+                    }
+                }
             },
             "mono": {
                 "family": "CaskaydiaCove NF",
-                "large": { "size": 16, "weight": 400, "italic": false, "vaxes": {} },
-                "medium": { "size": 14, "weight": 400, "italic": false, "vaxes": {} },
-                "small": { "size": 12, "weight": 400, "italic": false, "vaxes": {} }
+                "large": {
+                    "size": 16,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {}
+                },
+                "medium": {
+                    "size": 14,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {}
+                },
+                "small": {
+                    "size": 12,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {}
+                }
             },
             "icon": {
                 "family": "Material Symbols Rounded",
-                "extraLarge": { "size": 36, "weight": 400, "italic": false, "vaxes": {} },
-                "large": { "size": 24, "weight": 400, "italic": false, "vaxes": {} },
-                "medium": { "size": 18, "weight": 400, "italic": false, "vaxes": {} },
-                "small": { "size": 15, "weight": 400, "italic": false, "vaxes": {} }
+                "extraLarge": {
+                    "size": 36,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {}
+                },
+                "large": {
+                    "size": 24,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {}
+                },
+                "medium": {
+                    "size": 18,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {}
+                },
+                "small": {
+                    "size": 15,
+                    "weight": 400,
+                    "italic": false,
+                    "vaxes": {}
+                }
             }
         },
         "padding": {
@@ -70,10 +189,18 @@
         "mediaGifSpeedAdjustment": 300,
         "sessionGifSpeed": 0.7,
         "apps": {
-            "terminal": ["kitty"],
-            "audio": ["pavucontrol"],
-            "playback": ["celluloid"],
-            "explorer": ["nautilus"]
+            "terminal": [
+                "kitty"
+            ],
+            "audio": [
+                "pavucontrol"
+            ],
+            "playback": [
+                "celluloid"
+            ],
+            "explorer": [
+                "nautilus"
+            ]
         },
         "battery": {
             "warnLevels": [
@@ -173,13 +300,19 @@
                     "icon": "sports_esports"
                 }
             ],
-            "ignoredTags": ["hide_in_bar", "xwl_popup"],
+            "ignoredTags": [
+                "hide_in_bar",
+                "xwl_popup"
+            ],
             "windowIcons": [
                 {
                     "regex": "steam(_app_(default|[0-9]+))?",
                     "icon": "sports_esports"
                 }
-            ]
+            ],
+            "perMonitor": true,
+            "specialDisplayType": "icons",
+            "workspaceIcons": []
         },
         "activeWindow": {
             "compact": false,
@@ -266,7 +399,10 @@
                 "enabled": true
             }
         ],
-        "excludedScreens": ["HDMI-A-1", "DP-2"]
+        "excludedScreens": [
+            "HDMI-A-1",
+            "DP-2"
+        ]
     },
     "border": {
         "thickness": 10,
@@ -316,7 +452,10 @@
                 "name": "Calculator",
                 "icon": "calculate",
                 "description": "Do simple math equations (powered by Qalc)",
-                "command": ["autocomplete", "calc"],
+                "command": [
+                    "autocomplete",
+                    "calc"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -324,7 +463,10 @@
                 "name": "Scheme",
                 "icon": "palette",
                 "description": "Change the current colour scheme",
-                "command": ["autocomplete", "scheme"],
+                "command": [
+                    "autocomplete",
+                    "scheme"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -332,7 +474,10 @@
                 "name": "Wallpaper",
                 "icon": "image",
                 "description": "Change the current wallpaper",
-                "command": ["autocomplete", "wallpaper"],
+                "command": [
+                    "autocomplete",
+                    "wallpaper"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -340,7 +485,10 @@
                 "name": "Variant",
                 "icon": "colors",
                 "description": "Change the current scheme variant",
-                "command": ["autocomplete", "variant"],
+                "command": [
+                    "autocomplete",
+                    "variant"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -348,7 +496,11 @@
                 "name": "Random",
                 "icon": "casino",
                 "description": "Switch to a random wallpaper",
-                "command": ["caelestia", "wallpaper", "-r"],
+                "command": [
+                    "caelestia",
+                    "wallpaper",
+                    "-r"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -356,7 +508,10 @@
                 "name": "Light",
                 "icon": "light_mode",
                 "description": "Change the scheme to light mode",
-                "command": ["setMode", "light"],
+                "command": [
+                    "setMode",
+                    "light"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -364,7 +519,10 @@
                 "name": "Dark",
                 "icon": "dark_mode",
                 "description": "Change the scheme to dark mode",
-                "command": ["setMode", "dark"],
+                "command": [
+                    "setMode",
+                    "dark"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -372,7 +530,9 @@
                 "name": "Shutdown",
                 "icon": "power_settings_new",
                 "description": "Shutdown the system",
-                "command": ["poweroff"],
+                "command": [
+                    "poweroff"
+                ],
                 "enabled": true,
                 "dangerous": true
             },
@@ -380,7 +540,9 @@
                 "name": "Reboot",
                 "icon": "cached",
                 "description": "Reboot the system",
-                "command": ["reboot"],
+                "command": [
+                    "reboot"
+                ],
                 "enabled": true,
                 "dangerous": true
             },
@@ -388,7 +550,9 @@
                 "name": "Logout",
                 "icon": "exit_to_app",
                 "description": "Log out of the current session",
-                "command": ["logout"],
+                "command": [
+                    "logout"
+                ],
                 "enabled": true,
                 "dangerous": true
             },
@@ -396,7 +560,10 @@
                 "name": "Lock",
                 "icon": "lock",
                 "description": "Lock the current session",
-                "command": ["loginctl", "lock-session"],
+                "command": [
+                    "loginctl",
+                    "lock-session"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -404,7 +571,9 @@
                 "name": "Sleep",
                 "icon": "bedtime",
                 "description": "Suspend then hibernate",
-                "command": ["suspendThenHibernate"],
+                "command": [
+                    "suspendThenHibernate"
+                ],
                 "enabled": true,
                 "dangerous": false
             },
@@ -412,7 +581,12 @@
                 "name": "Settings",
                 "icon": "settings",
                 "description": "Configure the shell",
-                "command": ["caelestia", "shell", "nexus", "open"],
+                "command": [
+                    "caelestia",
+                    "shell",
+                    "nexus",
+                    "open"
+                ],
                 "enabled": true,
                 "dangerous": false
             }
@@ -427,7 +601,8 @@
         "enableHowdy": true,
         "maxHowdyTries": 3,
         "triggerHowdyOnWake": true,
-        "hideNotifs": false
+        "hideNotifs": false,
+        "enableSessionControls": true
     },
     "nexus": {
         "wallpapersPerRow": 4,
@@ -455,7 +630,6 @@
         "weatherUnits": "Celsius",
         "sensorUnits": "Celsius",
         "dataUnits": "Binary",
-        "useTwelveHourClock": false,
         "gpuType": "Auto",
         "visualiserBars": 60,
         "audioIncrement": 0.1,
@@ -463,8 +637,14 @@
         "maxVolume": 1.0,
         "smartScheme": true,
         "defaultPlayer": "Spotify",
-        "playerAliases": [{ "from": "com.github.th_ch.youtube_music", "to": "YT Music" }],
-        "lyricsBackend": "Auto"
+        "playerAliases": [
+            {
+                "from": "com.github.th_ch.youtube_music",
+                "to": "YT Music"
+            }
+        ],
+        "lyricsBackend": "Auto",
+        "clockFormat": "TwentyFourHour"
     },
     "session": {
         "enabled": true,
@@ -477,10 +657,21 @@
             "reboot": "cached"
         },
         "commands": {
-            "logout": ["logout"],
-            "shutdown": ["systemctl", "poweroff"],
-            "hibernate": ["systemctl", "hibernate"],
-            "reboot": ["systemctl", "reboot"]
+            "logout": [
+                "logout"
+            ],
+            "shutdown": [
+                "systemctl",
+                "poweroff"
+            ],
+            "hibernate": [
+                "systemctl",
+                "hibernate"
+            ],
+            "reboot": [
+                "systemctl",
+                "reboot"
+            ]
         }
     },
     "sidebar": {
@@ -512,11 +703,12 @@
             "provider": [
                 {
                     "displayName": "Tailscale",
-                    "enabled": true,
                     "interface": "tailscale0",
-                    "name": "tailscale"
+                    "name": "tailscale",
+                    "id": "tailscale"
                 }
-            ]
+            ],
+            "selectedProvider": "tailscale"
         },
         "quickToggles": [
             {

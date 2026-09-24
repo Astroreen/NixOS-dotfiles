@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   inputs,
   lib,
@@ -49,7 +50,7 @@
     systemd.enable = true;
     systemd.variables = [ "--all" ];
     settings = lib.mkMerge [
-      (import ./settings { inherit lib pkgs; })
+      (import ./settings { inherit config lib pkgs; })
       (import ./settings/binds.nix { inherit lib; })
     ];
     plugins = [

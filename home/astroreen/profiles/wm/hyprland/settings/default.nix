@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ config, lib, ... }:
 let
   # hl.exec_once does not exist in the real Lua API (HM's naive key->function
   # mapping produces an invalid call); the official pattern is
@@ -87,8 +87,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.0 0.0 ]
-            [ 1.0 1.0 ]
+            [
+              0.0
+              0.0
+            ]
+            [
+              1.0
+              1.0
+            ]
           ];
         }
       ];
@@ -99,8 +105,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.2 0.0 ]
-            [ 0.0 1.0 ]
+            [
+              0.2
+              0.0
+            ]
+            [
+              0.0
+              1.0
+            ]
           ];
         }
       ];
@@ -111,8 +123,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.05 0.7 ]
-            [ 0.1 1.0 ]
+            [
+              0.05
+              0.7
+            ]
+            [
+              0.1
+              1.0
+            ]
           ];
         }
       ];
@@ -123,8 +141,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.3 0.0 ]
-            [ 0.8 0.15 ]
+            [
+              0.3
+              0.0
+            ]
+            [
+              0.8
+              0.15
+            ]
           ];
         }
       ];
@@ -135,8 +159,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.05 0.9 ]
-            [ 0.1 1.05 ]
+            [
+              0.05
+              0.9
+            ]
+            [
+              0.1
+              1.05
+            ]
           ];
         }
       ];
@@ -147,8 +177,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.05 0.9 ]
-            [ 0.1 1.0 ]
+            [
+              0.05
+              0.9
+            ]
+            [
+              0.1
+              1.0
+            ]
           ];
         }
       ];
@@ -159,8 +195,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.0 0.0 ]
-            [ 0.0 1.0 ]
+            [
+              0.0
+              0.0
+            ]
+            [
+              0.0
+              1.0
+            ]
           ];
         }
       ];
@@ -171,8 +213,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.0 0.85 ]
-            [ 0.3 1.0 ]
+            [
+              0.0
+              0.85
+            ]
+            [
+              0.3
+              1.0
+            ]
           ];
         }
       ];
@@ -183,8 +231,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.46 0.35 ]
-            [ (-0.2) 1.2 ]
+            [
+              0.46
+              0.35
+            ]
+            [
+              (-0.2)
+              1.2
+            ]
           ];
         }
       ];
@@ -195,8 +249,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.25 1.0 ]
-            [ 0.5 1.0 ]
+            [
+              0.25
+              1.0
+            ]
+            [
+              0.5
+              1.0
+            ]
           ];
         }
       ];
@@ -207,8 +267,14 @@ in
         {
           type = "bezier";
           points = [
-            [ 0.6 0.04 ]
-            [ 0.98 0.335 ]
+            [
+              0.6
+              0.04
+            ]
+            [
+              0.98
+              0.335
+            ]
           ];
         }
       ];
@@ -275,19 +341,89 @@ in
 
   # Env vars — each element → hl.env(key, value)
   env = [
-    { _args = [ "NIXOS_OZONE_WL" "1" ]; }
-    { _args = [ "WAYLAND_DISPLAY" "wayland-1" ]; }
-    { _args = [ "WAYLAND_DISPLAY" "wayland-1" ]; }
-    { _args = [ "XDG_SESSION_DESKTOP" "Hyprland" ]; }
-    { _args = [ "XDG_CURRENT_DESKTOP" "Hyprland" ]; }
-    { _args = [ "XDG_DESKTOP_DIR" "$HOME/Desktop" ]; }
-    { _args = [ "XDG_DOWNLOAD_DIR" "$HOME/Downloads" ]; }
-    { _args = [ "XDG_TEMPLATES_DIR" "$HOME/Templates" ]; }
-    { _args = [ "XDG_PUBLICSHARE_DIR" "$HOME/Public" ]; }
-    { _args = [ "XDG_DOCUMENTS_DIR" "$HOME/Documents" ]; }
-    { _args = [ "XDG_MUSIC_DIR" "$HOME/Music" ]; }
-    { _args = [ "XDG_PICTURES_DIR" "$HOME/Pictures" ]; }
-    { _args = [ "XDG_VIDEOS_DIR" "$HOME/Videos" ]; }
-    { _args = [ "HYPRSHOT_DIR" "$HOME/Pictures/Screenshots" ]; }
+    {
+      _args = [
+        "NIXOS_OZONE_WL"
+        "1"
+      ];
+    }
+    {
+      _args = [
+        "WAYLAND_DISPLAY"
+        "wayland-1"
+      ];
+    }
+    {
+      _args = [
+        "WAYLAND_DISPLAY"
+        "wayland-1"
+      ];
+    }
+    {
+      _args = [
+        "XDG_SESSION_DESKTOP"
+        "Hyprland"
+      ];
+    }
+    {
+      _args = [
+        "XDG_CURRENT_DESKTOP"
+        "Hyprland"
+      ];
+    }
+    {
+      _args = [
+        "XDG_DESKTOP_DIR"
+        "${config.home.homeDirectory}/Desktop"
+      ];
+    }
+    {
+      _args = [
+        "XDG_DOWNLOAD_DIR"
+        "${config.home.homeDirectory}/Downloads"
+      ];
+    }
+    {
+      _args = [
+        "XDG_TEMPLATES_DIR"
+        "${config.home.homeDirectory}/Templates"
+      ];
+    }
+    {
+      _args = [
+        "XDG_PUBLICSHARE_DIR"
+        "${config.home.homeDirectory}/Public"
+      ];
+    }
+    {
+      _args = [
+        "XDG_DOCUMENTS_DIR"
+        "${config.home.homeDirectory}/Documents"
+      ];
+    }
+    {
+      _args = [
+        "XDG_MUSIC_DIR"
+        "${config.home.homeDirectory}/Music"
+      ];
+    }
+    {
+      _args = [
+        "XDG_PICTURES_DIR"
+        "${config.home.homeDirectory}/Pictures"
+      ];
+    }
+    {
+      _args = [
+        "XDG_VIDEOS_DIR"
+        "${config.home.homeDirectory}/Videos"
+      ];
+    }
+    {
+      _args = [
+        "HYPRSHOT_DIR"
+        "${config.home.homeDirectory}/Pictures/Screenshots"
+      ];
+    }
   ];
 }

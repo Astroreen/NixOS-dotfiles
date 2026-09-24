@@ -52,7 +52,7 @@ in
         configFile = pkgs.writeText "caelestia-config" (builtins.toJSON mergedConfig);
       in
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        CONF="$HOME/.config/caelestia/shell.json"
+        CONF="${config.home.homeDirectory}/.config/caelestia/shell.json"
         NEW=${configFile}
 
         if [ ! -f "$CONF" ] || ! diff -q "$CONF" "$NEW" > /dev/null 2>&1; then

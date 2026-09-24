@@ -6,6 +6,7 @@
 {
   packages = with pkgs; [
     deadnix
+    python3
     statix
   ];
 
@@ -60,6 +61,11 @@
       '';
     };
     hm.exec = "home $@"; # Alias for home manager
+
+    sync-caelestia-config = {
+      description = "Merge official caelestia-shell example config into host JSONs without overwriting set values";
+      exec = "python3 scripts/sync-caelestia-config.py $@";
+    };
 
     list-generations = {
       description = "List NixOS generations";

@@ -122,8 +122,8 @@
       # of initContent as possible - only console-output-only code
       # (fastfetch above) may run before it.
       (lib.mkOrder 100 ''
-        if [[ -r "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
-          source "''${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
+        if [[ -r "''${XDG_CACHE_HOME:-${config.home.homeDirectory}/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh" ]]; then
+          source "''${XDG_CACHE_HOME:-${config.home.homeDirectory}/.cache}/p10k-instant-prompt-''${(%):-%n}.zsh"
         fi
       '')
 

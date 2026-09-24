@@ -63,11 +63,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783136658,
-        "narHash": "sha256-1t4frpWtweMzxmsvrlceEvN/OMCdsAvENTEsPf5Hf9w=",
+        "lastModified": 1789791029,
+        "narHash": "sha256-Zdq+9O6+vyefqCusS9gGHaaFqbR6cRNcZJ1c/OkHaic=",
         "owner": "caelestia-dots",
         "repo": "cli",
-        "rev": "7c4f5372eb1ad897e17a36416c57234ced5a5b79",
+        "rev": "0cd3a819638846623d4c923fd7a5f5fc5972a7d0",
         "type": "github"
       },
       "original": {
@@ -88,11 +88,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783219767,
-        "narHash": "sha256-ttZfW6ucXTZbTYpFP2O2y50GSr5VhqOe0iba/E1do/g=",
+        "lastModified": 1789883688,
+        "narHash": "sha256-aqL6V2OAnojfKZA3710jROb1eqbrXpMzDFOqhYFemlQ=",
         "owner": "caelestia-dots",
         "repo": "shell",
-        "rev": "2b5eb204b267f1568666de83438798cca59fdcd1",
+        "rev": "20e625d6bf1a9d0bb7625a4bb814797d187b075d",
         "type": "github"
       },
       "original": {
@@ -104,11 +104,11 @@
     "caveman": {
       "flake": false,
       "locked": {
-        "lastModified": 1783076931,
-        "narHash": "sha256-VqRHx3/4SSCnEh3cUJ/he5saIfwNhS0hOzoH/wwtU2o=",
+        "lastModified": 1790038640,
+        "narHash": "sha256-KFfU8LmNajKLZcOXOFisn4beTcg2YL+rpasr39UgSZE=",
         "owner": "JuliusBrussee",
         "repo": "caveman",
-        "rev": "0d95a81d35a9f2d123a5e9430d1cfc43d55f1bb0",
+        "rev": "2fd153c67988e980fb0b2455c90832159a6a5a25",
         "type": "github"
       },
       "original": {
@@ -512,19 +512,24 @@
       }
     },
     "m3shapes": {
-      "flake": false,
+      "inputs": {
+        "nixpkgs": [
+          "caelestia-shell",
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1781017666,
-        "narHash": "sha256-kfHyzZaPHgqZML48OA+5JwBOsLdQJ2ci/aGPShvUB4Y=",
+        "lastModified": 1787906858,
+        "narHash": "sha256-YZelgEZflFNwGutX4/tIzBdbOeghJgE2oDw0uWYGxns=",
         "owner": "soramanew",
         "repo": "m3shapes",
-        "rev": "bdc327b29f95394a732baf3c9b19658ba23755b6",
+        "rev": "32ad9ce328bb77ed349b40a3be10ee9ea610b8ab",
         "type": "github"
       },
       "original": {
         "owner": "soramanew",
         "repo": "m3shapes",
-        "rev": "bdc327b29f95394a732baf3c9b19658ba23755b6",
+        "rev": "32ad9ce328bb77ed349b40a3be10ee9ea610b8ab",
         "type": "github"
       }
     },
@@ -637,11 +642,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783498981,
-        "narHash": "sha256-X+3L+dhe9216kq/0AoCOBedL4zhAwjW8xiTKvZyng8Q=",
+        "lastModified": 1789967089,
+        "narHash": "sha256-872tMDDYdjR983q7v2yDlnKOEBSPp5FXDdWF2q87gik=",
         "ref": "refs/heads/master",
-        "rev": "25eb04fb06c09bbdef91664f044ad22195862700",
-        "revCount": 828,
+        "rev": "fae96f1a5b7f53de9b7e40e5b53c0b7a2e97b1d7",
+        "revCount": 861,
         "type": "git",
         "url": "https://git.outfoxxed.me/quickshell/quickshell"
       },

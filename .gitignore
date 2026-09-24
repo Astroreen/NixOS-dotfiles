@@ -29,6 +29,10 @@ home-manager generations/
 .devenv*
 devenv.local.nix
 
+# Python
+__pycache__/
+*.pyc
+
 # direnv
 .direnv
 

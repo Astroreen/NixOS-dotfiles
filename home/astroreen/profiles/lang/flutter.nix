@@ -258,7 +258,7 @@ in
       # Commenting out and using wrapper
       # ln -sf "${ANDROID_SDK_ROOT}/emulator" "${sdkHome}/emulator"
       # Emulator symlink for VS Code and Flutter tools that call it directly
-      ln -sf "$HOME/Android/emulator-wrapper/bin/emulator" "${sdkHome}/emulator/emulator"
+      ln -sf "${config.home.homeDirectory}/Android/emulator-wrapper/bin/emulator" "${sdkHome}/emulator/emulator"
     '';
 
     # Set environment variables to point to user-writable SDK
@@ -271,14 +271,14 @@ in
     };
 
     sessionPath = [
-      "$HOME/Android/emulator-wrapper/bin" # wrapper first so VS Code uses it
+      "${config.home.homeDirectory}/Android/emulator-wrapper/bin" # wrapper first so VS Code uses it
       "${sdkHome}/cmdline-tools/latest/bin"
       "${sdkHome}/platforms"
       "${sdkHome}/platform-tools"
       "${sdkHome}/emulator"
       "${sdkHome}/tools"
       "${sdkHome}/tools/bin"
-      "$HOME/.pub-cache/bin"
+      "${config.home.homeDirectory}/.pub-cache/bin"
     ];
   };
 
