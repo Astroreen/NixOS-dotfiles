@@ -101,8 +101,6 @@ let
   androidSdk = androidComposition.androidsdk;
   ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
   sdkHome = "${config.home.homeDirectory}/Android/Sdk";
-
-  cmdlineToolsVersion = "19.0"; # adjust if your version changes
 in
 {
   programs = {
@@ -160,7 +158,78 @@ in
         if ! printf '%s\n' "$@" | grep -q -- '-gpu'; then
           set -- -gpu host "$@"
         fi
+
+        # The Qt/XWayland emulator repositions its own window AFTER the
+        # compositor applies window rules (see the reposition-emulator helper
+        # for the full explanation), so a detached helper re-dispatches the
+        # move once the window exists and the emulator's own reposition has
+        # settled.
+        #
+        # The helper is fully detached (setsid + /dev/null stdio) and started
+        # BEFORE the exec below. The emulator itself MUST be exec'd, NOT
+        # backgrounded: backgrounding made it a grandchild of flutter_tools, so
+        # killing this wrapper left an orphaned qemu behind, made flutter_tools
+        # report a bogus "exited with code -9", and produced stale `adb` device
+        # entries for emulators that were no longer alive.
+        reposition_helper="${config.home.homeDirectory}/Android/emulator-wrapper/bin/reposition-emulator"
+        if [ -x "$reposition_helper" ]; then
+          if command -v setsid >/dev/null 2>&1; then
+            setsid "$reposition_helper" >/dev/null 2>&1 &
+          else
+            "$reposition_helper" >/dev/null 2>&1 &
+          fi
+        fi
+
+        # Hand the process over to the emulator so its PID is exactly the PID
+        # flutter_tools spawned - it can then track, signal and reap it.
         exec "${ANDROID_SDK_ROOT}/emulator/emulator" "$@"
+      '';
+      executable = true;
+    };
+
+    # Detached helper for the emulator wrapper above: re-dispatches the move
+    # for every Android Emulator window so the main device window lands at
+    # 500,300.
+    #
+    # Why this exists: the Qt/XWayland emulator repositions its own window
+    # AFTER the compositor applies window rules -
+    # skin_winsys_set_window_pos() calls mContainer.move(), then an async
+    # "ensure fully visible" recenter computes a center from the X11 root
+    # screen and the UNSCALED window size, which can land the window
+    # off-screen. A Hyprland window_rule alone therefore cannot keep it
+    # visible.
+    #
+    # It runs detached (setsid, stdio to /dev/null) because the wrapper exec()s
+    # the real emulator - the helper cannot be a foreground step of a process
+    # that is about to be replaced.
+    file."Android/emulator-wrapper/bin/reposition-emulator" = {
+      text = ''
+        #!/usr/bin/env bash
+        set -u
+
+        command -v hyprctl >/dev/null 2>&1 || exit 0
+        command -v jq >/dev/null 2>&1 || exit 0
+
+        # Wait for the emulator window to be mapped.
+        for _ in $(seq 1 60); do
+          hyprctl clients -j 2>/dev/null | jq -e 'any(.[]; .class == "Emulator")' >/dev/null 2>&1 && break
+          sleep 0.5
+        done
+
+        # Let the emulator's own post-map reposition/recenter settle, then
+        # shift every Emulator window by the same delta so the main window
+        # lands at 500,300 and the toolbar keeps its relative offset.
+        sleep 2
+        for _ in 1 2 3 4 5; do
+          hyprctl clients -j 2>/dev/null | jq -r '
+            [.[] | select(.class == "Emulator")] as $w
+            | ($w | max_by(.size[0] * .size[1])) as $main
+            | $w[] | "\(.address) \(.at[0] + 500 - $main.at[0]) \(.at[1] + 300 - $main.at[1])"
+          ' 2>/dev/null | while read -r addr x y; do
+            hyprctl dispatch "hl.dsp.window.move({ x = $x, y = $y, window = \"address:$addr\", relative = false })" >/dev/null 2>&1
+          done
+          sleep 1
+        done
       '';
       executable = true;
     };
@@ -172,7 +241,12 @@ in
       mkdir -p "${sdkHome}/emulator"
 
       ln -sf "${ANDROID_SDK_ROOT}/build-tools" "${sdkHome}/build-tools"
-      ln -sf "${ANDROID_SDK_ROOT}/cmdline-tools/${cmdlineToolsVersion}" "${sdkHome}/cmdline-tools/latest"
+      # The SDK ships exactly one cmdline-tools version directory. Resolve it
+      # at activation time instead of hardcoding a version string: a stale
+      # value here silently produced a broken `latest` symlink, which made
+      # `avdmanager` undiscoverable and broke `flutter emulators --create`
+      # ("No device definitions are available").
+      ln -sfn "$(find "${ANDROID_SDK_ROOT}/cmdline-tools" -mindepth 1 -maxdepth 1 -type d | head -n1)" "${sdkHome}/cmdline-tools/latest"
       ln -sf "${ANDROID_SDK_ROOT}/licenses" "${sdkHome}/licenses"
       ln -sf "${ANDROID_SDK_ROOT}/platforms" "${sdkHome}/platforms"
       ln -sf "${ANDROID_SDK_ROOT}/platform-tools" "${sdkHome}/platform-tools"
