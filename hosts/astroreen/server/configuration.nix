@@ -217,6 +217,7 @@
     graphics.extraPackages = with pkgs; [
       libva-vdpau-driver # VDPAU backend for VAAPI
       libvdpau-va-gl # VDPAU driver with OpenGL/VAAPI backend
+      nvidia-vaapi-driver # VAAPI via NVDEC (required by LIBVA_DRIVER_NAME="nvidia" / NVD_BACKEND="direct")
     ];
     
     nvidia = {

@@ -59,7 +59,6 @@
     swappy # Image editor for screenshots
     imagemagick # Image manipulation tool
     safeeyes # Eye protection tool
-    gpu-screen-recorder # Screen recorder that uses GPU for encoding
 
     # Might be the wrong packages
     gdbuspp

@@ -18,10 +18,33 @@ in
         default = { };
         description = "Caelestia shell settings";
       };
+      recordExtraArgs = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          Extra arguments appended to `gpu-screen-recorder` by `caelestia record`.
+          Written to ~/.config/caelestia/cli.json as `record.extraArgs`.
+        '';
+      };
+      recorderPackage = mkOption {
+        type = types.package;
+        default = pkgs.gpu-screen-recorder;
+        description = ''
+          `gpu-screen-recorder` package used by `caelestia record`. Override per
+          host to pin a build whose ffmpeg/nv-codec-headers match the installed
+          GPU driver.
+        '';
+      };
     };
   };
 
   config = lib.mkIf cfg.enable {
+
+    # The screen recorder lives with the caelestia shell (it is only used there).
+    # Hosts with an NVIDIA-driven display may override `recorderPackage` to pin a
+    # build whose ffmpeg/nv-codec-headers match the installed driver (see the
+    # option description).
+    home.packages = [ cfg.recorderPackage ];
 
     programs.caelestia = {
       settings = { }; # keep empty so official module skips writing shell.json
@@ -50,6 +73,11 @@ in
         };
         mergedConfig = lib.recursiveUpdate cfg.settings overrides;
         configFile = pkgs.writeText "caelestia-config" (builtins.toJSON mergedConfig);
+        cliConfigFile = pkgs.writeText "caelestia-cli-config" (builtins.toJSON {
+          record = {
+            extraArgs = cfg.recordExtraArgs;
+          };
+        });
       in
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         CONF="${config.home.homeDirectory}/.config/caelestia/shell.json"
@@ -60,6 +88,16 @@ in
           chmod 644 "$CONF"
           systemctl --user restart caelestia || true
         fi
+
+        ${lib.optionalString (cfg.recordExtraArgs != [ ]) ''
+          CLI="${config.home.homeDirectory}/.config/caelestia/cli.json"
+          CLI_NEW=${cliConfigFile}
+
+          if [ ! -f "$CLI" ] || ! diff -q "$CLI" "$CLI_NEW" > /dev/null 2>&1; then
+            cp "$CLI_NEW" "$CLI"
+            chmod 644 "$CLI"
+          fi
+        ''}
       '';
 
     wayland.windowManager.hyprland.settings = lib.mkIf cfg.enableDefaultKeyboardBinds (
