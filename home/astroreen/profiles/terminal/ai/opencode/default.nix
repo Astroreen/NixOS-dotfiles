@@ -120,7 +120,7 @@ in
       # subdirectory, then symlink a top-level entry file into plugins/ so
       # opencode's loader discovers it even if it only scans top-level files.
       copyAstrocodePlugin = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir inputs.astrocode.packages.${pkgs.system}.default
+        copyDir inputs.astrocode.packages.${pkgs.stdenv.hostPlatform.system}.default
           "${baseCfg.settings.configDir}/plugins/.astrocode-src"
       );
 
@@ -159,5 +159,19 @@ in
     shellAliases = {
       oc = "opencode";
     };
+  };
+
+  # Desktop entry: open a kitty terminal running the OpenCode TUI.
+  xdg.desktopEntries.opencode = {
+    name = "OpenCode";
+    genericName = "AI Coding Agent";
+    exec = "${pkgs.kitty}/bin/kitty --title opencode ${config.programs.opencode.package}/bin/opencode";
+    terminal = false;
+    categories = [
+      "Development"
+      "IDE"
+    ];
+    icon = "utilities-terminal";
+    comment = "OpenCode AI coding agent in a terminal";
   };
 }
