@@ -1,4 +1,25 @@
 { pkgs, inputs, ... }:
+let
+  system = pkgs.stdenv.hostPlatform.system;
+
+  # Fake `swappy` -> satty, see home/package/gui/swappy-shim.nix for the
+  # shim itself (callPackage style, like unmined.nix).
+  swappyShim = pkgs.callPackage ../../../../../package/gui/swappy-shim.nix { };
+
+  # The caelestia shell/cli packages bake their dependency paths into the
+  # package wrappers (makeWrapper --prefix PATH), which SHADOWS anything
+  # from home.packages - that is why a plain shim in home.packages was
+  # invisible to the caelestia service. Re-point the `swappy` dependency
+  # of both packages at the shim so the QML picker and the CLI (including
+  # the cli nested in the shell's own wrapper PATH) launch satty.
+  caelestiaCliPkg = inputs.caelestia-shell.inputs.caelestia-cli.packages.${system}.default.override {
+    swappy = swappyShim;
+  };
+  caelestiaShellPkg = inputs.caelestia-shell.packages.${system}.with-cli.override {
+    swappy = swappyShim;
+    caelestia-cli = caelestiaCliPkg;
+  };
+in
 {
   imports = [
     inputs.caelestia-shell.homeManagerModules.default # Caelestia shell module
@@ -6,6 +27,7 @@
 
   programs.caelestia = {
     enable = true;
+    package = caelestiaShellPkg;
     systemd = {
       enable = true;
       target = "graphical-session.target";
@@ -18,6 +40,7 @@
     settings = { };
     cli = {
       enable = true; # Also add caelestia-cli to path
+      package = caelestiaCliPkg;
       settings = { };
     };
   };
@@ -56,7 +79,6 @@
     kdePackages.qt6ct # Qt6 configuration tool
     qt6.qtdeclarative # Qt6 declarative module
     libqalculate # Calculator library
-    swappy # Image editor for screenshots
     imagemagick # Image manipulation tool
     safeeyes # Eye protection tool
 

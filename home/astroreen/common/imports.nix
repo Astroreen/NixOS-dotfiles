@@ -3,6 +3,7 @@ _: {
     # Apps (gui)
     ../profiles/apps/apps.nix # Standard apps to install
     ../profiles/apps/clipboard.nix # Clipboard ui
+    ../profiles/apps/screenshot.nix # Screenshot tooling (satty + swappy shim)
     ../profiles/apps/vesktop.nix # VDesktop configuration
     ../profiles/apps/vscode # VSCode
     ../profiles/apps/obs.nix # OBS Studio
