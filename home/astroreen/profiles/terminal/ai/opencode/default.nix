@@ -48,17 +48,43 @@ in
     enable = true;
     enableMcpIntegration = true;
     settings = {
+      # Yolo: stop permission prompts. Only external_directory (and doom_loop)
+      # default to "ask" — bash/read/edit/webfetch are already "allow".
+      # Scoped to external_directory so the default .env / .env.* read deny
+      # (secret protection) stays intact.
+      permission = {
+        external_directory = "allow";
+        bash = "allow";
+        read = "allow";
+        edit = "allow";
+        webfetch = "allow";
+      };
+
       plugin = [
         "@franlol/opencode-md-table-formatter@latest"
         "@mohak34/opencode-notifier"
         "@tarquinen/opencode-dcp"
         "opencode-vibeguard@latest"
-        "opencode-anthropic-auth" 
+        "opencode-anthropic-auth"
         "opencode-claude-auth"
       ];
     };
+
     tui = {
       theme = "gruvbox";
+    };
+
+    # Headless server, started with the user systemd session (default.target).
+    # Loopback only; --mdns advertises it for LAN discovery.
+    web = {
+      enable = true;
+      extraArgs = [
+        "--hostname"
+        "127.0.0.1"
+        "--port"
+        "4096"
+        "--mdns"
+      ];
     };
   };
 
@@ -94,7 +120,8 @@ in
       # subdirectory, then symlink a top-level entry file into plugins/ so
       # opencode's loader discovers it even if it only scans top-level files.
       copyAstrocodePlugin = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir inputs.astrocode.packages.${pkgs.system}.default "${baseCfg.settings.configDir}/plugins/.astrocode-src"
+        copyDir inputs.astrocode.packages.${pkgs.system}.default
+          "${baseCfg.settings.configDir}/plugins/.astrocode-src"
       );
 
       # Relative target so it resolves inside the link's own directory
@@ -113,6 +140,20 @@ in
       copyAstrocodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
         copyFile ./astrocode.jsonc "${config.home.homeDirectory}/.opencode/astrocode.jsonc"
       );
+
+      # Hide model thinking blocks by default. There is no opencode config key
+      # for this — the TUI persists it in mutable runtime state
+      # (~/.local/state/opencode/kv.json, key "thinking_mode"; upstream default
+      # "hide"). Merge it in so the other UI preferences in that file survive.
+      hideOpencodeThinking = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        kv="${config.home.homeDirectory}/.local/state/opencode/kv.json"
+        if ${pkgs.jq}/bin/jq -e . "$kv" >/dev/null 2>&1; then
+          ${pkgs.jq}/bin/jq '.thinking_mode = "hide"' "$kv" > "$kv.tmp" && mv "$kv.tmp" "$kv"
+        else
+          mkdir -p "$(dirname "$kv")"
+          printf '%s' '{"thinking_mode":"hide"}' > "$kv"
+        fi
+      '';
     };
 
     shellAliases = {
