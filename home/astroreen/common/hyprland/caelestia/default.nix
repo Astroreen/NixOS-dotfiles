@@ -73,11 +73,13 @@ in
         };
         mergedConfig = lib.recursiveUpdate cfg.settings overrides;
         configFile = pkgs.writeText "caelestia-config" (builtins.toJSON mergedConfig);
-        cliConfigFile = pkgs.writeText "caelestia-cli-config" (builtins.toJSON {
-          record = {
-            extraArgs = cfg.recordExtraArgs;
-          };
-        });
+        cliConfigFile = pkgs.writeText "caelestia-cli-config" (
+          builtins.toJSON {
+            record = {
+              extraArgs = cfg.recordExtraArgs;
+            };
+          }
+        );
       in
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         CONF="${config.home.homeDirectory}/.config/caelestia/shell.json"
@@ -115,36 +117,158 @@ in
       in
       {
         bind = [
-          { _args = [ "SUPER + Q" (global "caelestia:launcher") ]; } # Menu/Launcher
+          {
+            _args = [
+              "SUPER + Q"
+              (global "caelestia:launcher")
+            ];
+          } # Menu/Launcher
 
           # Caelestia shell integration
-          { _args = [ "SUPER + K" (global "caelestia:showall") ]; }
-          { _args = [ "SUPER + L" (global "caelestia:lock") ]; }
-          { _args = [ "SUPER + SHIFT + L" (exec "systemctl suspend-then-hibernate") ]; }
-          { _args = [ "CTRL + ALT + Delete" (global "caelestia:session") ]; }
-          { _args = [ "SUPER + M" (lua "hl.dsp.exit()") ]; }
+          {
+            _args = [
+              "SUPER + K"
+              (global "caelestia:showall")
+            ];
+          }
+          # Notification sidebar
+          {
+            _args = [
+              "SUPER + N"
+              (global "caelestia:sidebar")
+            ];
+          } 
+          {
+            _args = [
+              "SUPER + L"
+              (global "caelestia:lock")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + SHIFT + L"
+              (exec "systemctl suspend-then-hibernate")
+            ];
+          }
+          {
+            _args = [
+              "CTRL + ALT + Delete"
+              (global "caelestia:session")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + M"
+              (lua "hl.dsp.exit()")
+            ];
+          }
 
           # Caelestia utilities
-          { _args = [ "SUPER + Period" (exec "pkill fuzzel || caelestia emoji -p") ]; } # Emoji picker
-          { _args = [ "CTRL + SUPER + SHIFT + R" (exec "systemctl --user restart caelestia") ]; } # Kill/restart Caelestia shell
-          { _args = [ "Print" (global "caelestia:screenshotFreeze") ]; } # Screenshots (enhanced from original)
-          { _args = [ "SUPER + SHIFT + C" (exec "hyprpicker -a") ]; } # Color picker (just like from powertoys on windows)
-          { _args = [ "CTRL + Q" (global "caelestia:launcherInterrupt") ]; } # Disable closing program with CTRL Q
+          # Emoji picker
+          {
+            _args = [
+              "SUPER + Period"
+              (exec "pkill fuzzel || caelestia emoji -p")
+            ];
+          }
+          # Kill/restart Caelestia shell
+          {
+            _args = [
+              "CTRL + SUPER + SHIFT + R"
+              (exec "systemctl --user restart caelestia")
+            ];
+          }
+          # Screenshots (enhanced from original)
+          {
+            _args = [
+              "Print"
+              (global "caelestia:screenshotFreeze")
+            ];
+          }
+          # Color picker (just like from powertoys on windows)
+          {
+            _args = [
+              "SUPER + SHIFT + C"
+              (exec "hyprpicker -a")
+            ];
+          }
+          # Disable closing program with CTRL Q
+          {
+            _args = [
+              "CTRL + Q"
+              (global "caelestia:launcherInterrupt")
+            ];
+          }
 
           # Special workspaces (from Caelestia)
-          { _args = [ "SUPER + S" (exec "caelestia toggle specialws") ]; }
-          { _args = [ "CTRL + SUPER + up" (toWorkspace "special:special") ]; }
-          { _args = [ "CTRL + SUPER + down" (toWorkspace "e+0") ]; }
+          {
+            _args = [
+              "SUPER + S"
+              (exec "caelestia toggle specialws")
+            ];
+          }
+          {
+            _args = [
+              "CTRL + SUPER + up"
+              (toWorkspace "special:special")
+            ];
+          }
+          {
+            _args = [
+              "CTRL + SUPER + down"
+              (toWorkspace "e+0")
+            ];
+          }
 
           # Enhanced window movement from Caelestia
-          { _args = [ "SUPER + SHIFT + left" (swap "left") ]; }
-          { _args = [ "SUPER + SHIFT + right" (swap "right") ]; }
-          { _args = [ "SUPER + SHIFT + up" (swap "up") ]; }
-          { _args = [ "SUPER + SHIFT + down" (swap "down") ]; }
-          { _args = [ "SUPER + left" (focus "left") ]; }
-          { _args = [ "SUPER + right" (focus "right") ]; }
-          { _args = [ "SUPER + up" (focus "up") ]; }
-          { _args = [ "SUPER + down" (focus "down") ]; }
+          {
+            _args = [
+              "SUPER + SHIFT + left"
+              (swap "left")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + SHIFT + right"
+              (swap "right")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + SHIFT + up"
+              (swap "up")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + SHIFT + down"
+              (swap "down")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + left"
+              (focus "left")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + right"
+              (focus "right")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + up"
+              (focus "up")
+            ];
+          }
+          {
+            _args = [
+              "SUPER + down"
+              (focus "down")
+            ];
+          }
 
           # Catchall mouse binds to interrupt launcher (ignore mods, non-consuming)
           {
