@@ -140,20 +140,6 @@ in
       copyAstrocodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
         copyFile ./astrocode.jsonc "${config.home.homeDirectory}/.opencode/astrocode.jsonc"
       );
-
-      # Hide model thinking blocks by default. There is no opencode config key
-      # for this — the TUI persists it in mutable runtime state
-      # (~/.local/state/opencode/kv.json, key "thinking_mode"; upstream default
-      # "hide"). Merge it in so the other UI preferences in that file survive.
-      hideOpencodeThinking = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        kv="${config.home.homeDirectory}/.local/state/opencode/kv.json"
-        if ${pkgs.jq}/bin/jq -e . "$kv" >/dev/null 2>&1; then
-          ${pkgs.jq}/bin/jq '.thinking_mode = "hide"' "$kv" > "$kv.tmp" && mv "$kv.tmp" "$kv"
-        else
-          mkdir -p "$(dirname "$kv")"
-          printf '%s' '{"thinking_mode":"hide"}' > "$kv"
-        fi
-      '';
     };
 
     shellAliases = {
