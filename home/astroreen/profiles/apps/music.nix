@@ -40,7 +40,7 @@ in
 
     window_rule = [
       {
-        match.class = "^com.github.th_ch.youtube_music|youtube_music|spotify";
+        match.class = "^com.github.th-ch.youtube-music|youtube_music|spotify";
         fullscreen = true;
         workspace = "4 silent";
       }
