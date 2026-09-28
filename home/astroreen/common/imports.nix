@@ -8,7 +8,7 @@ _: {
     ../profiles/apps/vscode # VSCode
     ../profiles/apps/obs.nix # OBS Studio
     ../profiles/apps/lutris.nix # Lutris game manager
-    ../profiles/apps/nautilus.nix # Nautilus file manager configuration
+    ../profiles/apps/nautilus # Nautilus file manager configuration
     ../profiles/apps/gnome-text-editor.nix # Default text editor for text-based files
     ../profiles/apps/kdeconnect.nix # KDE Connect configuration
     ../profiles/apps/vnc.nix # VNC server and client configuration

@@ -36,6 +36,19 @@
 
   wayland.windowManager.hyprland = {
     settings.window_rule = [
+      # The "New File…" dialog is a separate toplevel that shares the main
+      # window's app class, so the rule below would otherwise force it to
+      # 1400x800. This more specific rule must come first: Hyprland applies the
+      # first matching rule per property. 198x104 is the dialog's natural size.
+      {
+        match = {
+          class = "^org.gnome.Nautilus";
+          title = "New File";
+        };
+        size = "198 104";
+        center = false;
+        float = true;
+      }
       {
         match.class = "^org.gnome.Nautilus";
         size = "1400 800";
@@ -53,4 +66,8 @@
       } # File manager
     ];
   };
+
+  # "New File…" background context-menu entry (nautilus-python extension).
+  home.file.".local/share/nautilus-python/extensions/nautilus-new-file.py".source =
+    ./nautilus-new-file.py;
 }
