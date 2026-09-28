@@ -39,7 +39,6 @@ HM configs are `homeConfigurations."astroreen@<host>"` in the flake — managed 
 ```bash
 update-flake                # nix flake update
 delete-garbage              # nix-collect-garbage --delete-older-than 7d + nix-store --gc
-start-whisper               # whisper-server on port 7777 (medium model)
 start-work / end-work       # OpenVPN + DNS setup/teardown for work
 add-work-dns / delete-work-dns  # DNS only (no VPN start/stop)
 ```
@@ -60,7 +59,7 @@ nixfmt <file>.nix           # Format single file (2-space indent)
 
 ```
 flake.nix                  # Root: nixosConfigurations + homeConfigurations, createHost helper
-devenv.nix                 # Dev shell: nixos/home/nx/hm scripts, VPN helpers, start-whisper
+devenv.nix                 # Dev shell: nixos/home/nx/hm scripts, VPN helpers
 overlays/                  # nixpkgs overlays: default.nix (aggregator), spotx.nix
 hosts/
   astroreen/
@@ -79,13 +78,14 @@ home/
       apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/hyprland/
   modules/
     terminal/ai/           # AI tooling (moved from modules/tui/ai) — see terminal/ai/AGENTS.md
+    terminal/dictation/    # Push-to-talk dictation (faster-whisper server + socket daemon + Quickshell overlay)
 .opencode/opencode.json    # OpenCode plugin config (oh-my-opencode)
 ```
 
 > **2026-07 reorg note**: `hosts/modules/{gui,tui,lang,style,wm}` and `home/modules/{gui,tui,lang,style,wm}`
 > were replaced by `hosts/astroreen/profiles/*` and `home/astroreen/profiles/*`. Host/home entry files also
 > moved under the username: `hosts/${username}/${host}/configuration.nix`, `home/${username}/${host}/home.nix`
-> (see `flake.nix` `createHost`). `home/modules/` now holds only `terminal/ai/`.
+> (see `flake.nix` `createHost`). `home/modules/` now holds `terminal/ai/` and `terminal/dictation/`.
 
 ---
 
@@ -98,7 +98,7 @@ home/
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) |
-| Extra services | — | Pi-hole (8573), Ollama (11434), Whisper (7777), KitchenOwl (9167), Minecraft (25565) |
+| Extra services | — | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit |
 
 Both use Lix (`nix.package = pkgs.lixPackageSets.stable.lix`) instead of stock Nix.
@@ -209,16 +209,22 @@ flake.nix (homeConfigurations."astroreen@<host>")
             → ../profiles/apps/*  (16 files, e.g. apps, clipboard, vesktop, vscode, obs, lutris,
               nautilus, kdeconnect, vnc, tailscale, browser, music, minecraft)
             → ../profiles/terminal/{wine,shell,htop,devenv,ranger}.nix
+            → ../../modules/terminal/dictation           (faster-whisper server + socket PTT daemon + Quickshell overlay)
             → ../profiles/terminal/ai/{fabric,opencode,claude}
             → ../profiles/lang/{java,javascript,csharp,python,flutter}.nix
         → ../profiles/wm/hyprland/{default.nix, caelestia}
     → ./hyprland/settings.nix                      (host-specific Hyprland binds/monitors)
 ```
 (server only, in `home/astroreen/server/home.nix`): also imports `../profiles/apps/arduino.nix`,
-`../profiles/terminal/whisper.nix`, and `../../modules/terminal/ai/lmstudio.nix` directly (server-only LMStudio package).
+and `../../modules/terminal/ai/lmstudio.nix` directly (server-only LMStudio package).
 
-Reusable HM module (not a profile): `home/modules/terminal/ai/` — imported separately, provides
-MCP servers, Meridian proxy, skills/commands infra (see AI Tooling section above).
+Reusable HM modules (not profiles), under `home/modules/`:
+- `home/modules/terminal/ai/` — MCP servers, Meridian proxy, skills/commands infra (see AI Tooling section above).
+- `home/modules/terminal/dictation/` — push-to-talk dictation: `server.py` (faster-whisper HTTP, port 7777),
+  `daemon.py` (unix-socket PTT controller; also its own client via `dictation-daemon start|stop|toggle|status`),
+  `overlay/` (standalone Quickshell `qs -c dictation-overlay`). WM-agnostic; imported from
+  `home/astroreen/common/imports.nix`. The Hyprland hold-to-talk binds live separately in
+  `home/astroreen/profiles/wm/hyprland/dictation.nix` (`custom.dictation.pttBind`, default `F9`).
 
 **Dormant / unimported** (exist but not referenced in `home/astroreen/common/imports.nix` or any host `home.nix`):
 - `home/astroreen/profiles/apps/blender.nix`

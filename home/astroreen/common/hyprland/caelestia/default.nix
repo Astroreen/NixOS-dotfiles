@@ -117,12 +117,40 @@ in
       in
       {
         bind = [
+          # Menu/Launcher
           {
             _args = [
               "SUPER + Q"
               (global "caelestia:launcher")
             ];
-          } # Menu/Launcher
+          }
+
+          # Push-to-talk (hold-to-talk) trigger
+          {
+            _args = [
+              "SUPER + F9"
+
+              (lua "hl.dsp.exec_cmd(\"${config.custom.dictation.daemonBin} start\")")
+            ];
+          }
+          {
+            _args = [
+              # Bare F9 (no mods) so the release fires even when SUPER was
+              # released first; `ignore_mods` bypasses the modmask check.
+              # `transparent` is required: releasing SUPER while F9 is still
+              # held makes Hyprland's shadowKeybinds() mark every bind whose
+              # key is still held as shadowed, which would silently drop this
+              # release bind (KeybindManager.cpp:647). Transparent binds are
+              # exempt from shadowing (KeybindManager.cpp:862).
+              "F9"
+              (lua "hl.dsp.exec_cmd(\"${config.custom.dictation.daemonBin} stop\")")
+              {
+                release = true;
+                ignore_mods = true;
+                transparent = true;
+              }
+            ];
+          }
 
           # Caelestia shell integration
           {
@@ -137,7 +165,7 @@ in
               "SUPER + N"
               (global "caelestia:sidebar")
             ];
-          } 
+          }
           {
             _args = [
               "SUPER + L"

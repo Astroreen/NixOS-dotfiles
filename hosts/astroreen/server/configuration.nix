@@ -160,7 +160,7 @@
       allowedTCPPorts = [
         8573 # Pi-hole web interface
         11434 # Ollama API port
-        7777 # Whisper.cpp server port
+        7777 # faster-whisper server port
         9167 # KitchenOwl port
         4096 # OpenCode server port
         25565 # Minecraft server port
@@ -168,7 +168,7 @@
 
       allowedUDPPorts = [
         53 # DNS queries
-        7777 # Whisper.cpp server port
+        7777 # faster-whisper server port
         9 # Wake-on-LAN
       ];
 
@@ -227,7 +227,7 @@
       open = false; # Use proprietary driver
       nvidiaSettings = true;
       package = config.boot.kernelPackages.nvidiaPackages.stable;
-      nvidiaPersistenced = true; # Set to true for Ollama/Whisper performance
+      nvidiaPersistenced = true; # Set to true for Ollama/faster-whisper performance
     };
 
     nvidia-container-toolkit = {

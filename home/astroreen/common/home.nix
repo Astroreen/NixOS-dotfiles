@@ -19,6 +19,12 @@
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = config.home.sessionVariables;
 
+  # Push-to-talk voice dictation (local faster-whisper server + socket daemon + overlay)
+  custom.dictation = {
+    enable = lib.mkDefault true;
+    host = lib.mkDefault "127.0.0.1";
+  };
+
   wayland.windowManager.hyprland = {
     # Hyprland settings
     settings = lib.mkMerge [

@@ -23,6 +23,7 @@ _: {
     ../profiles/terminal/htop.nix # Htop on steroids
     ../profiles/terminal/devenv.nix # DevEnv for project scripts
     ../profiles/terminal/ranger.nix # Terminal file manager
+    ../../modules/terminal/dictation # Push-to-talk voice dictation (faster-whisper)
     ../profiles/terminal/ai/fabric # Fabric AI CLI tool
     ../profiles/terminal/ai/opencode # Open Code
     ../profiles/terminal/ai/claude # Claude Code
