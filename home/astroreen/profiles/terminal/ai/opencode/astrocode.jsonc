@@ -89,6 +89,9 @@
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M  absurd value floor
                 "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
                 "openrouter/inclusionai/ling-3.0-flash", //         AA=25  0.02/0.06  262k  last resort, near-free
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter's Free Models Router —
+                                                                   // always exists, picks a random free model
+                                                                   // (rotates with the free catalog)
                 // ── premium: best orchestration money can buy ─────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k  ties mimo at 4x price
                 // "openrouter/z-ai/glm-5.3-prime",             // AA=45  2.80/8.80  1.0M
@@ -112,6 +115,7 @@
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M
                 "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
                 "openrouter/tencent/hy3", //                        AA=25  0.08/0.33  262k
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best code editors ───────────────────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/anthropic/claude-sonnet-5",      //        2.00/10.00 1.0M
@@ -135,6 +139,7 @@
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M
                 "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
                 "openrouter/deepseek/deepseek-v3.2", //             AA=21  0.26/0.40  163k  (reasoning variant)
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best long-horizon autonomous workers ────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/z-ai/glm-5.3-prime",             // AA=45  2.80/8.80  1.0M
@@ -156,6 +161,7 @@
                 "openrouter/deepseek/deepseek-v4.1-flash", //      AA=39  0.15/0.60  1.0M
                 "openrouter/openai/gpt-6-luna", //                 AA=37  0.10/0.50  1.0M
                 "openrouter/deepseek/deepseek-v4-flash", //         AA=34  0.06/0.13  1.0M
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best orchestration / tool-use ───────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/anthropic/claude-sonnet-5",      //        2.00/10.00 1.0M
@@ -178,6 +184,7 @@
                 "openrouter/openai/gpt-6-luna", //                 AA=37  0.10/0.50  1.0M
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M
                 "openrouter/upstage/solar-pro4", //                 AA=28  0.09/0.36  524k
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best planning / long-form reasoning ─────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/z-ai/glm-5.3-prime",             // AA=45  2.80/8.80  1.0M
@@ -198,6 +205,7 @@
                 "openrouter/deepseek/deepseek-v4.1-flash", //      AA=39  0.15/0.60  1.0M
                 "openrouter/openai/gpt-6-luna", //                 AA=37  0.10/0.50  1.0M
                 "openrouter/deepseek/deepseek-v4-flash", //         AA=34  0.06/0.13  1.0M
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best analytical reasoners ───────────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/z-ai/glm-5.3-prime",             // AA=45  2.80/8.80  1.0M
@@ -217,6 +225,7 @@
                 "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
                 "openrouter/inclusionai/ling-3.0-flash", //        AA=25  0.02/0.06  262k
                 "openrouter/tencent/hy3", //                        AA=25  0.08/0.33  262k
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best cheap verifiers ────────────────────────────────
                 // "openrouter/xiaomi/mimo-v2.6-pro",           // AA=46  0.43/0.87  1.0M  overkill for this role
                 // "openrouter/anthropic/claude-haiku-4.5",     //        1.00/5.00  200k
@@ -238,6 +247,7 @@
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M
                 "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
                 "openrouter/deepseek/deepseek-v3.2", //             AA=21  0.26/0.40  163k  (reasoning variant)
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: the genuinely strongest reasoners available ─────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/z-ai/glm-5.3-prime",             // AA=45  2.80/8.80  1.0M
@@ -254,12 +264,13 @@
         "explore": {
             "model": "anthropic/claude-haiku-4-5-20251001",
             "fallback_models": [
-                "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M  biggest ctx in budget
-                "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
+                // "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M  biggest ctx in budget
+                // "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M  cheapest good model
                 "openrouter/openai/gpt-6-luna", //                 AA=37  0.10/0.50  1.0M
                 "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
                 "openrouter/inclusionai/ling-3.0-flash", //         AA=25  0.02/0.06  262k
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best fast long-context searchers ────────────────────
                 // "openrouter/xiaomi/mimo-v2.6-pro",           // AA=46  0.43/0.87  1.0M  smart but slow
                 // "openrouter/x-ai/grok-4.20",                 // AA=26  1.25/2.50  2.0M  biggest ctx anywhere
@@ -279,6 +290,7 @@
                 "openrouter/openai/gpt-6-luna", //                 AA=37  0.10/0.50  1.0M
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M  slow, so lower down
                 "openrouter/deepseek/deepseek-v4-flash", //         AA=34  0.06/0.13  1.0M
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best long-context ingestion / research ──────────────
                 // "openrouter/x-ai/grok-4.20",                 // AA=26  1.25/2.50  2.0M  biggest ctx anywhere
                 // "openrouter/moonshotai/kimi-k3",             // AA=44  3.00/15.00 1.0M
@@ -300,6 +312,8 @@
                 "openrouter/deepseek/deepseek-v4.1-flash", //      AA=39  0.15/0.60  1.0M  text+image
                 "openrouter/openai/gpt-6-luna", //                 AA=37  0.10/0.50  1.0M  text+image
                 "openrouter/deepseek/deepseek-v4-flash-vision-exp", // AA=35 0.22/0.66 1.0M  vision-tuned
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
+                                                                   // (router filters by needed modality, vision-safe)
                 // ── premium: best vision models ──────────────────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/google/gemini-3.1-pro-preview",  //        2.00/12.00 1.0M
@@ -322,6 +336,7 @@
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M
                 "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
                 "openrouter/inclusionai/ling-3.0-flash", //         AA=25  0.02/0.06  262k
+                "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best long-form writers ─────────────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
                 // "openrouter/anthropic/claude-opus-5.5",      //        4.00/20.00 1.0M
@@ -338,20 +353,13 @@
     // Semantics: chain advances attempt-by-attempt (rotation via attempt count);
     // non-terminal errors get ONE same-model retry first; terminal quota errors
     // rotate immediately. Attempt counter is per-session and cumulative until
-    // plugin restart — `max_attempts` is the hard cap across the whole session.
+    // plugin restart. No attempt cap: the chain is walked until exhausted.
     // Cooldown doubles per consecutive failure (60 → 120 → 240 … cap 32x).
-    //
-    // max_attempts must be >= fallback chain length, otherwise the tail of a
-    // long chain never gets tried.
     "fallback": {
         "enabled": true,
         // HTTP codes treated as retryable (plus quota/billing wording is matched
         // by classify.ts regardless of this list).
         "retry_on_errors": [429, 500, 502, 503, 504],
-        // Hard cap on fallback attempts per session. Longest per-agent chain is 10
-        // entries — 20 leaves headroom for the same-model retry on non-terminal
-        // errors plus room to extend a chain later.
-        "max_attempts": 20,
         "cooldown_seconds": 60,
         // Global fallback chain: used by every agent (including delegated
         // subagents) that has no per-agent fallback_models entry. Per-agent lists
@@ -368,6 +376,9 @@
             "openrouter/openai/gpt-6-luna", //                   AA=37  0.10/0.50  1.0M
             "openrouter/deepseek/deepseek-v4-flash", //          AA=34  0.06/0.13  1.0M
             "openrouter/inclusionai/ling-3.0-flash", //           AA=25  0.02/0.06  262k
+            "openrouter/openrouter/free", //                     free catch-all: OpenRouter Free Models Router —
+                                                                 // always exists, picks a random free model
+                                                                 // (rotates with the free catalog)
         ],
     },
 
