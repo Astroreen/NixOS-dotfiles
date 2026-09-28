@@ -1,0 +1,152 @@
+diff --git a/packages/opencode/src/tool/registry.ts b/packages/opencode/src/tool/registry.ts
+index 9167cb3..f3060c5 100644
+--- a/packages/opencode/src/tool/registry.ts
++++ b/packages/opencode/src/tool/registry.ts
+@@ -3,6 +3,7 @@ import { httpClient } from "@opencode-ai/core/effect/app-node-platform"
+ import { Ripgrep } from "@opencode-ai/core/ripgrep"
+ import { PlanExitTool } from "./plan"
+ import { Session } from "@/session/session"
++import { SessionStatus } from "@/session/status"
+ import { QuestionTool } from "./question"
+ import { ShellTool } from "./shell"
+ import { EditTool } from "./edit"
+@@ -435,6 +436,7 @@ export const node = LayerNode.make({
+     Agent.node,
+     Skill.node,
+     Session.node,
++    SessionStatus.node,
+     BackgroundJob.node,
+     Provider.node,
+     LSP.node,
+diff --git a/packages/opencode/src/tool/task.ts b/packages/opencode/src/tool/task.ts
+index d8ca640..26cfebc 100644
+--- a/packages/opencode/src/tool/task.ts
++++ b/packages/opencode/src/tool/task.ts
+@@ -4,13 +4,14 @@ import { ToolJsonSchema } from "./json-schema"
+ import { SessionV1 } from "@opencode-ai/core/v1/session"
+ import { BackgroundJob } from "@/background/job"
+ import { Session } from "@/session/session"
++import { SessionStatus } from "@/session/status"
+ import { SessionID, MessageID } from "../session/schema"
+ import { MessageV2 } from "../session/message-v2"
+ import { Agent } from "../agent/agent"
+ import { deriveSubagentSessionPermission } from "../agent/subagent-permissions"
+ import type { SessionPrompt } from "../session/prompt"
+ import { Config } from "@/config/config"
+-import { Effect, Exit, Schema, Scope } from "effect"
++import { Effect, Exit, Option, Schema, Scope } from "effect"
+ import { EffectBridge } from "@/effect/bridge"
+ import { RuntimeFlags } from "@/effect/runtime-flags"
+ import { Database } from "@opencode-ai/core/database/database"
+@@ -85,6 +86,7 @@ export const TaskTool = Tool.define(
+     const background = yield* BackgroundJob.Service
+     const config = yield* Config.Service
+     const sessions = yield* Session.Service
++    const status = yield* SessionStatus.Service
+     const scope = yield* Scope.Scope
+     const flags = yield* RuntimeFlags.Service
+     const database = yield* Database.Service
+@@ -197,6 +199,49 @@ export const TaskTool = Tool.define(
+       const ops = ctx.extra?.promptOps as TaskPromptOps
+       if (!ops) return yield* Effect.fail(new Error("TaskTool requires promptOps in ctx.extra"))
+ 
++      // A child session can be aborted and resumed on a different model (e.g. by a
++      // fallback plugin). Aborting finalizes the in-flight assistant message with an
++      // error, so the first prompt result is not necessarily the child's final answer.
++      // Wait until the child is idle and quiet before deciding whether it failed.
++      const SETTLE_POLL_MS = 100
++      const SETTLE_QUIET_MS = 1500
++
++      const settleChild = Effect.fn("TaskTool.settleChild")(function* (sessionID: SessionID) {
++        let lastID: string | undefined
++        let quietSince = Date.now()
++        while (true) {
++          const info = yield* status.get(sessionID)
++          const message = Option.getOrUndefined(
++            yield* sessions.findMessage(sessionID, (item) => item.info.role !== "user"),
++          )
++          if (message?.info.id !== lastID) {
++            lastID = message?.info.id
++            quietSince = Date.now()
++          }
++          const active = info.type === "busy" || info.type === "retry"
++          if (!active && Date.now() - quietSince >= SETTLE_QUIET_MS) return message
++          yield* Effect.sleep(SETTLE_POLL_MS)
++        }
++      })
++
++      const evaluate = Effect.fn("TaskTool.evaluateChild")(function* (message: SessionV1.WithParts | undefined) {
++        if (!message) {
++          return yield* Effect.fail(new Error(`Subagent failed (task_id: ${nextSession.id}): no result`))
++        }
++        if (message.info.role === "assistant" && message.info.error) {
++          const text =
++            "message" in message.info.error.data && typeof message.info.error.data.message === "string"
++              ? message.info.error.data.message
++              : message.info.error.name
++          return yield* Effect.fail(new Error(`Subagent failed (task_id: ${nextSession.id}): ${text}`))
++        }
++        const failed = message.parts.findLast((item) => item.type === "tool" && item.state.status === "error")
++        if (failed?.type === "tool" && failed.state.status === "error") {
++          return yield* Effect.fail(new Error(`Subagent failed (task_id: ${nextSession.id}): ${failed.state.error}`))
++        }
++        return message.parts.findLast((item) => item.type === "text")?.text ?? ""
++      })
++
+       const runTask = Effect.fn("TaskTool.runTask")(function* () {
+         const parts = yield* ops.resolvePromptParts(params.prompt)
+         const result = yield* ops.prompt({
+@@ -210,18 +255,7 @@ export const TaskTool = Tool.define(
+           agent: next.name,
+           parts,
+         })
+-        if (result.info.role === "assistant" && result.info.error) {
+-          const message =
+-            "message" in result.info.error.data && typeof result.info.error.data.message === "string"
+-              ? result.info.error.data.message
+-              : result.info.error.name
+-          return yield* Effect.fail(new Error(`Subagent failed (task_id: ${nextSession.id}): ${message}`))
+-        }
+-        const failed = result.parts.findLast((item) => item.type === "tool" && item.state.status === "error")
+-        if (failed?.type === "tool" && failed.state.status === "error") {
+-          return yield* Effect.fail(new Error(`Subagent failed (task_id: ${nextSession.id}): ${failed.state.error}`))
+-        }
+-        return result.parts.findLast((item) => item.type === "text")?.text ?? ""
++        return yield* evaluate(result)
+       })
+ 
+       const inject = Effect.fn("TaskTool.injectBackgroundResult")(function* (
+@@ -257,7 +291,15 @@ export const TaskTool = Tool.define(
+         yield* background.wait({ id: jobID }).pipe(
+           Effect.flatMap((result) => {
+             if (result.info?.status === "completed") return inject("completed", result.info.output ?? "")
+-            if (result.info?.status === "error") return inject("error", result.info.error ?? "")
++            if (result.info?.status === "error" || result.info?.status === "cancelled") {
++              return settleChild(nextSession.id).pipe(
++                Effect.flatMap((message) => evaluate(message)),
++                Effect.match({
++                  onFailure: (error) => inject("error", error instanceof Error ? error.message : String(error)),
++                  onSuccess: (text) => inject("completed", text),
++                }),
++              )
++            }
+             return Effect.void
+           }),
+           Effect.forkIn(scope, { startImmediately: true }),
+@@ -336,8 +378,14 @@ export const TaskTool = Tool.define(
+               background.waitForPromotion(nextSession.id),
+             )
+             if (result?.metadata?.background === true) return backgroundResult()
+-            if (result?.status === "error") return yield* Effect.fail(new Error(result.error ?? "Task failed"))
+-            if (result?.status === "cancelled") return yield* Effect.fail(new Error("Task cancelled"))
++            if (result?.status === "error" || result?.status === "cancelled") {
++              const text = yield* evaluate(yield* settleChild(nextSession.id))
++              return {
++                title: params.description,
++                metadata,
++                output: renderOutput({ sessionID: nextSession.id, state: "completed", text }),
++              }
++            }
+             return {
+               title: params.description,
+               metadata,

@@ -47,6 +47,15 @@ in
   programs.opencode = {
     enable = true;
     enableMcpIntegration = true;
+
+    # Patch opencode core so a subagent that is aborted to switch to a fallback
+    # model is not reported to the parent as "Task cancelled"/"Subagent failed".
+    # The task tool now waits for the child session to settle before deciding
+    # whether it failed. See opencode-task-fallback.patch.
+    package = pkgs.opencode.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ./opencode-task-fallback.patch ];
+    });
+
     settings = {
       # Yolo: stop permission prompts. Only external_directory (and doom_loop)
       # default to "ask" — bash/read/edit/webfetch are already "allow".
