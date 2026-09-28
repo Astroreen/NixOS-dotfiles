@@ -23,6 +23,14 @@ in
     };
   };
 
+  # Open PDFs in the browser instead of a dedicated viewer.
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "application/pdf" = "vivaldi-stable.desktop";
+    };
+  };
+
   wayland.windowManager.hyprland.settings = {
     on = [
       {
