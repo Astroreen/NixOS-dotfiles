@@ -68,7 +68,7 @@
     // (also drives family reasoning options like claude extended thinking).
     "model": "anthropic/claude-sonnet-5",
 
-    // ── Agents (all 11 shipped personas) ────────────────────────────────────
+    // ── Agents (all 12 shipped personas) ────────────────────────────────────
     // Per-agent `model` / `fallback_models` / `color`.
     // `fallback_models` fully replaces the global fallback chain for that agent
     // (no merge). Color overrides the oh-my palette default (DEFAULT_COLORS in
@@ -307,6 +307,27 @@
                 // "openrouter/z-ai/glm-5v-turbo",              // AA=23  1.20/4.00  202k  vision-specialist but dimmer
             ],
             "color": "#E91E63",
+        },
+        // Document writer — essays, reports, letters as docx/doc/pdf. Long-form
+        // prose + format fidelity, delegates nothing (builds the file itself).
+        // Sonnet is the balanced writing workhorse; chain is AA-descending.
+        "scribe": {
+            "model": "anthropic/claude-sonnet-5",
+            "fallback_models": [
+                "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
+                "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
+                "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
+                "openrouter/deepseek/deepseek-v4.1-flash", //      AA=39  0.15/0.60  1.0M
+                "openrouter/openai/gpt-6-luna", //                 AA=37  0.10/0.50  1.0M
+                "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M
+                "openrouter/upstage/solar-pro4", //                AA=28  0.09/0.36  524k
+                "openrouter/inclusionai/ling-3.0-flash", //         AA=25  0.02/0.06  262k
+                // ── premium: best long-form writers ─────────────────────────────
+                // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
+                // "openrouter/anthropic/claude-opus-5.5",      //        4.00/20.00 1.0M
+                // "openrouter/google/gemini-3.1-pro-preview",  //        2.00/12.00 1.0M
+            ],
+            "color": "#A29BFE",
         },
     },
 
