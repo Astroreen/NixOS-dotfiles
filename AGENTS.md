@@ -39,8 +39,12 @@ HM configs are `homeConfigurations."astroreen@<host>"` in the flake — managed 
 ```bash
 update-flake                # nix flake update
 delete-garbage              # nix-collect-garbage --delete-older-than 7d + nix-store --gc
-start-work / end-work       # OpenVPN + DNS setup/teardown for work
+start-work / stop-work      # OpenVPN + DNS setup/teardown for work
 add-work-dns / delete-work-dns  # DNS only (no VPN start/stop)
+sync-caelestia-config       # Merge official caelestia example config into host JSONs (scripts/sync-caelestia-config.py)
+list-generations            # nixos-rebuild list-generations
+delete-generations [N]      # Delete old NixOS generations, keep last N (default 5)
+find-large-files [N] [dir]  # Top-N largest files on disk (default 30, /)
 ```
 
 ### Linting / Formatting
@@ -79,7 +83,8 @@ home/
   modules/
     terminal/ai/           # AI tooling (moved from modules/tui/ai) — see terminal/ai/AGENTS.md
     terminal/dictation/    # Push-to-talk dictation (faster-whisper server + socket daemon + Quickshell overlay)
-.opencode/opencode.json    # OpenCode plugin config (oh-my-opencode)
+.opencode/                 # Local opencode plugin dev dir (package.json: @opencode-ai/plugin) — NOT the config
+scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-caelestia-config`)
 ```
 
 > **2026-07 reorg note**: `hosts/modules/{gui,tui,lang,style,wm}` and `home/modules/{gui,tui,lang,style,wm}`
@@ -114,7 +119,8 @@ Split across two locations — see `home/modules/terminal/ai/AGENTS.md` for the 
 | Add MCP server | `home/modules/terminal/ai/mcps.nix` — add to `servers` attrset |
 | Enable MCP per-host | host HM config — `programs.mcp.servers.<name>.disabled = false` |
 | Add/edit opencode plugin config | `home/astroreen/profiles/terminal/ai/opencode/default.nix` (user-level profile, NOT under `modules/`) |
-| Add agent definition | `home/astroreen/profiles/terminal/ai/agents/` — `.md` file |
+| Edit astrocode model/agent/fallback config | `home/astroreen/profiles/terminal/ai/opencode/astrocode.jsonc` — deployed to `~/.opencode/astrocode.jsonc` |
+| Add agent definition | `home/astroreen/profiles/terminal/ai/agents/` — `.md` file (currently PromptHardener, PromptMaster) |
 | Add slash command | `home/modules/terminal/ai/commands/` — `.md` file |
 | Add/edit skill (learn, caveman) | `home/modules/terminal/ai/skills/` — toggled via `custom.ai.skill.{learn,caveman}.enable` |
 | Meridian proxy config | `home/modules/terminal/ai/meridian.nix` — `custom.ai.meridian.*`, port 3456, systemd user service |
@@ -122,6 +128,9 @@ Split across two locations — see `home/modules/terminal/ai/AGENTS.md` for the 
 - All MCPs disabled by default (`lib.mkDefault true`) — opt-in per-host
 - Skill/agent files deployed via `home.activation` copy (chmod 777), **not symlinked** — files must stay mutable
 - Meridian installed via `npm install` in activation (not a Nix package); nix-ld provides libsql support
+- `CustomPrompt.md` → `~/.config/opencode/AGENTS.md`; astrocode plugin source copied from the `inputs.astrocode` flake into `~/.config/opencode/plugins/.astrocode-src`
+- opencode core is patched (`opencode-task-fallback.patch`) so an aborted subagent waits for the fallback model instead of reporting "Task cancelled"
+- opencode web server runs headless on `0.0.0.0:4096` (`--mdns`) via user systemd `default.target`
 
 ---
 
@@ -165,8 +174,8 @@ No current file-scope `with` violations found (previously-noted legacy violation
 - Prefer native module merging over explicit `mkMerge`
 
 ### System vs HM module distinction
-`hosts/modules/` — sets `programs.*` (system), `services.*`, `environment.*`, `hardware.*`, `networking.*`, `virtualisation.*`
-`home/modules/` — sets `programs.*` (HM), `home.packages`, `home.file.*`, `home.activation.*`, `wayland.windowManager.*`
+`hosts/astroreen/profiles/` — sets `programs.*` (system), `services.*`, `environment.*`, `hardware.*`, `networking.*`, `virtualisation.*`
+`home/astroreen/profiles/` — sets `programs.*` (HM), `home.packages`, `home.file.*`, `home.activation.*`, `wayland.windowManager.*`
 
 Some names exist in both with different semantics (e.g. `programs.zsh`).
 
@@ -194,7 +203,8 @@ flake.nix (createHost)
           display-manager.nix, graphics.nix, audio.nix, fonts.nix, certificates.nix, printing.nix
     → ../profiles/style/theme/dark/adwaita
     → ../profiles/wm/{hyprland,plasma}
-    → ../profiles/apps/*, ../profiles/terminal/{shell,openvpn,ssh,tailscale}.nix, ../profiles/lang/flutter.nix
+    → ../profiles/apps/{steam,nautilus,wireshark}.nix, ../profiles/terminal/{shell,openvpn,ssh,tailscale}.nix,
+      ../profiles/lang/flutter.nix
 ```
 `hosts/modules/` is currently empty — fully superseded by `hosts/astroreen/profiles/`.
 
@@ -206,8 +216,8 @@ flake.nix (homeConfigurations."astroreen@<host>")
         → ./hyprland/caelestia/default.nix
         → ../profiles/style/{cursor/breeze, theme/dark/adwaita}
         → ./imports.nix
-            → ../profiles/apps/*  (16 files, e.g. apps, clipboard, vesktop, vscode, obs, lutris,
-              nautilus, kdeconnect, vnc, tailscale, browser, music, minecraft)
+            → ../profiles/apps/*  (apps, clipboard, screenshot, vesktop, vscode, obs, lutris,
+              nautilus, gnome-text-editor, kdeconnect, vnc, tailscale, browser, music, minecraft)
             → ../profiles/terminal/{wine,shell,htop,devenv,ranger}.nix
             → ../../modules/terminal/dictation           (faster-whisper server + socket PTT daemon + Quickshell overlay)
             → ../profiles/terminal/ai/{fabric,opencode,claude}
@@ -220,15 +230,18 @@ and `../../modules/terminal/ai/lmstudio.nix` directly (server-only LMStudio pack
 
 Reusable HM modules (not profiles), under `home/modules/`:
 - `home/modules/terminal/ai/` — MCP servers, Meridian proxy, skills/commands infra (see AI Tooling section above).
-- `home/modules/terminal/dictation/` — push-to-talk dictation: `server.py` (faster-whisper HTTP, port 7777),
-  `daemon.py` (unix-socket PTT controller; also its own client via `dictation-daemon start|stop|toggle|status`),
-  `overlay/` (standalone Quickshell `qs -c dictation-overlay`). WM-agnostic; imported from
-  `home/astroreen/common/imports.nix`. The Hyprland hold-to-talk binds live separately in
-  `home/astroreen/profiles/wm/hyprland/dictation.nix` (`custom.dictation.pttBind`, default `F9`).
+- `home/modules/terminal/dictation/` — push-to-talk dictation: `server.py` (faster-whisper HTTP, port 7777,
+  CUDA, model `faster-whisper-large-v3`), `daemon.py` (unix-socket PTT controller; also its own client via
+  `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
+  WM-agnostic; imported from `home/astroreen/common/imports.nix`. The Hyprland hold-to-talk binds live in
+  `home/astroreen/common/hyprland/caelestia/default.nix` (`SUPER + F9` start, bare `F9` release stop).
+  Server sets `custom.dictation.host = "0.0.0.0"` to expose the transcription server on the LAN/tailnet.
 
 **Dormant / unimported** (exist but not referenced in `home/astroreen/common/imports.nix` or any host `home.nix`):
 - `home/astroreen/profiles/apps/blender.nix`
 - `home/astroreen/profiles/terminal/ssh.nix`
+- `home/astroreen/profiles/terminal/ollama.nix`
+- `home/astroreen/profiles/terminal/whisper.nix`
 
 ---
 
@@ -236,10 +249,12 @@ Reusable HM modules (not profiles), under `home/modules/`:
 
 - `nixpkgs.config.allowUnfree = true` + `android_sdk.accept_license = true` — set in flake, not per-host
 - Hyprland from upstream flake input (`inputs.hyprland`), not nixpkgs — required for cachix cache correctness
+- **Hyprland uses Lua config** (`configType = "lua"`), not `hyprland.conf`: settings are attrsets with `_args` + `lib.generators.mkLuaInline` dispatchers. Base binds in `home/astroreen/profiles/wm/hyprland/settings/binds.nix`; host overrides in `home/astroreen/{laptop,server}/hyprland/settings.nix`
 - `nix-ld` enabled on both hosts — prebuilt ELF binaries run without patching
 - No automated test suite — validation is `dry-build` / `dry-activate`
 - `caelestia-shell` config written via `home.activation` (not symlinked) — shell mutates it at runtime
 - Opencode alias: `oc = "opencode"`
-- Opencode theme: `gruvbox`; plugins include vibeguard, dcp (context compression), md-table-formatter
+- Opencode theme: `gruvbox`; plugins: md-table-formatter, notifier, dcp (context compression), vibeguard, anthropic-auth, claude-auth
 - `inputs.caveman` (flake=false) is a plain source tree for the caveman opencode skill
 - `nixpkgs-stable` (`nixos-25.11`) available as `pkgs-stable` in all module specialArgs
+- Both hosts set `system.stateVersion = "25.11"`; HM `stateVersion = "26.05"` (set once in `flake.nix`)
