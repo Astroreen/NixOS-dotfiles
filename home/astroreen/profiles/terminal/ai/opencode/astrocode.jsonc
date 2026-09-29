@@ -14,11 +14,11 @@
     // "claude-bogus-9-9" still answers 200. So the endpoint cannot be used to
     // probe availability. Ids below are the ones confirmed in actual use.
     //   anthropic/claude-opus-5-5              — current frontier, top reasoning
-    //   anthropic/claude-sonnet-5              — balanced workhorse
+    //   anthropic/claude-sonnet-5-5            — balanced workhorse
     //   anthropic/claude-haiku-4-5-20251001    — cheap/fast, mechanical work
     //
     // Anthropic degradation step: opus burns its Pro cap well before sonnet does,
-    // so opus-tier agents fall to sonnet-5 → haiku FIRST, and only then leave the
+    // so opus-tier agents fall to sonnet-5-5 → haiku FIRST, and only then leave the
     // subscription for paid openrouter. Delete those two lines if you'd rather
     // jump straight to openrouter.
     //
@@ -66,7 +66,7 @@
 
     // Global default model for agents that do not set their own `model`
     // (also drives family reasoning options like claude extended thinking).
-    "model": "anthropic/claude-sonnet-5",
+    "model": "anthropic/claude-sonnet-5-5",
 
     // ── Agents (all 12 shipped personas) ────────────────────────────────────
     // Per-agent `model` / `fallback_models` / `color`.
@@ -79,7 +79,7 @@
         "Sisyphus - ultraworker": {
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
-                "anthropic/claude-sonnet-5", //                    still on the Pro plan
+                "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
                 "anthropic/claude-haiku-4-5-20251001", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M  best in budget, slow (51 t/s)
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M  best value overall
@@ -105,7 +105,7 @@
         // Cheap focused executor for 1-2 file edits. NOTE: every model with
         // "coder" in its name benchmarked WORSE than these generalists.
         "Sisyphus-Junior": {
-            "model": "anthropic/claude-sonnet-5",
+            "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
                 "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
@@ -118,7 +118,7 @@
                 "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best code editors ───────────────────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
-                // "openrouter/anthropic/claude-sonnet-5",      //        2.00/10.00 1.0M
+                // "openrouter/anthropic/claude-sonnet-5.5",    //        2.00/10.00 1.0M
                 // "openrouter/openai/gpt-5.3-codex",           //        1.75/14.00 400k
                 // "openrouter/moonshotai/kimi-k2.7-code",      // AA=26  0.71/3.30  262k  AA lower than it sounds
             ],
@@ -129,7 +129,7 @@
         "Hephaestus - Deep Agent": {
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
-                "anthropic/claude-sonnet-5", //                    still on the Pro plan
+                "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
                 "anthropic/claude-haiku-4-5-20251001", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
@@ -152,7 +152,7 @@
         // Plan executor (target of /start-work). Conductor, never writes code —
         // orchestration + verification, so agentic/tool-use scores dominate.
         "Atlas - Plan Executor": {
-            "model": "anthropic/claude-sonnet-5",
+            "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
                 "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
@@ -164,7 +164,7 @@
                 "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best orchestration / tool-use ───────────────────────
                 // "openrouter/x-ai/grok-4.7",                  // AA=46  1.60/4.80  500k
-                // "openrouter/anthropic/claude-sonnet-5",      //        2.00/10.00 1.0M
+                // "openrouter/anthropic/claude-sonnet-5.5",    //        2.00/10.00 1.0M
                 // "openrouter/anthropic/claude-opus-5.5",      //        4.00/20.00 1.0M
             ],
             "color": "#3498DB",
@@ -175,7 +175,7 @@
         "Prometheus - Plan Builder": {
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
-                "anthropic/claude-sonnet-5", //                    still on the Pro plan
+                "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
                 "anthropic/claude-haiku-4-5-20251001", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
@@ -196,7 +196,7 @@
         // Pre-planning risk analysis — read-only, low output volume, high
         // reasoning density. Sonnet is enough; chain is pure AA-descending.
         "Metis - Plan Consultant": {
-            "model": "anthropic/claude-sonnet-5",
+            "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
                 "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
@@ -237,7 +237,7 @@
         "oracle": {
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
-                "anthropic/claude-sonnet-5", //                    still on the Pro plan
+                "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
                 "anthropic/claude-haiku-4-5-20251001", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M  highest in budget, period
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
@@ -281,7 +281,7 @@
         // size matters, but AA-LCR (long-context reasoning) is part of the index
         // and the big-context/dumb models (llama-4-scout AA=8) lost on it.
         "librarian": {
-            "model": "anthropic/claude-sonnet-5",
+            "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
                 "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
@@ -303,7 +303,7 @@
         // EVERY entry here MUST be vision-capable; text-only models break it.
         // Input modality verified per-model on artificialanalysis.ai.
         "multimodal-looker": {
-            "model": "anthropic/claude-sonnet-5",
+            "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
                 "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan, vision-capable
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M  text+image+speech+video
@@ -326,7 +326,7 @@
         // prose + format fidelity, delegates nothing (builds the file itself).
         // Sonnet is the balanced writing workhorse; chain is AA-descending.
         "scribe": {
-            "model": "anthropic/claude-sonnet-5",
+            "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
                 "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
@@ -367,7 +367,7 @@
         // agent's chain and fully replace this global chain for that agent.
         // Pure AA-descending ladder, all in budget.
         "models": [
-            "anthropic/claude-sonnet-5", //                      still on the Pro plan
+            "anthropic/claude-sonnet-5-5", //                    still on the Pro plan
             "anthropic/claude-haiku-4-5-20251001", //            last free tier
             "openrouter/xiaomi/mimo-v2.6-pro", //                AA=46  0.43/0.87  1.0M
             "openrouter/z-ai/glm-5.3-flash", //                  AA=42  0.15/0.50  1.3M
