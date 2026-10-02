@@ -2,6 +2,7 @@ _: {
   imports = [
     # Apps (gui)
     ../profiles/apps/apps.nix # Standard apps to install
+    ../profiles/apps/localsend.nix # LocalSend always-on file transfer server
     ../profiles/apps/clipboard.nix # Clipboard ui
     ../profiles/apps/screenshot.nix # Screenshot tooling (satty + swappy shim)
     ../profiles/apps/vesktop.nix # VDesktop configuration

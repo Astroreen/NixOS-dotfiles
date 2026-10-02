@@ -30,9 +30,6 @@
     thonny # Python IDE
     orca-slicer # 3D printing slicer
 
-    # File management
-    localsend # Cross-platform file transfer
-
     # Internet
     qbittorrent # Torrent client
 
