@@ -53,6 +53,15 @@
       inputs.hyprland.follows = "hyprland";
     };
 
+    # HyprMod — GTK4 settings app for Hyprland. Writes to its own mutable
+    # ~/.config/hypr/hyprland-gui.lua; the include is added declaratively in
+    # home/astroreen/profiles/apps/hyprmod.nix so its first-run setup never
+    # rewrites the read-only home-manager symlink for hyprland.lua.
+    hyprmod = {
+      url = "github:BlueManCZ/hyprmod";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # NOTE: HyprCapture was tried and dropped (2026-07-26) — after fixing
     # several generated-header path issues (version.h, protocols/,
     # Monitor.hpp relocation), it hit a hard wall: its C++ source calls

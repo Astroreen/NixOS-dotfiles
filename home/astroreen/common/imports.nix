@@ -16,6 +16,7 @@ _: {
     ../profiles/apps/browser.nix # Browser configuration
     ../profiles/apps/music.nix # Music apps configuration
     ../profiles/apps/minecraft.nix # Minecraft configuration
+    ../profiles/apps/hyprmod.nix # HyprMod settings app for Hyprland (mutable hyprland-gui.lua)
 
     # Terminal apps (tui)
     ../profiles/terminal/wine.nix # Wine configuration
