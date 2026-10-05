@@ -7,6 +7,7 @@
     viber # Viber
     caprine # Facebook Messenger
     mattermost-desktop # Mattermost
+    whatsapp-electron # WhatsApp
 
     # Media
     mpv # Media player
