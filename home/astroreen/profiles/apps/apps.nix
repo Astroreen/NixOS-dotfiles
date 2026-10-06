@@ -30,6 +30,7 @@
     postman # API development environment
     thonny # Python IDE
     orca-slicer # 3D printing slicer
+    t3code
 
     # Internet
     qbittorrent # Torrent client
