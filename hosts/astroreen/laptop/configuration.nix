@@ -11,6 +11,7 @@
 
     ../profiles/style/theme/dark/adwaita # Adwaita dark theme
     ../profiles/wm/hyprland # Window manager Hyprland
+    ../profiles/apps/vm.nix # QEMU/KVM + libvirt + virt-manager (Windows 11 VM)
   ];
 
   # Bootloader + Plymouth splash.
