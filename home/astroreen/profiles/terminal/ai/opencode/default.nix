@@ -73,7 +73,7 @@ in
         "@franlol/opencode-md-table-formatter@latest"
         "@mohak34/opencode-notifier"
         "@tarquinen/opencode-dcp"
-        "opencode-vibeguard@latest"
+        # "opencode-vibeguard@latest"
         "opencode-anthropic-auth"
         "opencode-claude-auth"
       ];
