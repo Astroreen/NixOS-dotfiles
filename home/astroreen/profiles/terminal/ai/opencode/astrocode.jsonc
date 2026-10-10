@@ -15,7 +15,7 @@
     // probe availability. Ids below are the ones confirmed in actual use.
     //   anthropic/claude-opus-5-5              — current frontier, top reasoning
     //   anthropic/claude-sonnet-5-5            — balanced workhorse
-    //   anthropic/claude-haiku-4-5-20251001    — cheap/fast, mechanical work
+    //   anthropic/claude-haiku-5-5               — cheap/fast, mechanical work
     //
     // Anthropic degradation step: opus burns its Pro cap well before sonnet does,
     // so opus-tier agents fall to sonnet-5-5 → haiku FIRST, and only then leave the
@@ -80,7 +80,7 @@
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
                 "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
-                "anthropic/claude-haiku-4-5-20251001", //          last free tier
+                "anthropic/claude-haiku-5-5", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M  best in budget, slow (51 t/s)
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M  best value overall
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
@@ -107,7 +107,7 @@
         "Sisyphus-Junior": {
             "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
-                "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
+                "anthropic/claude-haiku-5-5", //          still on the Pro plan
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
                 "openrouter/deepseek/deepseek-v4.1-flash", //      AA=39  0.15/0.60  1.0M
@@ -130,7 +130,7 @@
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
                 "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
-                "anthropic/claude-haiku-4-5-20251001", //          last free tier
+                "anthropic/claude-haiku-5-5", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
@@ -154,7 +154,7 @@
         "Atlas - Plan Executor": {
             "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
-                "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
+                "anthropic/claude-haiku-5-5", //          still on the Pro plan
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
@@ -176,7 +176,7 @@
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
                 "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
-                "anthropic/claude-haiku-4-5-20251001", //          last free tier
+                "anthropic/claude-haiku-5-5", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
@@ -198,7 +198,7 @@
         "Metis - Plan Consultant": {
             "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
-                "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
+                "anthropic/claude-haiku-5-5", //          still on the Pro plan
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
@@ -217,7 +217,7 @@
         // approval-biased, tiny output. Optimise hard for cost, but stay above the
         // AA~13 median so it can still actually read a plan.
         "Momus - Plan Critic": {
-            "model": "anthropic/claude-haiku-4-5-20251001",
+            "model": "anthropic/claude-haiku-5-5",
             "fallback_models": [
                 "openrouter/deepseek/deepseek-v4-flash", //        AA=34  0.06/0.13  1.0M  best cost/intelligence anywhere
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
@@ -228,7 +228,7 @@
                 "openrouter/openrouter/free", //                   free catch-all: OpenRouter Free Models Router
                 // ── premium: best cheap verifiers ────────────────────────────────
                 // "openrouter/xiaomi/mimo-v2.6-pro",           // AA=46  0.43/0.87  1.0M  overkill for this role
-                // "openrouter/anthropic/claude-haiku-4.5",     //        1.00/5.00  200k
+                // "openrouter/anthropic/claude-haiku-5.5",     //        1.00/5.00  200k
             ],
             "color": "#E67E22",
         },
@@ -238,7 +238,7 @@
             "model": "anthropic/claude-opus-5-5",
             "fallback_models": [
                 "anthropic/claude-sonnet-5-5", //                  still on the Pro plan
-                "anthropic/claude-haiku-4-5-20251001", //          last free tier
+                "anthropic/claude-haiku-5-5", //          last free tier
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M  highest in budget, period
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
@@ -262,7 +262,7 @@
         // output format, huge file dumps. Wants speed + context, so mimo-v2.6-pro
         // is deliberately NOT first here (51 t/s, 2.8s TTFT).
         "explore": {
-            "model": "anthropic/claude-haiku-4-5-20251001",
+            "model": "anthropic/claude-haiku-5-5",
             "fallback_models": [
                 // "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M  biggest ctx in budget
                 // "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
@@ -283,7 +283,7 @@
         "librarian": {
             "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
-                "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
+                "anthropic/claude-haiku-5-5", //          still on the Pro plan
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
                 "openrouter/deepseek/deepseek-v4.1-flash", //      AA=39  0.15/0.60  1.0M
@@ -305,7 +305,7 @@
         "multimodal-looker": {
             "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
-                "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan, vision-capable
+                "anthropic/claude-haiku-5-5", //          still on the Pro plan, vision-capable
                 "openrouter/xiaomi/mimo-v2.6-pro", //              AA=46  0.43/0.87  1.0M  text+image+speech+video
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M  text+image
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M  text+image+video
@@ -328,7 +328,7 @@
         "scribe": {
             "model": "anthropic/claude-sonnet-5-5",
             "fallback_models": [
-                "anthropic/claude-haiku-4-5-20251001", //          still on the Pro plan
+                "anthropic/claude-haiku-5-5", //          still on the Pro plan
                 "openrouter/z-ai/glm-5.3-flash", //                AA=42  0.15/0.50  1.3M
                 "openrouter/qwen/qwen3.8-flash", //                AA=40  0.15/0.47  1.0M
                 "openrouter/deepseek/deepseek-v4.1-flash", //      AA=39  0.15/0.60  1.0M
@@ -368,7 +368,7 @@
         // Pure AA-descending ladder, all in budget.
         "models": [
             "anthropic/claude-sonnet-5-5", //                    still on the Pro plan
-            "anthropic/claude-haiku-4-5-20251001", //            last free tier
+            "anthropic/claude-haiku-5-5", //            last free tier
             "openrouter/xiaomi/mimo-v2.6-pro", //                AA=46  0.43/0.87  1.0M
             "openrouter/z-ai/glm-5.3-flash", //                  AA=42  0.15/0.50  1.3M
             "openrouter/qwen/qwen3.8-flash", //                  AA=40  0.15/0.47  1.0M
