@@ -72,7 +72,6 @@ in
       plugin = [
         "@franlol/opencode-md-table-formatter@latest"
         "@mohak34/opencode-notifier"
-        "@tarquinen/opencode-dcp"
         # "opencode-vibeguard@latest"
         "opencode-anthropic-auth"
         "opencode-claude-auth"
@@ -111,6 +110,11 @@ in
       # Copy vibeguard config
       copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
         copyFile ./vibeguard.config.json "${baseCfg.settings.configDir}/vibeguard.config.json"
+      );
+
+      # Copy DCP config (compress.permission=deny — insurance if the plugin is ever re-added)
+      copyDcpConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyFile ./dcp.jsonc "${baseCfg.settings.configDir}/dcp.jsonc"
       );
 
       # Copy agents folder
