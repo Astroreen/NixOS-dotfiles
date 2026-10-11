@@ -438,5 +438,6 @@
         "context_windows": {},
         "prune_stub_chars": 200,
         "cooldown_seconds": 300,
+        "continue_after": true,
     },
 }
