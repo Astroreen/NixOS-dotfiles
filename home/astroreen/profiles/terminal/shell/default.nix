@@ -36,6 +36,8 @@
       settings = {
         user.name = "astroreen";
         user.email = "astroreen@gmail.com";
+        credential."https://github.com".helper = "!${pkgs.gh}/bin/gh auth git-credential";
+        credential."https://gist.github.com".helper = "!${pkgs.gh}/bin/gh auth git-credential";
       };
 
       #aliases = {
