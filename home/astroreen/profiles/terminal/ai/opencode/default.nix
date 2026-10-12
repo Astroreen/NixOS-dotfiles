@@ -97,10 +97,6 @@ in
   };
 
   home = {
-    packages = [
-      pkgs.gh # GitHub CLI - required by oh-my-openagent's GitHub automation features
-    ];
-
     activation = {
       # Copy AGENTS.md
       copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (

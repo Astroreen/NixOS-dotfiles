@@ -48,8 +48,14 @@
     fd.enable = true;
   };
 
-  home.shellAliases = {
-    nixconfig = "cd ${config.home.homeDirectory}/.local/share/nixos";
-    cat = "bat";
+  home = {
+    packages = with pkgs; [
+      pkgs.gh # GitHub CLI - required by oh-my-openagent's GitHub automation features
+    ];
+    
+    shellAliases = {
+      nixconfig = "cd ${config.home.homeDirectory}/.local/share/nixos";
+      cat = "bat";
+    };
   };
 }
