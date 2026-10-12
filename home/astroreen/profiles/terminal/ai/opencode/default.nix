@@ -34,12 +34,61 @@ in
     };
 
     skill = {
-      learn.enable = true;
+      learn.enable = false;
 
-      # Caveman skill — token-efficient mode, always on
+      # Caveman — on-demand only (alwaysOn off since 2026-10-12, experiment).
+      # include trims the upstream set: keep core + local tools + native
+      # workflow guards; drop the Caveman Cloud suite (setup, discover,
+      # evidence-review, manage, optimize, learn) — no gateway in use.
       caveman = {
         enable = true;
-        alwaysOn = true;
+        alwaysOn = false;
+        include = [
+          # core + local skills
+          "caveman"
+          "caveman-commit"
+          "caveman-review"
+          "caveman-compress"
+          "caveman-help"
+          "caveman-stats"
+          "caveman-explore"
+          "cavecrew"
+          # native workflow guards (classified, auto-applied by task type)
+          "native"
+          "investigate-first"
+          "lean-build"
+          "migration"
+          "safe-refactor"
+          "surgical-patch"
+          "verify-and-stop"
+          # infra referenced by the skills above
+          "compile.mjs"
+          "verbs-gate.mjs"
+          "engine-mcp-tools.json"
+          "registry.json"
+        ];
+      };
+
+      # Matt Pocock skills — fetched from the mattpocock-skills flake input.
+      # To adopt a new upstream skill: `nix flake update mattpocock-skills`,
+      # then add its name here.
+      matt-pocock = {
+        enable = true;
+        include = [
+          # engineering
+          "tdd"
+          "diagnosing-bugs"
+          "code-review"
+          "pr"
+          "retro"
+          "codebase-design"
+          # productivity
+          "grilling"
+          "grill-me"
+          "handoff"
+          "writing-for-agents"
+          "wait-what"
+        ];
       };
     };
   };

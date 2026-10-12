@@ -1,6 +1,6 @@
 ## Response Format
 
-**Communication Language:** Russian
+**Communication Language With User:** Russian
 
 **Exceptions** (you can keep English words for):
 - Company names (Discord, Telegram)
@@ -18,5 +18,4 @@
 - **System:** NixOS
 - **Shell:** zsh
 - **Primary Editor:** vscode & opencode
-- **Notes:** if you think you are in the claude code environment, you are not. 
-User uses meridian service to simulate claude code environment. You are in the opencode - use opencode tools.
+- **Reminder:** when you don't have some tools, you can use `nix-shell -p <package>` to install one

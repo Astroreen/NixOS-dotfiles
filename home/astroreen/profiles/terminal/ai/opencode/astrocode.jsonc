@@ -403,11 +403,11 @@
 
     // ── Skills ──────────────────────────────────────────────────────────────
     // Extra skill directories to bridge into opencode's native skills dir
-    // (~/.config/opencode/skills). oh-my kept its own cache at
-    // ~/.cache/opencode/skills — list it here to make those skills usable again.
-    // Each `<name>/SKILL.md` subdir is symlinked in (never overwrites existing).
+    // (~/.config/opencode/skills). Previously pointed at ~/.cache/opencode/skills
+    // (oh-my-openagent leftovers: security-research, security-review) — cleared
+    // 2026-10-12; empty list means no cache skills get re-symlinked.
     "skills": {
-        "extraDirs": ["/home/astroreen/.cache/opencode/skills"],
+        "extraDirs": [],
     },
 
     // ── Idle continuation ───────────────────────────────────────────────────

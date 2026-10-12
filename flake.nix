@@ -35,6 +35,15 @@
       flake = false;
     };
 
+    # Matt Pocock skills: engineering/productivity opencode skills (MIT).
+    # Not a flake — consumed as a plain source tree, same as caveman.
+    # Selected skills copied into ~/.config/opencode/skills/ via
+    # custom.ai.skill.matt-pocock.include (see home/modules/terminal/ai/skills/).
+    mattpocock-skills = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
+
     # Astrocode: model-aware opencode plugin (agent personas, fallback, slash
     # commands). Real flake — packages.default is a minimal filtered copy
     # (agents/, skills/, src/, package.json, tsconfig.json, README.md),
@@ -77,23 +86,29 @@
     let
       # Define systems we support to instantiate pkgs once per system
       supportedSystems = [ "x86_64-linux" ];
-      
+
       # Helper function to generate an attribute set '{ x86_64-linux = ...; }'
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
       # Instantiate pkgs exactly once per system
-      pkgsFor = forAllSystems (system: import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
-        config.android_sdk.accept_license = true;
-      });
+      pkgsFor = forAllSystems (
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          config.android_sdk.accept_license = true;
+        }
+      );
 
       # Instantiate stable pkgs exactly once per system
-      pkgsStableFor = forAllSystems (system: import inputs.nixpkgs-stable {
-        inherit system;
-        config.allowUnfree = true;
-        config.android_sdk.accept_license = true;
-      });
+      pkgsStableFor = forAllSystems (
+        system:
+        import inputs.nixpkgs-stable {
+          inherit system;
+          config.allowUnfree = true;
+          config.android_sdk.accept_license = true;
+        }
+      );
 
       createHost =
         {
@@ -114,7 +129,7 @@
             # Pass pre-instantiated pkgs via modules
             pkgs = hostPkgs;
             system = systemVersion;
-            
+
             specialArgs = {
               inherit inputs host;
               pkgs-stable = hostPkgsStable;
@@ -149,7 +164,8 @@
                   stateVersion = "26.05";
                 };
               }
-            ] ++ (if extraHomeModuleSettings != {} then [ extraHomeModuleSettings ] else []);
+            ]
+            ++ (if extraHomeModuleSettings != { } then [ extraHomeModuleSettings ] else [ ]);
           };
         };
 
@@ -171,8 +187,6 @@
         map (h: h.nixosConfigurations) hostConfigs
       );
 
-      homeConfigurations = builtins.foldl' (a: b: a // b) { } (
-        map (h: h.homeConfigurations) hostConfigs
-      );
+      homeConfigurations = builtins.foldl' (a: b: a // b) { } (map (h: h.homeConfigurations) hostConfigs);
     };
 }

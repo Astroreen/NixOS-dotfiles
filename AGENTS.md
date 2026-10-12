@@ -6,30 +6,50 @@ NixOS flake-based dotfiles. Two hosts (`laptop`, `server`), user `astroreen`. Ho
 
 ## Build Commands
 
-All scripts run inside the `devenv` shell (auto-activated via `.envrc` + direnv).
+Two rules agents get wrong constantly — read both before running anything:
+
+1. **Host**: never hardcode `laptop` or `server`. The machine you are on RIGHT NOW is the deploy
+   target. Determine it with `hostname -s` — output is exactly the flake host name (`laptop` or `server`).
+2. **devenv**: scripts (`nixos`, `home`, `nx`, `hm`, `update-flake`, ...) exist ONLY inside the
+   `devenv` shell. Interactive `.envrc`/direnv auto-activation does NOT apply to agent/SSH bash
+   sessions — every call must be wrapped: `devenv shell -- <command>`. Run from the repo root.
+
+### Host selection
+
+```bash
+hostname -s    # → "laptop" or "server" — use this as <host> in every command below
+```
+
+Use `"$(hostname -s)"` substitution — never a literal host name copied from examples. If the output
+is neither `laptop` nor `server`, stop and ask the user which flake host to target.
+
+- `switch` / `test` / `rollback` / `dry-activate` ALWAYS target the current machine (`"$(hostname -s)"`).
+- `build` / `dry-build` for the OTHER host only when the user explicitly names that host.
 
 ### NixOS — `nixos <action> <host>` (alias: `nx`)
 
 ```bash
-nixos dry-build laptop      # Evaluate + show store paths — no side effects
-nixos dry-activate laptop   # Show what activation would do — no side effects
-nixos test laptop           # Build + activate, no bootloader entry (safe)
-nixos switch laptop         # Build + activate + bootloader entry
-nixos build laptop          # Build only, no activation
-nixos rollback laptop       # Roll back to previous generation
+devenv shell -- nixos dry-build "$(hostname -s)"      # Evaluate + show store paths — no side effects
+devenv shell -- nixos dry-activate "$(hostname -s)"   # Show what activation would do — no side effects
+devenv shell -- nixos test "$(hostname -s)"           # Build + activate, no bootloader entry (safe)
+devenv shell -- nixos switch "$(hostname -s)"         # Build + activate + bootloader entry
+devenv shell -- nixos build "$(hostname -s)"          # Build only, no activation
+devenv shell -- nixos rollback "$(hostname -s)"       # Roll back to previous generation
 ```
 
-Replace `laptop` with `server` for server. **Always `dry-build` before applying.**
+**Always `dry-build` before applying.**
 
 Every `nixos` call runs `git add .` first — unstaged changes are invisible to nixos-rebuild.
-Every `nixos` call uses `sudo` after `git add .` — some changes require sudo priveleges.
+Every `nixos` call uses `sudo` after `git add .` — some changes require sudo privileges.
+If `sudo` fails with "a terminal is required", the session has no TTY — rebuild must run from an
+interactive shell (or sudoers needs `NOPASSWD` for `nixos-rebuild`).
 
 ### Home Manager — `home <action> <host>` (alias: `hm`)
 
 ```bash
-home switch laptop          # Build + activate HM config
-home build laptop           # Build only
-home rollback laptop        # Roll back HM generation
+devenv shell -- home switch "$(hostname -s)"          # Build + activate HM config
+devenv shell -- home build "$(hostname -s)"           # Build only
+devenv shell -- home rollback "$(hostname -s)"        # Roll back HM generation
 ```
 
 HM configs are `homeConfigurations."astroreen@<host>"` in the flake — managed independently from the NixOS system.
@@ -37,24 +57,28 @@ HM configs are `homeConfigurations."astroreen@<host>"` in the flake — managed 
 ### Other
 
 ```bash
-update-flake                # nix flake update
-delete-garbage              # nix-collect-garbage --delete-older-than 7d + nix-store --gc
-start-work / stop-work      # OpenVPN + DNS setup/teardown for work
-add-work-dns / delete-work-dns  # DNS only (no VPN start/stop)
-sync-caelestia-config       # Merge official caelestia example config into host JSONs (scripts/sync-caelestia-config.py)
-list-generations            # nixos-rebuild list-generations
-delete-generations [N]      # Delete old NixOS generations, keep last N (default 5)
-find-large-files [N] [dir]  # Top-N largest files on disk (default 30, /)
+devenv shell -- update-flake                # nix flake update
+devenv shell -- delete-garbage              # nix-collect-garbage --delete-older-than 7d + nix-store --gc
+devenv shell -- start-work                  # OpenVPN + DNS setup for work
+devenv shell -- stop-work                   # OpenVPN + DNS teardown
+devenv shell -- add-work-dns                # DNS only (no VPN start)
+devenv shell -- delete-work-dns             # DNS only (no VPN stop)
+devenv shell -- sync-caelestia-config       # Merge official caelestia example config into host JSONs (scripts/sync-caelestia-config.py)
+devenv shell -- list-generations            # nixos-rebuild list-generations
+devenv shell -- delete-generations [N]      # Delete old NixOS generations, keep last N (default 5)
+devenv shell -- find-large-files [N] [dir]  # Top-N largest files on disk (default 30, /)
 ```
 
 ### Linting / Formatting
 
+Same wrapper — these also come from the devenv shell:
+
 ```bash
-statix check .              # Static analysis: antipatterns, deprecated options
-statix fix .                # Auto-fix statix warnings
-deadnix .                   # Find unused bindings/args
-deadnix --edit .            # Auto-remove dead code
-nixfmt <file>.nix           # Format single file (2-space indent)
+devenv shell -- statix check .              # Static analysis: antipatterns, deprecated options
+devenv shell -- statix fix .                # Auto-fix statix warnings
+devenv shell -- deadnix .                   # Find unused bindings/args
+devenv shell -- deadnix --edit .            # Auto-remove dead code
+devenv shell -- nixfmt <file>.nix           # Format single file (2-space indent)
 ```
 
 ---

@@ -39,11 +39,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1791823823,
-        "narHash": "sha256-nHrABF9W26nKCXXfwwOicl3cfgd458TI8Y1SfOhzifs=",
+        "lastModified": 1791829367,
+        "narHash": "sha256-TA2vb+zgF5fOFguozaRJGMiB27LTd1W9tCMU23cMX7A=",
         "owner": "Astroreen",
         "repo": "astrocode",
-        "rev": "10a3180f02a79b03764cbc033fc50422f64e04c9",
+        "rev": "d3537b7dd749c76ed97be8cdbe8e5948f8e9a6a6",
         "type": "github"
       },
       "original": {
@@ -553,6 +553,22 @@
         "type": "github"
       }
     },
+    "mattpocock-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791543409,
+        "narHash": "sha256-NljCSZNI3sZ+vbCw7pRdrwR7try4BxOFp4gdjuWYtzs=",
+        "owner": "mattpocock",
+        "repo": "skills",
+        "rev": "49dd158d1076134a641b33efb035946536778336",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mattpocock",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1789921291,
@@ -684,6 +700,7 @@
         "hypr-dynamic-cursors": "hypr-dynamic-cursors",
         "hyprland": "hyprland",
         "hyprmod": "hyprmod",
+        "mattpocock-skills": "mattpocock-skills",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable",
         "quickshell": "quickshell"
