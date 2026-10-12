@@ -90,6 +90,10 @@ in
           "wait-what"
         ];
       };
+
+      # Unslop — strip AI writing tells from prose (user-invoked, from
+      # github:cursor/plugins pstack/skills/unslop).
+      unslop.enable = true;
     };
   };
 

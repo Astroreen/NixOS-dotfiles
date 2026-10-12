@@ -83,6 +83,32 @@ devenv shell -- nixfmt <file>.nix           # Format single file (2-space indent
 
 ---
 
+## File Placement Rules — read before creating ANY file
+
+Every new file must land at one of these paths. Decide the path from this table, never guess:
+
+| Path | Scope | What goes there |
+|---|---|---|
+| `home/` | Home-manager (user-level) | HM config only: `home.*`, `home.packages`, `home.file.*`, `wayland.windowManager.*`, HM `programs.*` |
+| `hosts/` | System-level NixOS | System config only: `services.*`, `environment.*`, `hardware.*`, `networking.*`, `virtualisation.*` |
+| `home/<user>/`, `hosts/<user>/` | That user only | User-specific settings/files: entry files (`home.nix`, `configuration.nix`), `common/`, host overrides |
+| `home/<user>/profiles/`, `hosts/<user>/profiles/` | That user, **preconfigured** | Programs/settings with concrete values already chosen for this user — imported as-is, ready to use |
+| `home/modules/`, `hosts/modules/` | **Any user** | Generic modules with **no preconfigured values** — they ship options and `lib.mkDefault` defaults only; whoever imports them configures/tweaks them |
+| `package/` (currently only `home/package/`) | — | Nix package definitions for software **not in nixpkgs**, consumed via `pkgs.callPackage` (e.g. `home/package/unmined.nix`, `home/package/gui/swappy-shim.nix`) |
+
+Two distinctions that decide where a file goes:
+
+1. **`profiles/` = preconfigured, `modules/` = configurable.** `profiles/` holds ready-made
+   values for a specific user — import it and it works. `modules/` is a reusable skeleton with
+   options/defaults and nothing hardcoded: the importing user supplies the values. If a file under
+   `modules/` contains user-specific concrete values, it belongs in `profiles/` instead.
+2. **`profiles/` and `modules/` are mirrored.** Both trees use the identical relative structure,
+   in `home/` and `hosts/` alike — adding something related means creating the same relative path
+   on the other side, never a new layout. Example: AI tooling lives at `terminal/ai/...` in both
+   `home/modules/terminal/ai/` and `home/astroreen/profiles/terminal/ai/`.
+
+---
+
 ## Repository Structure
 
 ```
@@ -91,30 +117,26 @@ devenv.nix                 # Dev shell: nixos/home/nx/hm scripts, VPN helpers
 overlays/                  # nixpkgs overlays: default.nix (aggregator), spotx.nix
 hosts/
   astroreen/
-    common/                # Shared system settings (was hosts/common-*.nix, certificates.nix, nix-ld.nix pre-reorg)
+    common/                # Shared system settings
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
     server/configuration.nix   # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
-    profiles/              # System-level profiles (replaces old hosts/modules/{gui,tui,lang,style,wm} split)
+    profiles/              # System-level profiles — preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
-  modules/                 # Legacy system module dir — mostly superseded by hosts/astroreen/profiles/
+  modules/                 # Generic system modules (options/defaults only, no preconfigured values) — currently empty
 home/
   astroreen/
     common/                # Shared HM config (hyprland/caelestia, assets)
     laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia)
     server/home.nix        # Server HM overrides
-    profiles/              # HM profiles (replaces old home/modules/{gui,tui,lang,style,wm} split)
+    profiles/              # HM profiles — preconfigured for astroreen
       apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/hyprland/
   modules/
-    terminal/ai/           # AI tooling (moved from modules/tui/ai) — see terminal/ai/AGENTS.md
+    terminal/ai/           # AI tooling — see terminal/ai/AGENTS.md
     terminal/dictation/    # Push-to-talk dictation (faster-whisper server + socket daemon + Quickshell overlay)
+  package/                 # Packages missing from nixpkgs — pkgs.callPackage (unmined.nix, gui/swappy-shim.nix)
 .opencode/                 # Local opencode plugin dev dir (package.json: @opencode-ai/plugin) — NOT the config
 scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-caelestia-config`)
 ```
-
-> **2026-07 reorg note**: `hosts/modules/{gui,tui,lang,style,wm}` and `home/modules/{gui,tui,lang,style,wm}`
-> were replaced by `hosts/astroreen/profiles/*` and `home/astroreen/profiles/*`. Host/home entry files also
-> moved under the username: `hosts/${username}/${host}/configuration.nix`, `home/${username}/${host}/home.nix`
-> (see `flake.nix` `createHost`). `home/modules/` now holds `terminal/ai/` and `terminal/dictation/`.
 
 ---
 
@@ -146,7 +168,7 @@ Split across two locations — see `home/modules/terminal/ai/AGENTS.md` for the 
 | Edit astrocode model/agent/fallback config | `home/astroreen/profiles/terminal/ai/opencode/astrocode.jsonc` — deployed to `~/.opencode/astrocode.jsonc` |
 | Add agent definition | `home/astroreen/profiles/terminal/ai/agents/` — `.md` file (currently PromptHardener, PromptMaster) |
 | Add slash command | `home/modules/terminal/ai/commands/` — `.md` file |
-| Add/edit skill (learn, caveman) | `home/modules/terminal/ai/skills/` — toggled via `custom.ai.skill.{learn,caveman}.enable` |
+| Add/edit skill (learn, caveman, unslop) | `home/modules/terminal/ai/skills/` — toggled via `custom.ai.skill.{learn,caveman,unslop}.enable` |
 | Meridian proxy config | `home/modules/terminal/ai/meridian.nix` — `custom.ai.meridian.*`, port 3456, systemd user service |
 
 - All MCPs disabled by default (`lib.mkDefault true`) — opt-in per-host
@@ -182,7 +204,6 @@ Only inside list literals — **never at file scope**:
 environment.systemPackages = with pkgs; [ git curl wget ];  # correct
 ```
 `with lib;` acceptable at top of `options = { ... }` blocks.
-No current file-scope `with` violations found (previously-noted legacy violations have been cleaned up).
 
 ### `let-in`, imports, naming
 - `let cfg = config.custom.<module>;` is the conventional alias
@@ -230,7 +251,7 @@ flake.nix (createHost)
     → ../profiles/apps/{steam,nautilus,wireshark}.nix, ../profiles/terminal/{shell,openvpn,ssh,tailscale}.nix,
       ../profiles/lang/flutter.nix
 ```
-`hosts/modules/` is currently empty — fully superseded by `hosts/astroreen/profiles/`.
+`hosts/modules/` is currently empty.
 
 **Home Manager:**
 ```
@@ -281,4 +302,3 @@ Reusable HM modules (not profiles), under `home/modules/`:
 - Opencode theme: `gruvbox`; plugins: md-table-formatter, notifier, dcp (context compression), vibeguard, anthropic-auth, claude-auth
 - `inputs.caveman` (flake=false) is a plain source tree for the caveman opencode skill
 - `nixpkgs-stable` (`nixos-25.11`) available as `pkgs-stable` in all module specialArgs
-- Both hosts set `system.stateVersion = "25.11"`; HM `stateVersion = "26.05"` (set once in `flake.nix`)

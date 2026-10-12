@@ -30,44 +30,44 @@ let
       description = "Fetch YouTube video transcripts";
     };
 
-    persistent-memory = {
-      command = "npx";
-      args = [
-        "-y"
-        "@modelcontextprotocol/server-memory"
-      ];
-      env = {
-        MEMORY_FILE_PATH = "${config.xdg.configHome}/mcp/memory.jsonl";
-      };
-      description = "Persistent memory across sessions";
-    };
+    # persistent-memory = {
+    #   command = "npx";
+    #   args = [
+    #     "-y"
+    #     "@modelcontextprotocol/server-memory"
+    #   ];
+    #   env = {
+    #     MEMORY_FILE_PATH = "${config.xdg.configHome}/mcp/memory.jsonl";
+    #   };
+    #   description = "Persistent memory across sessions";
+    # };
 
-    sequential-thinking = {
-      command = "npx";
-      args = [
-        "-y"
-        "@modelcontextprotocol/server-sequential-thinking"
-      ];
-      description = "Chain-of-thought reasoning";
-    };
+    # sequential-thinking = {
+    #   command = "npx";
+    #   args = [
+    #     "-y"
+    #     "@modelcontextprotocol/server-sequential-thinking"
+    #   ];
+    #   description = "Chain-of-thought reasoning";
+    # };
 
-    magic-ui-components = {
-      command = "npx";
-      args = [
-        "-y"
-        "@magicuidesign/mcp@latest"
-      ];
-      description = "React components";
-    };
+    # magic-ui-components = {
+    #   command = "npx";
+    #   args = [
+    #     "-y"
+    #     "@magicuidesign/mcp@latest"
+    #   ];
+    #   description = "React components";
+    # };
 
-    token-optimizer = {
-      command = "npx";
-      args = [
-        "-y"
-        "token-optimizer-mcp"
-      ];
-      description = "Token optimization for 95%+ context reduction via content deduplication and compression in session";
-    };
+    # token-optimizer = {
+    #   command = "npx";
+    #   args = [
+    #     "-y"
+    #     "token-optimizer-mcp"
+    #   ];
+    #   description = "Token optimization for 95%+ context reduction via content deduplication and compression in session";
+    # };
 
     cloudflare-docs = {
       type = "http";
@@ -91,6 +91,16 @@ let
         "@drawio/mcp"
       ];
       description = "Draw.io diagram interactions";
+    };
+
+    rea = {
+      command = "npx";
+      args = [
+        "-y"
+        "rea-agents@6.4.0"
+        "mcp"
+      ];
+      description = "Reverse engineering of binaries, APK, Electron, .NET";
     };
   };
 in

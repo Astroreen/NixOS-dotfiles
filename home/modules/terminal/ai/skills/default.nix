@@ -114,6 +114,11 @@ in
           '';
         };
       };
+
+      # Local skill payload (skills/unslop/SKILL.md), copied verbatim.
+      unslop = {
+        enable = mkEnableOption "Unslop skill — strip AI writing tells from prose";
+      };
     };
   };
 
@@ -170,6 +175,13 @@ in
         lib.concatMapStrings
           (name: copyOne mattPocockSkills.${name} "${baseCfg.settings.configDir}/skills/${name}")
           (if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include)
+      );
+    })
+
+    (lib.mkIf cfg.unslop.enable {
+      # Copy the local unslop skill payload into ~/.config/opencode/skills/unslop/.
+      home.activation.copyUnslopSkill = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+        copyDir ./unslop "${baseCfg.settings.configDir}/skills/unslop"
       );
     })
 
