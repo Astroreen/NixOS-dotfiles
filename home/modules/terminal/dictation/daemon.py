@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 """Push-to-talk dictation daemon.
 
-Triggered by Hyprland keybinds (``hl.bind`` on press, ``{ release = true; }`` on
-release) which run this same file in client mode:
+Triggered by a Hyprland keybind which runs this same file in client mode:
 
-    dictation-daemon start    # key pressed
-    dictation-daemon stop     # key released
+    dictation-daemon toggle   # press to start listening, press again to stop
 
 While "recording" it captures 16 kHz mono s16 audio with ``pw-record``,
 transcribes on stop through the local faster-whisper HTTP server, and injects

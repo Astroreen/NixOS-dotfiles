@@ -234,7 +234,7 @@ Reusable HM modules (not profiles), under `home/modules/`:
   CUDA, model `faster-whisper-large-v3`), `daemon.py` (unix-socket PTT controller; also its own client via
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
   WM-agnostic; imported from `home/astroreen/common/imports.nix`. The Hyprland hold-to-talk binds live in
-  `home/astroreen/common/hyprland/caelestia/default.nix` (`SUPER + F9` start, bare `F9` release stop).
+  `home/astroreen/common/hyprland/caelestia/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
   Server sets `custom.dictation.host = "0.0.0.0"` to expose the transcription server on the LAN/tailnet.
 
 **Dormant / unimported** (exist but not referenced in `home/astroreen/common/imports.nix` or any host `home.nix`):
