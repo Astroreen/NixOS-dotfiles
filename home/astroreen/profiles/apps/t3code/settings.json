@@ -1,0 +1,51 @@
+{
+  "defaultTheme": "gruvbox",
+  "storageCleanup": {
+    "worktreeOnMerge": true,
+    "worktreeOnDelete": true
+  },
+  "worktreesDirectory": "~/.gitworktrees",
+  "defaultModelSelection": {
+    "instanceId": "opencode",
+    "model": "openrouter/~deepseek/deepseek-flash-latest",
+    "options": [
+      {
+        "id": "agent",
+        "value": "Sisyphus - ultraworker"
+      }
+    ]
+  },
+  "providerInstances": {
+    "opencode": {
+      "driver": "opencode",
+      "enabled": true,
+      "config": {
+        "binaryPath": "opencode",
+        "serverUrl": "",
+        "customModels": []
+      }
+    },
+    "claudeAgent": {
+      "driver": "claudeAgent",
+      "enabled": false,
+      "config": {
+        "binaryPath": "claude",
+        "homePath": "",
+        "customModels": [],
+        "launchArgs": "",
+        "autoCompactWindow": ""
+      }
+    },
+    "codex": {
+      "driver": "codex",
+      "enabled": false,
+      "config": {
+        "binaryPath": "codex",
+        "homePath": "",
+        "shadowHomePath": "",
+        "launchArgs": "",
+        "customModels": []
+      }
+    }
+  }
+}

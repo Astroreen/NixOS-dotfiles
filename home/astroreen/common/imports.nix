@@ -18,6 +18,7 @@ _: {
     ../profiles/apps/music.nix # Music apps configuration
     ../profiles/apps/minecraft.nix # Minecraft configuration
     ../profiles/apps/hyprmod.nix # HyprMod settings app for Hyprland (mutable hyprland-gui.lua)
+    ../profiles/apps/t3code # T3 Code theme + settings + keybindings sync
 
     # Terminal apps (tui)
     ../profiles/terminal/wine.nix # Wine configuration

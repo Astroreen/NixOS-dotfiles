@@ -1,10 +1,10 @@
 { pkgs, ... }:
 let
-  swappyShim = pkgs.callPackage ../../../package/gui/swappy-shim.nix { };
+  swappyShim = pkgs.callPackage ../../../package/apps/swappy-shim.nix { };
 in
 {
   # Satty - screenshot annotation tool + fake `swappy` shim (the shim
-  # itself lives in home/package/gui/swappy-shim.nix). The caelestia
+  # itself lives in home/package/apps/swappy-shim.nix). The caelestia
   # package overrides that feed the shim live in
   # home/astroreen/profiles/wm/hyprland/caelestia/default.nix (that is
   # where further caelestia shell/package overrides belong too).

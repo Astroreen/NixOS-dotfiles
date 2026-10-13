@@ -2,9 +2,9 @@
 let
   system = pkgs.stdenv.hostPlatform.system;
 
-  # Fake `swappy` -> satty, see home/package/gui/swappy-shim.nix for the
+  # Fake `swappy` -> satty, see home/package/apps/swappy-shim.nix for the
   # shim itself (callPackage style, like unmined.nix).
-  swappyShim = pkgs.callPackage ../../../../../package/gui/swappy-shim.nix { };
+  swappyShim = pkgs.callPackage ../../../../../package/apps/swappy-shim.nix { };
 
   # The caelestia shell/cli packages bake their dependency paths into the
   # package wrappers (makeWrapper --prefix PATH), which SHADOWS anything

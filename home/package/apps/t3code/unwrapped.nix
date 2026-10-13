@@ -53,7 +53,7 @@ stdenv.mkDerivation (
   {
     pname = "t3code-unwrapped";
     # Nightly channel: nixpkgs tracks stable releases only, so we pin the
-    # latest nightly tag ourselves (see home/package/t3code/).
+    # latest nightly tag ourselves (see home/package/apps/t3code/).
     version = "0.0.46-nightly.20261013.3053";
     strictDeps = true;
     __structuredAttrs = true;

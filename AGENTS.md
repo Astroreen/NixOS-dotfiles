@@ -95,7 +95,7 @@ from this table; never guess:
 | `home/<user>/`, `hosts/<user>/` | That user only | User-specific settings/files: entry files (`home.nix`, `configuration.nix`), `common/`, host overrides |
 | `home/<user>/profiles/`, `hosts/<user>/profiles/` | That user, **preconfigured** | Programs/settings with concrete values already chosen for this user, imported as-is, ready to use |
 | `home/modules/`, `hosts/modules/` | **Any user** | Generic modules with **no preconfigured values**. They ship options and `lib.mkDefault` defaults only; whoever imports them configures them |
-| `package/` (currently only `home/package/`) |  | Nix package definitions for software **not in nixpkgs**, built with `pkgs.callPackage` (e.g. `home/package/unmined.nix`, `home/package/gui/swappy-shim.nix`) |
+| `package/` (currently only `home/package/`) |  | Nix package definitions for software **not in nixpkgs**, built with `pkgs.callPackage` (e.g. `home/package/unmined.nix`, `home/package/apps/swappy-shim.nix`) |
 
 Two distinctions that decide where a file goes:
 
@@ -134,7 +134,7 @@ home/
   modules/
     terminal/ai/           # AI tooling, see terminal/ai/AGENTS.md
     terminal/dictation/    # Push-to-talk dictation (faster-whisper server + socket daemon + Quickshell overlay)
-  package/                 # Packages missing from nixpkgs, built with pkgs.callPackage (unmined.nix, gui/swappy-shim.nix)
+  package/                 # Packages missing from nixpkgs, built with pkgs.callPackage (unmined.nix, apps/swappy-shim.nix, apps/t3code/)
   .opencode/                 # Local opencode plugin dev dir (package.json: @opencode-ai/plugin), not the config
 scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-caelestia-config`)
 ```
