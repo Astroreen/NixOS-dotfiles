@@ -161,8 +161,6 @@
         8573 # Pi-hole web interface
         11434 # Ollama API port
         7777 # faster-whisper server port
-        9167 # KitchenOwl port
-        4096 # OpenCode server port
         25565 # Minecraft server port
       ];
 
