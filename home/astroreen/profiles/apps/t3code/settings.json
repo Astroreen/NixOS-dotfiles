@@ -1,10 +1,16 @@
 {
-  "defaultTheme": "gruvbox",
   "storageCleanup": {
     "worktreeOnMerge": true,
-    "worktreeOnDelete": true
+    "worktreeOnDelete": true,
+    "browserArtifactsAfterDays": 8,
+    "logsAfterDays": 8
   },
   "worktreesDirectory": "~/.gitworktrees",
+  "previousWorktreesDirectories": [
+    "~/worktrees",
+    "~/.worktrees"
+  ],
+  "defaultAutoPull": true,
   "defaultModelSelection": {
     "instanceId": "opencode",
     "model": "openrouter/~deepseek/deepseek-flash-latest",
@@ -15,6 +21,22 @@
       }
     ]
   },
+  "projectSettingsFolded": true,
+  "enableAgentDeviceAccess": true,
+  "enableDeviceSupport": true,
+  "deviceOnboardingCompleted": true,
+  "defaultTheme": "gruvbox",
+  "defaultThreadEnvMode": "local",
+  "textGenerationModelSelection": {
+    "instanceId": "opencode",
+    "model": "openrouter/~deepseek/deepseek-flash-latest"
+  },
+  "branchNamePrefix": "",
+  "removeAgentCreditsOnMerge": true,
+  "sourceControlWriterModelSelection": {
+    "instanceId": "opencode",
+    "model": "openrouter/~deepseek/deepseek-flash-latest"
+  },
   "providerInstances": {
     "opencode": {
       "driver": "opencode",
@@ -22,6 +44,17 @@
       "config": {
         "binaryPath": "opencode",
         "serverUrl": "",
+        "customModels": []
+      }
+    },
+    "codex": {
+      "driver": "codex",
+      "enabled": false,
+      "config": {
+        "binaryPath": "codex",
+        "homePath": "",
+        "shadowHomePath": "",
+        "launchArgs": "",
         "customModels": []
       }
     },
@@ -34,17 +67,6 @@
         "customModels": [],
         "launchArgs": "",
         "autoCompactWindow": ""
-      }
-    },
-    "codex": {
-      "driver": "codex",
-      "enabled": false,
-      "config": {
-        "binaryPath": "codex",
-        "homePath": "",
-        "shadowHomePath": "",
-        "launchArgs": "",
-        "customModels": []
       }
     }
   }
