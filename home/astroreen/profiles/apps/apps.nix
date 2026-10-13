@@ -1,5 +1,5 @@
 # Configuration for apps that can be installed just with package
-{pkgs, ... }:
+{ pkgs, ... }:
 {
   home.packages = with pkgs; [
     # Communication
@@ -30,7 +30,8 @@
     postman # API development environment
     thonny # Python IDE
     orca-slicer # 3D printing slicer
-    t3code
+    # t3code nightly: nixpkgs tracks stable only, own package in home/package/t3code/
+    (pkgs.callPackage ../../../package/t3code { })
 
     # Internet
     qbittorrent # Torrent client
