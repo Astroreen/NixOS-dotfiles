@@ -73,6 +73,15 @@ in
         Environment = [
           "MERIDIAN_HOST=${cfg.settings.host}"
           "MERIDIAN_PORT=${builtins.toString cfg.settings.port}"
+          # Disable 1M context window: claude-* models like claude-sonnet-5-5 are
+          # unrecognized by the claude-code CLI (assumes 200k), and the CLI enables
+          # context-1m beta for >200k input which requires "extra usage" credits.
+          # Keep 200k to stay within the Max subscription's included usage.
+          "MERIDIAN_1M_CONTEXT_SUPPORT=0"
+          # Prevent the CLI from auto-compacting/enabling 1m beta for unrecognized
+          # models. Without this, the CLI assumes 200k and force-enables context-1m
+          # when input exceeds it, triggering billing errors on Max subscriptions.
+          "CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1"
         ];
       };
       Install.WantedBy = [ "default.target" ];
