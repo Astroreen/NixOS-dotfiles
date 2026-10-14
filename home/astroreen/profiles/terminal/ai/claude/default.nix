@@ -24,20 +24,16 @@ let
 in
 {
   imports = [
-    ../../../../../modules/terminal/ai/mcps.nix
+    ../../../../../modules/terminal/ai # agents/commands/skills payload + custom.ai.* options
   ];
 
   programs = {
     claude-code = {
       enable = true;
 
-      context = ../CustomPrompt.md;
-      agentsDir = ../agents;
-      commandsDir = ../../../../../modules/terminal/ai/commands;
-      
-      skills = {
-        learn = ../../../../../modules/terminal/ai/skills/learn/SKILL.md;
-      };
+      # Everything except the package comes from custom.ai.*
+      # (`prompt` → CLAUDE.md, `agent`/`command` → agentsDir/commandsDir,
+      # `skill` → skills).
 
       package = claudeFixed;
     };

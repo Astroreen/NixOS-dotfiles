@@ -6,20 +6,22 @@
   ...
 }:
 let
-  baseCfg = config.custom.ai;
+  opencodePackage =
+    inputs.opencode-v2.packages.${pkgs.stdenv.hostPlatform.system}.opencode.overrideAttrs
+      (old: {
+        # Upstream's src fileset (nix/node_modules.nix) omits the repo-root
+        # script/ dir, so packages/cli/script/build.ts fails to resolve
+        # ../../../script/native-arch. Vendor that single file straight from
+        # the same pinned input; it is self-contained (only node:fs/promises).
+        postPatch = (old.postPatch or "") + ''
+          mkdir -p script
+          cp ${inputs.opencode-v2}/script/native-arch.ts script/native-arch.ts
+        '';
 
-  copyFile = src: dest: ''
-    mkdir -p $(dirname ${dest})
-    cp ${src} ${dest}
-    chmod 777 ${dest}
-  '';
-
-  copyDir = src: dest: ''
-    mkdir -p ${dest}
-    cp -r ${src}/* ${dest}/
-    chmod -R 777 ${dest}
-    find ${dest} -type d -exec chmod 755 {} \;
-  '';
+        postInstall = (old.postInstall or "") + ''
+          wrapProgram "$out"/bin/opencode --set OPENCODE_DISABLE_AUTOUPDATE true
+        '';
+      });
 in
 {
   imports = [
@@ -32,12 +34,57 @@ in
   # meridian.nix points at it. Integration routes anthropic models through the proxy.
   custom.ai = {
     meridian = {
-      enable = true;
+      enable = false;
       enableOpencodeIntegration = false;
     };
 
+    # Global prompt (AGENTS.md for opencode, CLAUDE.md for claude-code). The
+    # module appends the caveman always-on snippet when it is enabled.
+    prompt = ../CustomPrompt.md;
+
+    # Bundled payload (home/modules/terminal/ai/<kind>/<name>.md). Shared with
+    # claude-code: the modules wire both programs from these lists.
+    agent.local.include = [
+      "atlas"
+      "explore"
+      "hephaestus"
+      "librarian"
+      "metis"
+      "momus"
+      "multimodal-looker"
+      "oracle"
+      "prometheus"
+      "scribe"
+      "sisyphus"
+      "sisyphus-junior"
+    ];
+
+    command.local.include = [
+      "goal"
+      "handoff"
+      "hyperplan"
+      "refactor"
+      "remove-ai-slops"
+      "start-work"
+    ];
+
     skill = {
-      learn.enable = false;
+      # Bundled local skills (home/modules/terminal/ai/skills/<name>) to deploy.
+      local.include = [
+        "commit-message"
+        "design-taste-frontend"
+        "docx"
+        "frontend-design"
+        "spike"
+        "subagent-driven-development"
+        "systematic-debugging"
+        "test-driven-development"
+        # user-invoked: its SKILL.md sets disable-model-invocation, so the model
+        # never auto-loads it (pick it via /skills or @unslop); from
+        # github:cursor/plugins pstack/skills/unslop
+        "unslop"
+        "verify-before-done"
+      ];
 
       # Caveman — on-demand only (alwaysOn off since 2026-10-12, experiment).
       # include trims the upstream set: keep core + local tools + native
@@ -93,10 +140,6 @@ in
           "wait-what"
         ];
       };
-
-      # Unslop — strip AI writing tells from prose (user-invoked, from
-      # github:cursor/plugins pstack/skills/unslop).
-      unslop.enable = true;
     };
   };
 
@@ -114,26 +157,7 @@ in
     # v1 source layout (packages/opencode/src/tool/*) and v2 rewrote the
     # subagent/job lifecycle (packages/core/src/session/subagent-completion.ts).
     # The fallback-abort flow must be re-verified against v2 before porting it.
-    package = inputs.opencode-v2.packages.${pkgs.stdenv.hostPlatform.system}.opencode.overrideAttrs (
-      old: {
-        # Upstream's src fileset (nix/node_modules.nix) omits the repo-root
-        # script/ dir, so packages/cli/script/build.ts fails to resolve
-        # ../../../script/native-arch. Vendor that single file straight from
-        # the same pinned input; it is self-contained (only node:fs/promises).
-        postPatch =
-          (old.postPatch or "")
-          + ''
-            mkdir -p script
-            cp ${inputs.opencode-v2}/script/native-arch.ts script/native-arch.ts
-          '';
-
-        postInstall =
-          (old.postInstall or "")
-          + ''
-            wrapProgram "$out"/bin/opencode --set OPENCODE_DISABLE_AUTOUPDATE true
-          '';
-      }
-    );
+    package = opencodePackage;
 
     settings = {
       # Yolo: stop permission prompts. Only external_directory (and doom_loop)
@@ -182,49 +206,6 @@ in
 
   home = {
     activation = {
-      # Copy AGENTS.md
-      copyOpencodeAgentsDoc = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyFile ../CustomPrompt.md "${baseCfg.settings.configDir}/AGENTS.md"
-      );
-
-      # Copy vibeguard config
-      copyVibeguardConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyFile ./vibeguard.config.json "${baseCfg.settings.configDir}/vibeguard.config.json"
-      );
-
-      # Copy DCP config (compress.permission=deny — insurance if the plugin is ever re-added)
-      copyDcpConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyFile ./dcp.jsonc "${baseCfg.settings.configDir}/dcp.jsonc"
-      );
-
-      # Copy agents folder
-      copyOpencodeAgentsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir ../agents "${baseCfg.settings.configDir}/agents"
-      );
-
-      # Copy commands folder
-      copyOpencodeCommandsDir = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir ../../../../../modules/terminal/ai/commands "${baseCfg.settings.configDir}/commands"
-      );
-
-      # Astrocode plugin deployment is disabled while it is being ported to the
-      # opencode v2 plugin API: the v1 entry (default export = function) makes
-      # v2 reject it with "Plugin must export a default definition with an id
-      # and an effect or setup function". Restore the copyAstrocodePlugin /
-      # linkAstrocodePlugin pair (git history) once the v2 port lands.
-      removeAstrocodePlugin = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        rm -f "${baseCfg.settings.configDir}/plugins/astrocode.ts"
-        rm -rf "${baseCfg.settings.configDir}/plugins/.astrocode-src"
-      '';
-
-      # astrocode's own config (model, agents, fallback, skills, reasoning).
-      # Deployed to ~/.opencode/astrocode.jsonc: astrocode walks from each
-      # project dir up to $HOME collecting astrocode.jsonc layers, so this
-      # applies to every project while a project-local file still wins.
-      copyAstrocodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyFile ./astrocode.jsonc "${config.home.homeDirectory}/.opencode/astrocode.jsonc"
-      );
-
       # The opencode background service (`opencode serve --service`) caches the
       # resolved config per location and never invalidates it: the Linux build
       # has no config watcher ("watcher backend not supported"), so a changed
@@ -234,7 +215,7 @@ in
       # config on its next on-demand spawn anyway.
       restartOpencodeService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         STATE_DIR="${config.home.homeDirectory}/.local/state/opencode"
-        CONFIG="${config.home.homeDirectory}/${baseCfg.settings.configDir}/opencode.json"
+        CONFIG="${config.xdg.configHome}/opencode/opencode.json"
         STAMP="$STATE_DIR/hm-opencode-config.sha256"
         mkdir -p "$STATE_DIR"
         hash=$(sha256sum "$CONFIG" | cut -d" " -f1)

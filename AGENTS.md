@@ -159,7 +159,7 @@ Both use Lix (`nix.package = pkgs.lixPackageSets.stable.lix`) instead of stock N
 
 ## AI tooling
 
-AI tooling lives in two places. See `home/modules/terminal/ai/AGENTS.md` for the module reference:
+AI tooling lives in two places:
 
 | Task | File |
 |------|------|
@@ -167,15 +167,20 @@ AI tooling lives in two places. See `home/modules/terminal/ai/AGENTS.md` for the
 | Enable MCP per-host | host HM config, `programs.mcp.servers.<name>.disabled = false` |
 | Add/edit opencode plugin config | `home/astroreen/profiles/terminal/ai/opencode/default.nix` (user-level profile, not under `modules/`) |
 | Edit astrocode model/agent/fallback config | `home/astroreen/profiles/terminal/ai/opencode/astrocode.jsonc`, deployed to `~/.opencode/astrocode.jsonc` |
-| Add agent definition | `home/astroreen/profiles/terminal/ai/agents/`, one `.md` file per agent (currently PromptHardener, PromptMaster) |
-| Add slash command | `home/modules/terminal/ai/commands/`, a `.md` file |
-| Add/edit skill (learn, caveman, unslop) | `home/modules/terminal/ai/skills/`, toggled via `custom.ai.skill.{learn,caveman,unslop}.enable` |
+| Add agent definition | drop `home/modules/terminal/ai/agents/<name>.md`, then list `<name>` in `custom.ai.agent.local.include` |
+| Add slash command | drop `home/modules/terminal/ai/commands/<name>.md`, then list `<name>` in `custom.ai.command.local.include` |
+| Add bundled local skill | drop `home/modules/terminal/ai/skills/<name>/SKILL.md`, then list `<name>` in `custom.ai.skill.local.include` |
+| Adopt an upstream skill | add its name to `custom.ai.skill.caveman.include` / `custom.ai.skill.matt-pocock.include` |
+| Edit the global prompt | `home/astroreen/profiles/terminal/ai/CustomPrompt.md`, wired via `custom.ai.prompt` → opencode `AGENTS.md` + claude-code `CLAUDE.md` |
 | Meridian proxy config | `home/modules/terminal/ai/meridian.nix`, `custom.ai.meridian.*`, port 3456, systemd user service |
 
 - All MCPs are disabled by default (`lib.mkDefault true`); enable them per host
-- Skill/agent files use `home.activation` copy (chmod 777), **not symlinks**, because the files must stay mutable
+- opencode and claude-code are never wired directly: the `custom.ai.*` options declared under `home/modules/terminal/ai/` (`prompt` in `default.nix`, `agent`/`command`/`skill` in their own dirs) set `programs.opencode.*` / `programs.claude-code.*` themselves. profiles only pass the prompt (file or inline text) and pick names
+- Every `*.local.include` is **empty = deploy nothing**; the upstream skill sets `caveman.include` / `matt-pocock.include` are **empty = copy all**. Skill sources are concatenated local → caveman → matt-pocock, so a later source wins a name collision (e.g. matt-pocock's `code-review` shadows the bundled one)
+- Payloads land via home-manager `lndir`, so `~/.config/opencode/{agents,commands,skills}/` and `~/.claude/{agents,commands,skills}/` stay writable directories of read-only store symlinks — edit payloads in the repo, never in `$HOME`
+- opencode's `agents`/`commands` only accept real Nix paths (`lib.isPath`); a store-path string is written as inline file content. Hence `agents(default.nix)` builds its attrset with `bundledDir + "/<name>.md"`, while claude-code (directory option) gets a generated store dir
 - The activation installs Meridian via `npm install` (not a Nix package); nix-ld provides libsql support
-- `CustomPrompt.md` deploys to `~/.config/opencode/AGENTS.md`; the astrocode plugin source is copied from the `inputs.astrocode` flake into `~/.config/opencode/plugins/.astrocode-src`
+- `custom.ai.prompt` (the `CustomPrompt.md` file) deploys as `~/.config/opencode/AGENTS.md` **and** `~/.claude/CLAUDE.md`, with the caveman always-on snippet appended when `custom.ai.skill.caveman.alwaysOn` is on; the astrocode plugin source is copied from the `inputs.astrocode` flake into `~/.config/opencode/plugins/.astrocode-src`
 - A patch to the opencode core (`opencode-task-fallback.patch`) makes an aborted subagent wait for the fallback model instead of reporting "Task cancelled"
 - The opencode web server runs headless on `0.0.0.0:4096` (`--mdns`) via user systemd `default.target`
 
@@ -275,7 +280,7 @@ In `home/astroreen/server/home.nix` only, also imports `../profiles/apps/arduino
 `../../modules/terminal/ai/lmstudio.nix` (the server-only LMStudio package).
 
 Reusable HM modules (not profiles), under `home/modules/`:
-- `home/modules/terminal/ai/` holds MCP servers, the Meridian proxy, and skills/commands infra (see the AI tooling section above).
+- `home/modules/terminal/ai/` holds MCP servers, the Meridian proxy, and the `custom.ai.{agent,command,skill}` payload dirs + options — the single place that wires opencode and claude-code.
 - `home/modules/terminal/dictation/` has push-to-talk dictation: `server.py` (faster-whisper HTTP, port 7777,
   CUDA, model `faster-whisper-large-v3`), `daemon.py` (unix-socket PTT controller; also its own client via
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).

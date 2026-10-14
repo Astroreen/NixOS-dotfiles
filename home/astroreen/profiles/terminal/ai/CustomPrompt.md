@@ -17,5 +17,5 @@
 - **User:** astroreen
 - **System:** NixOS
 - **Shell:** zsh
-- **Primary Editor:** vscode & opencode
+- **Primary Editor:** vscode
 - **Reminder:** when you don't have some tools, you can use `nix-shell -p <package>` to install one

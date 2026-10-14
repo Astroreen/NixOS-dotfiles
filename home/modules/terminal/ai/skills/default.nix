@@ -7,40 +7,14 @@
 }:
 let
   cfg = config.custom.ai.skill;
-  baseCfg = config.custom.ai;
 
-  copyDir = src: dest: ''
-    mkdir -p ${dest}
-    for item in ${src}/*; do
-      name=$(basename "$item")
-      rm -rf "${dest}/$name"
-      cp -r "$item" "${dest}/$name"
-    done
-    chmod -R 777 ${dest}
-    find ${dest} -type d -exec chmod 755 {} \;
-  '';
-
-  copyOne = src: dest: ''
-    rm -rf "${dest}"
-    cp -r ${src} "${dest}"
-    chmod -R 777 "${dest}"
-    find "${dest}" -type d -exec chmod 755 {} \;
-  '';
-
-  # Copy only the entries of `srcDir` whose names are in `names`
-  # (empty names list = copy everything, upstream default).
-  copySelected =
-    srcDir: names: destDir:
-    let
-      entries = builtins.readDir srcDir;
-      wanted = if names == [ ] then entries else lib.filterAttrs (n: _: lib.elem n names) entries;
-    in
-    lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (n: _: copyOne "${srcDir}/${n}" "${destDir}/${n}") wanted
-    );
+  # Bundled local skills: every directory next to this file. Selected by name
+  # via `custom.ai.skill.local.include` (empty = deploy none).
+  bundledDir = ./.;
+  bundledSkills = lib.filterAttrs (_: type: type == "directory") (builtins.readDir bundledDir);
 
   # Skill catalogs, read from the pinned flake inputs at eval time. Shared by
-  # the global assertions below and the copy blocks in `config` — this is why
+  # the global assertions below and the source list in `config` — this is why
   # they live here and not inside the mkIf blocks.
   #
   # Matt Pocock skills live in a nested layout: skills/<category>/<name>/.
@@ -62,16 +36,40 @@ let
   ) { } mattPocockCategories;
 
   # Caveman skills are flat: skills/<name>/. Upstream also ships shared
-  # non-skill files (compile.mjs, registry.json, ...) — copySelected accepts
-  # any entry by name, so the catalog is everything readDir sees, minus the
+  # non-skill files (compile.mjs, registry.json, ...) — `include` accepts any
+  # entry by name, so the catalog is everything readDir sees, minus the
   # prebuilt `generated/` bundle (aider/codex/gemini/...) we don't use.
   cavemanSkills = builtins.removeAttrs (builtins.readDir "${inputs.caveman}/skills") [ "generated" ];
 
+  # Ordered source list for the merged skills directory. Later entries win on a
+  # name collision, so the upstream sets shadow the bundled local ones (e.g.
+  # local `code-review` loses to matt-pocock's).
+  skillSources =
+    map (name: "${bundledDir}/${name}") cfg.local.include
+    ++ map (name: "${inputs.caveman}/skills/${name}") cfg.caveman.include
+    ++ map (name: mattPocockSkills.${name}) (
+      if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include
+    );
+
+  # opencode only scans `skills/<name>/SKILL.md`, so the whole set has to land
+  # in one directory. Built as a store path; home-manager lndir's it into
+  # ~/.config/opencode/skills/ (real directory, read-only per-file symlinks),
+  # which keeps runtime-added skills (astrocode extraDirs, learned patterns)
+  # possible.
+  skillsDir = pkgs.runCommandLocal "opencode-skills" { } ''
+    mkdir -p $out
+    ${lib.concatMapStrings (src: ''
+      name=$(basename ${lib.escapeShellArg src})
+      rm -rf "$out/$name"
+      cp -r --no-preserve=mode ${lib.escapeShellArg src} "$out/$name"
+    '') skillSources}
+  '';
+
   # Always-on snippet from the caveman README:
   # https://github.com/JuliusBrussee/caveman#install — "Want it always on?"
-  # Materialized as a nix-store file to avoid shell heredoc interpolation issues.
-  cavemanAlwaysOnFile = pkgs.writeText "caveman-always-on.md" ''
-
+  # Exposed as an option so the importing profile can splice it into
+  # `programs.opencode.context` (AGENTS.md) instead of appending at activation.
+  cavemanAlwaysOnSnippet = ''
 
     ---
 
@@ -88,8 +86,17 @@ in
 {
   options = with lib; {
     custom.ai.skill = {
-      learn = {
-        enable = mkEnableOption "Learn skill — self-improving skill that learns from user feedback and updates itself over time";
+      # Bundled local skill set (this module's directory). Opt-in by name.
+      local = {
+        include = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = ''
+            Names of bundled local skills (directories next to
+            skills/default.nix) to deploy to `~/.config/opencode/skills/`.
+            Empty = deploy none.
+          '';
+        };
       };
 
       caveman = {
@@ -99,6 +106,16 @@ in
           type = types.listOf types.str;
           default = [ ];
           description = "Names of entries under the caveman input's skills/ dir to copy. Empty = copy all (upstream default).";
+        };
+        alwaysOnSnippet = mkOption {
+          type = types.lines;
+          readOnly = true;
+          default = cavemanAlwaysOnSnippet;
+          description = ''
+            Text appended to `programs.opencode.context` (AGENTS.md) when
+            `custom.ai.skill.caveman.alwaysOn` is enabled. Read-only; derived
+            from the caveman README.
+          '';
         };
       };
 
@@ -114,11 +131,6 @@ in
           '';
         };
       };
-
-      # Local skill payload (skills/unslop/SKILL.md), copied verbatim.
-      unslop = {
-        enable = mkEnableOption "Unslop skill — strip AI writing tells from prose";
-      };
     };
   };
 
@@ -127,6 +139,14 @@ in
     # unlike a bare `assert`, which would force cfg during merging).
     {
       assertions = [
+        {
+          assertion = lib.all (name: builtins.hasAttr name bundledSkills) cfg.local.include;
+          message = ''
+            custom.ai.skill.local.include: unknown skills: ${
+              toString (lib.filter (name: !(builtins.hasAttr name bundledSkills)) cfg.local.include)
+            }
+            Available: ${toString (lib.attrNames bundledSkills)}'';
+        }
         {
           assertion = lib.all (name: builtins.hasAttr name cavemanSkills) cfg.caveman.include;
           message = ''
@@ -146,53 +166,12 @@ in
       ];
     }
 
-    (lib.mkIf cfg.learn.enable {
-      # Copy learn skill
-      home.activation.copyLearnSkills = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir ./learn "${baseCfg.settings.configDir}/skills/learn"
-      );
+    (lib.mkIf (skillSources != [ ]) {
+      # Declarative alternative to copying into skills/ at
+      # activation. The whole catalog is materialized as one store directory
+      # (see skillsDir above); home-manager lndirs it into place.
+      programs.opencode.skills = "${skillsDir}";
+      programs.claude-code.skills = "${skillsDir}";
     })
-
-    (lib.mkIf cfg.caveman.enable {
-      # Copy selected caveman skills from upstream flake input
-      # (github:JuliusBrussee/caveman) into ~/.config/opencode/skills/.
-      # Runs after opencode's own skills copy so local skills and caveman
-      # skills coexist.
-      home.activation.copyCavemanSkills = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copySelected "${inputs.caveman}/skills" cfg.caveman.include "${baseCfg.settings.configDir}/skills"
-        # Upstream ships a prebuilt `generated/` bundle (aider/codex/gemini/...)
-        # we don't use — drop it instead of letting it accumulate.
-        + ''
-          rm -rf "${baseCfg.settings.configDir}/skills/generated"
-        ''
-      );
-    })
-
-    (lib.mkIf cfg.matt-pocock.enable {
-      # Copy selected matt-pocock skills from the flake input into
-      # ~/.config/opencode/skills/<name>/. Empty include = copy all.
-      home.activation.copyMattPocockSkills = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        lib.concatMapStrings
-          (name: copyOne mattPocockSkills.${name} "${baseCfg.settings.configDir}/skills/${name}")
-          (if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include)
-      );
-    })
-
-    (lib.mkIf cfg.unslop.enable {
-      # Copy the local unslop skill payload into ~/.config/opencode/skills/unslop/.
-      home.activation.copyUnslopSkill = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir ./unslop "${baseCfg.settings.configDir}/skills/unslop"
-      );
-    })
-
-    (lib.mkIf (cfg.caveman.enable && cfg.caveman.alwaysOn) {
-      # Append the "always on" snippet to the opencode AGENTS.md that was just
-      # copied by opencode's copyOpencodeAgentsDoc activation. Source AGENTS.md
-      # in the nix store stays untouched; we only mutate the user-writable copy.
-      home.activation.cavemanAlwaysOnSnippet = lib.hm.dag.entryAfter [ "copyOpencodeAgentsDoc" ] ''
-        cat ${cavemanAlwaysOnFile} >> ${baseCfg.settings.configDir}/AGENTS.md
-      '';
-    })
-
   ];
 }
