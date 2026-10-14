@@ -81,10 +81,13 @@ in
     programs.opencode = lib.mkIf cfg.enableOpencodeIntegration {
       settings = {
         plugin = [
-          # Meridian OpenCode plugin - enables session tracking and smart model context routing.
-          # opencode v2 loads the meridian-v2 package (plugin directory with its
-          # own package.json); the legacy v1 file plugin/meridian.ts is rejected.
-          "${cfg.settings.meridianInstallDir}/node_modules/@rynfar/meridian/plugin/meridian-v2/"
+          # Meridian OpenCode plugin — session tracking and smart model context routing.
+          # opencode v2 requires `export default { id, effect | setup }` (Plugin.define).
+          # Use dist/meridian-v2/ (pre-compiled JS bundle), NOT plugin/meridian-v2/
+          # (which re-exports from a .ts file under node_modules/ — Node.js cannot
+          # strip types there: "Stripping types is currently unsupported for files
+          # under node_modules"). The dist bundle is self-contained (no external deps).
+          "${cfg.settings.meridianInstallDir}/node_modules/@rynfar/meridian/dist/meridian-v2/"
         ];
 
         # Route anthropic models through Meridian (uses Claude Pro/Max via Claude Code SDK)

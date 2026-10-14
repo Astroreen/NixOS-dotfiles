@@ -27,9 +27,9 @@ in
   ];
 
   # Meridian proxy + its OpenCode plugin. The legacy v1 plugin (plugin/meridian.ts)
-  # does not load under opencode v2, but meridian now ships a v2 package
-  # (plugin/meridian-v2/); meridian.nix points at it. Integration deploys the
-  # plugin and routes anthropic models through the local proxy.
+  # does not load under opencode v2. The v2 plugin is loaded from the pre-compiled
+  # dist/meridian-v2/ bundle (self-contained JS, exports { id, setup } per v2 API);
+  # meridian.nix points at it. Integration routes anthropic models through the proxy.
   custom.ai = {
     meridian = {
       enable = true;
