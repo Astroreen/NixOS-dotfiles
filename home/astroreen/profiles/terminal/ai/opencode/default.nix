@@ -33,7 +33,7 @@ in
   custom.ai = {
     meridian = {
       enable = true;
-      enableOpencodeIntegration = false;
+      enableOpencodeIntegration = true;
     };
 
     skill = {
