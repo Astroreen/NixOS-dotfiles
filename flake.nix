@@ -71,6 +71,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # OpenCode v2 (npm @opencode/cli line). nixpkgs still packages the v1 line
+    # (opencode-ai 1.19.0), but t3code >= 0.0.46 marks opencode >= 2.0.18 as
+    # "supported" and 1.14.19-1.x as "graceful" (limited compatibility) in its
+    # driver matrix. Upstream ships Nix expressions since v2; the tag pins the
+    # release that also locks node_modules hashes (nix/hashes.json).
+    opencode-v2.url = "github:anomalyco/opencode/v2.0.28";
+
     # NOTE: HyprCapture was tried and dropped (2026-07-26) — after fixing
     # several generated-header path issues (version.h, protocols/,
     # Monitor.hpp relocation), it hit a hard wall: its C++ source calls

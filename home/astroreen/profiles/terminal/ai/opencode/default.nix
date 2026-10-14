@@ -26,11 +26,14 @@ in
     ../../../../../modules/terminal/ai # default.nix of ai folder
   ];
 
-  # Enable Meridian for Claude Pro/Max integration into OpenCode
+  # Meridian proxy + its OpenCode plugin. The legacy v1 plugin (plugin/meridian.ts)
+  # does not load under opencode v2, but meridian now ships a v2 package
+  # (plugin/meridian-v2/); meridian.nix points at it. Integration deploys the
+  # plugin and routes anthropic models through the local proxy.
   custom.ai = {
     meridian = {
       enable = true;
-      enableOpencodeIntegration = true;
+      enableOpencodeIntegration = false;
     };
 
     skill = {
@@ -101,13 +104,36 @@ in
     enable = true;
     enableMcpIntegration = true;
 
-    # Patch opencode core so a subagent that is aborted to switch to a fallback
-    # model is not reported to the parent as "Task cancelled"/"Subagent failed".
-    # The task tool now waits for the child session to settle before deciding
-    # whether it failed. See opencode-task-fallback.patch.
-    package = pkgs.opencode.overrideAttrs (old: {
-      patches = (old.patches or [ ]) ++ [ ./opencode-task-fallback.patch ];
-    });
+    # OpenCode v2 from the upstream flake; nixpkgs still packages the v1 line
+    # (opencode-ai 1.19.0). t3code >= 0.0.46 reports opencode >= 2.0.18 as
+    # "supported" and 1.14.19-1.x as "graceful" (limited compatibility).
+    # OPENCODE_DISABLE_AUTOUPDATE keeps the nix-managed binary from
+    # self-updating (upstream opencode.nix does not set it).
+    #
+    # opencode-task-fallback.patch is deliberately NOT applied: it targets the
+    # v1 source layout (packages/opencode/src/tool/*) and v2 rewrote the
+    # subagent/job lifecycle (packages/core/src/session/subagent-completion.ts).
+    # The fallback-abort flow must be re-verified against v2 before porting it.
+    package = inputs.opencode-v2.packages.${pkgs.stdenv.hostPlatform.system}.opencode.overrideAttrs (
+      old: {
+        # Upstream's src fileset (nix/node_modules.nix) omits the repo-root
+        # script/ dir, so packages/cli/script/build.ts fails to resolve
+        # ../../../script/native-arch. Vendor that single file straight from
+        # the same pinned input; it is self-contained (only node:fs/promises).
+        postPatch =
+          (old.postPatch or "")
+          + ''
+            mkdir -p script
+            cp ${inputs.opencode-v2}/script/native-arch.ts script/native-arch.ts
+          '';
+
+        postInstall =
+          (old.postInstall or "")
+          + ''
+            wrapProgram "$out"/bin/opencode --set OPENCODE_DISABLE_AUTOUPDATE true
+          '';
+      }
+    );
 
     settings = {
       # Yolo: stop permission prompts. Only external_directory (and doom_loop)
@@ -122,12 +148,18 @@ in
         webfetch = "allow";
       };
 
+      # opencode v2 only loads plugins that `export default { id, effect | setup }`.
+      # Dropped because their published releases are still the v1 function API:
+      # @franlol/opencode-md-table-formatter (0.0.6, @opencode-ai/plugin >=0.13.7),
+      # opencode-anthropic-auth (0.0.13, named export only),
+      # opencode-claude-auth (2.2.1, peer dep on the v1 @opencode-ai/plugin).
+      # Notifier is the only one with a v2 entry (0.8.1: default = { id,
+      # server, setup }). Keep it unpinned: a "name@version" spec makes v2
+      # resolve a stale v1 install from ~/.cache/opencode and fail with
+      # "Plugin must export a default definition...", while the bare name
+      # resolves to the 0.8.1 npm install and loads (server + tui features).
       plugin = [
-        "@franlol/opencode-md-table-formatter@latest"
         "@mohak34/opencode-notifier"
-        # "opencode-vibeguard@latest"
-        "opencode-anthropic-auth"
-        "opencode-claude-auth"
       ];
     };
 
@@ -136,15 +168,14 @@ in
     };
 
     # Headless server, started with the user systemd session (default.target).
-    # Loopback only; --mdns advertises it for LAN discovery.
+    # Loopback only. Note: v2 `serve` dropped --mdns (was LAN discovery).
     web = {
-      enable = true;
+      enable = false;
       extraArgs = [
         "--hostname"
         "0.0.0.0"
         "--port"
         "4096"
-        "--mdns"
       ];
     };
   };
@@ -176,23 +207,14 @@ in
         copyDir ../../../../../modules/terminal/ai/commands "${baseCfg.settings.configDir}/commands"
       );
 
-      # Astrocode plugin: copy the full source tree from the flake input
-      # (local-plugin-dir mechanism requires imports/agents/skills alongside
-      # the entry file, so it can't be a single copied file) into a writable
-      # subdirectory, then symlink a top-level entry file into plugins/ so
-      # opencode's loader discovers it even if it only scans top-level files.
-      copyAstrocodePlugin = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-        copyDir inputs.astrocode.packages.${pkgs.stdenv.hostPlatform.system}.default
-          "${baseCfg.settings.configDir}/plugins/.astrocode-src"
-      );
-
-      # Relative target so it resolves inside the link's own directory
-      # (configDir is a relative path; an absolute-looking target here would
-      # be interpreted relative to plugins/ and end up broken).
-      linkAstrocodePlugin = lib.hm.dag.entryAfter [ "copyAstrocodePlugin" ] ''
-        mkdir -p "${baseCfg.settings.configDir}/plugins"
-        ln -sf ".astrocode-src/src/index.ts" \
-               "${baseCfg.settings.configDir}/plugins/astrocode.ts"
+      # Astrocode plugin deployment is disabled while it is being ported to the
+      # opencode v2 plugin API: the v1 entry (default export = function) makes
+      # v2 reject it with "Plugin must export a default definition with an id
+      # and an effect or setup function". Restore the copyAstrocodePlugin /
+      # linkAstrocodePlugin pair (git history) once the v2 port lands.
+      removeAstrocodePlugin = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        rm -f "${baseCfg.settings.configDir}/plugins/astrocode.ts"
+        rm -rf "${baseCfg.settings.configDir}/plugins/.astrocode-src"
       '';
 
       # astrocode's own config (model, agents, fallback, skills, reasoning).
@@ -202,6 +224,35 @@ in
       copyAstrocodeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (
         copyFile ./astrocode.jsonc "${config.home.homeDirectory}/.opencode/astrocode.jsonc"
       );
+
+      # The opencode background service (`opencode serve --service`) caches the
+      # resolved config per location and never invalidates it: the Linux build
+      # has no config watcher ("watcher backend not supported"), so a changed
+      # opencode.json is ignored until the service restarts. Restart it here
+      # when the generated config actually changed (hash stamp), and only when
+      # the service is already running — a stopped service reads the fresh
+      # config on its next on-demand spawn anyway.
+      restartOpencodeService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        STATE_DIR="${config.home.homeDirectory}/.local/state/opencode"
+        CONFIG="${config.home.homeDirectory}/${baseCfg.settings.configDir}/opencode.json"
+        STAMP="$STATE_DIR/hm-opencode-config.sha256"
+        mkdir -p "$STATE_DIR"
+        hash=$(sha256sum "$CONFIG" | cut -d" " -f1)
+        if [ -f "$STAMP" ] && [ "$(cat "$STAMP")" = "$hash" ]; then
+          echo "opencode.json unchanged, skipping opencode service restart"
+        else
+          echo "$hash" > "$STAMP"
+          for reg in "$STATE_DIR"/service*.json; do
+            [ -e "$reg" ] || continue
+            pid=$(grep -o '"pid":[0-9]*' "$reg" | cut -d: -f2)
+            if [ -n "$pid" ] && [ -d "/proc/$pid" ]; then
+              echo "opencode.json changed, restarting opencode background service"
+              ${config.programs.opencode.package}/bin/opencode service restart || echo "warning: opencode service restart failed"
+              break
+            fi
+          done
+        fi
+      '';
     };
 
     shellAliases = {
