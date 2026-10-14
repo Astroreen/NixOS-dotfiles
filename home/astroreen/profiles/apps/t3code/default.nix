@@ -21,5 +21,20 @@
 
     # Full keymap; declarative rules win per (key, when).
     keybindingsFile = ./keybindings.json;
+
+    # Background server (systemd user service). Disabled by default; enabling
+    # runs `t3 serve` at boot and keeps the server alive after the desktop app
+    # closes. 
+    # Note: Switch off the desktop app's Local environment (Settings →
+    # Connections); the app otherwise spawns a second server on the same
+    # state dir (~/.t3). Then connect the app to this server via pairing.
+    service = {
+      enable = false;
+      host = "0.0.0.0";
+      port = 3773;
+      extraArgs = [];
+      restart = "always";
+      restartSec = 5;
+    };
   };
 }

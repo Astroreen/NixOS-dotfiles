@@ -16,6 +16,12 @@ let
   keybindingsFile = "${stateDir}/keybindings.json";
   themesDir = "${stateDir}/themes";
 
+  # T3CODE_HOME is the server's data root (defaults to ~/.t3) with userdata
+  # stored underneath; `stateDir` is that userdata dir, so the service needs
+  # its parent. Passing it explicitly keeps --base-dir/--state-dir overrides in
+  # sync between the activation and the service.
+  baseDir = builtins.dirOf stateDir;
+
   jq = lib.getExe pkgs.jq;
 
   # settings/keybindings can be given inline or as a path to a JSON file (e.g. a
@@ -111,6 +117,47 @@ in
         ~/.t3/userdata/keybindings.json). Takes precedence over `keybindings`.
       '';
     };
+
+    service = {
+      enable = lib.mkEnableOption "the T3 Code server as a systemd user service";
+
+      host = lib.mkOption {
+        type = lib.types.str;
+        default = "127.0.0.1";
+        description = ''
+          Interface the service binds to. Use "0.0.0.0" to make it reachable
+          from other devices on the LAN/tailnet.
+        '';
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 3773;
+        description = ''
+          Port for the service's HTTP/WebSocket server. Pinned (rather than the
+          CLI's find-a-free-port default) so clients have a stable endpoint.
+        '';
+      };
+
+      extraArgs = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        example = [ "--tailscale-serve" ];
+        description = "Extra arguments appended to `t3 serve`.";
+      };
+
+      restart = lib.mkOption {
+        type = lib.types.str;
+        default = "always";
+        description = "systemd Restart= policy for the service.";
+      };
+
+      restartSec = lib.mkOption {
+        type = lib.types.either lib.types.int lib.types.str;
+        default = 5;
+        description = "systemd RestartSec= delay for the service.";
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -126,6 +173,45 @@ in
     ];
 
     home.packages = [ cfg.package ];
+
+    # Declarative replacement for upstream's `t3 service install`. Upstream's
+    # command downloads its own pinned server runtime into ~/.t3/runtime and
+    # writes a unit that execs it; on NixOS we run the store-provided `t3`
+    # instead. T3_BOOT_SERVICE_UNIT is intentionally NOT set: without it the
+    # server reports no self-update capability, so clients ask the user to
+    # update through the Nix config rather than launching `t3 update`.
+    #
+    # NOTE: a systemd *user* service only starts at boot when the user manager
+    # is lingering (NixOS `users.users.<name>.linger = true`, equivalent to
+    # `loginctl enable-linger`). Otherwise it starts at first login.
+    systemd.user.services.t3code = lib.mkIf cfg.service.enable {
+      Unit = {
+        Description = "T3 Code server";
+        StartLimitIntervalSec = 300;
+        StartLimitBurst = 5;
+      };
+      Service = {
+        Type = "simple";
+        WorkingDirectory = "%h";
+        Environment = [ "T3CODE_HOME=${baseDir}" ];
+        ExecStart = lib.concatStringsSep " " (
+          [
+            "${cfg.package}/bin/t3"
+            "serve"
+            "--host"
+            cfg.service.host
+            "--port"
+            (toString cfg.service.port)
+          ]
+          ++ cfg.service.extraArgs
+        );
+        KillMode = "mixed";
+        OOMPolicy = "continue";
+        Restart = cfg.service.restart;
+        RestartSec = cfg.service.restartSec;
+      };
+      Install.WantedBy = [ "default.target" ];
+    };
 
     home.activation.t3code = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       ${lib.optionalString (cfg.themes != { }) ''

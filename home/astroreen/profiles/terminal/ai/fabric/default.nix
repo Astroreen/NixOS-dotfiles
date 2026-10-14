@@ -1,7 +1,7 @@
 _: 
 {
   programs.fabric-ai = {
-    enable = true;
+    enable = false;
     enableZshIntegration = true;
     enableBashIntegration = true;
   };
