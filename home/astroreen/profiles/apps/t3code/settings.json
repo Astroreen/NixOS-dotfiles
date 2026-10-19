@@ -1,4 +1,18 @@
 {
+  "favorites": [
+    {
+      "provider": "opencode",
+      "model": "openrouter/~deepseek/deepseek-flash-latest"
+    },
+    {
+      "provider": "claudeAgent",
+      "model": "claude-opus-5-5"
+    },
+    {
+      "provider": "opencode",
+      "model": "openrouter/xiaomi/mimo-v2.6-pro"
+    }
+  ],
   "storageCleanup": {
     "worktreeOnMerge": true,
     "worktreeOnDelete": true,
@@ -47,6 +61,17 @@
         "customModels": []
       }
     },
+    "claudeAgent": {
+      "driver": "claudeAgent",
+      "enabled": true,
+      "config": {
+        "binaryPath": "claude",
+        "homePath": "",
+        "customModels": [],
+        "launchArgs": "",
+        "autoCompactWindow": ""
+      }
+    },
     "codex": {
       "driver": "codex",
       "enabled": false,
@@ -56,17 +81,6 @@
         "shadowHomePath": "",
         "launchArgs": "",
         "customModels": []
-      }
-    },
-    "claudeAgent": {
-      "driver": "claudeAgent",
-      "enabled": false,
-      "config": {
-        "binaryPath": "claude",
-        "homePath": "",
-        "customModels": [],
-        "launchArgs": "",
-        "autoCompactWindow": ""
       }
     }
   }
