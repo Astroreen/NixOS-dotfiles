@@ -1,7 +1,3 @@
----
-description: "Adversarial planning pass (team-mode unavailable; single-agent fallback)"
----
-
 <!-- astrocode builtin command (ported from oh-my-openagent) -->
 # Hyperplan (astrocode fallback)
 

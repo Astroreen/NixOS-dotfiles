@@ -1,15 +1,3 @@
----
-name: systematic-debugging
-description: "4-phase root cause debugging: understand bugs before fixing."
-version: 1.1.0
-author: Adapted from obra/superpowers (MIT)
-license: MIT
-metadata:
-  astrocode:
-    tags: [debugging, troubleshooting, problem-solving, root-cause, investigation]
-    related_skills: [test-driven-development, writing-plans, subagent-driven-development]
----
-
 # Systematic Debugging
 
 ## Overview

@@ -1,8 +1,3 @@
----
-name: code-review
-description: Review a diff for correctness, edge cases, and regressions. One line per finding with location, problem, and fix.
----
-
 # code-review
 
 Review the provided diff or change set.

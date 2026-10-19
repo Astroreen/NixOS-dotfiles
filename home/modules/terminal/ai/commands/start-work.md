@@ -1,9 +1,3 @@
----
-description: "Start an Atlas work session from a Prometheus plan"
-agent: atlas
-subtask: false
----
-
 <!-- astrocode builtin command (ported from oh-my-openagent) -->
 You are starting an Atlas work session.
 

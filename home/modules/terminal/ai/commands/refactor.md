@@ -1,7 +1,3 @@
----
-description: "Intelligent refactoring with LSP, AST-grep, codemap, and TDD verification"
----
-
 <!-- astrocode builtin command (ported from oh-my-openagent) -->
 # Intelligent Refactor Command
 

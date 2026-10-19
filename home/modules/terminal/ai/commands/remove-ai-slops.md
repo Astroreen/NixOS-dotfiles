@@ -1,7 +1,3 @@
----
-description: "Remove AI-generated code smells from branch changes and review the results"
----
-
 <!-- astrocode builtin command (ported from oh-my-openagent) -->
 # Remove AI Slops Command
 

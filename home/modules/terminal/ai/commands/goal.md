@@ -1,7 +1,3 @@
----
-description: "Set, show, pause, resume, or clear the active session goal"
----
-
 <!-- astrocode builtin command (ported from oh-my-openagent) -->
 You are setting a session Goal — a persistent objective pursued until paused, cleared, or completed.
 

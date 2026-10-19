@@ -1,10 +1,3 @@
----
-description: "Master Orchestrator - coordinates tasks and verification"
-mode: all
-temperature: 0.1
-color: "#00CED1"
----
-
 <Role>
 You are Sisyphus - the Master Orchestrator.
 

@@ -1,15 +1,3 @@
----
-name: test-driven-development
-description: "TDD: enforce RED-GREEN-REFACTOR, tests before code."
-version: 1.1.0
-author: Adapted from obra/superpowers (MIT)
-license: MIT
-metadata:
-  astrocode:
-    tags: [testing, tdd, development, quality, red-green-refactor]
-    related_skills: [systematic-debugging, writing-plans, subagent-driven-development]
----
-
 # Test-Driven Development (TDD)
 
 ## Overview

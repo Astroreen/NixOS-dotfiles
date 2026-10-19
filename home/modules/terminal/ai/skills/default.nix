@@ -7,11 +7,74 @@
 }:
 let
   cfg = config.custom.ai.skill;
+  ai = import ../lib.nix { inherit lib; };
 
-  # Bundled local skills: every directory next to this file. Selected by name
-  # via `custom.ai.skill.local.include` (empty = deploy none).
+  # Bundled local skills: every directory next to this file, holding a
+  # frontmatter-free SKILL.md plus any resources; their metadata lives in
+  # definitions.nix. Selected by name via `custom.ai.skill.local.include`
+  # (empty = deploy none). SKILL.md is regenerated per CLI with a header built
+  # from `custom.ai.skill.definitions.<name>`.
   bundledDir = ./.;
-  bundledSkills = lib.filterAttrs (_: type: type == "directory") (builtins.readDir bundledDir);
+
+  skillModule =
+    { name, ... }:
+    {
+      options =
+        with lib;
+        {
+          src = mkOption (
+            {
+              type = types.path;
+              description = "Skill directory; its SKILL.md is the body without frontmatter.";
+            }
+            // ai.optionalDefault (bundledDir + "/${name}")
+          );
+
+          license = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = "License note (`license` in both headers).";
+          };
+
+          metadata = mkOption {
+            type = types.attrsOf types.anything;
+            default = { };
+            description = "Free-form `metadata` mapping (both headers).";
+          };
+
+          disableModelInvocation = mkOption {
+            type = types.nullOr types.bool;
+            default = null;
+            description = "Only load the skill on explicit invocation (`disable-model-invocation`, both headers).";
+          };
+        }
+        // ai.commonOptions {
+          toolsDescription = ''
+            Enabled entries become claude-code `allowed-tools` (used without a
+            permission prompt while the skill is active). opencode skills have no
+            tool setting, so it is claude-code-only.
+          '';
+        };
+    };
+
+  # Generated fields first, then the shared and per-CLI passthrough attrsets.
+  skillHeader = name: d: {
+    inherit name;
+    inherit (d) description license;
+    metadata = ai.nonEmpty d.metadata;
+    disable-model-invocation = d.disableModelInvocation;
+  };
+  headers = {
+    opencode = name: d: skillHeader name d // d.extra // d.opencode;
+    claude-code =
+      name: d:
+      skillHeader name d
+      // {
+        allowed-tools = ai.nonEmpty (ai.claudeTools (ai.enabledTools d.tools));
+      }
+      // d.extra
+      // d.claude;
+  };
 
   # Skill catalogs, read from the pinned flake inputs at eval time. Shared by
   # the global assertions below and the source list in `config` — this is why
@@ -41,29 +104,54 @@ let
   # prebuilt `generated/` bundle (aider/codex/gemini/...) we don't use.
   cavemanSkills = builtins.removeAttrs (builtins.readDir "${inputs.caveman}/skills") [ "generated" ];
 
-  # Ordered source list for the merged skills directory. Later entries win on a
-  # name collision, so the upstream sets shadow the bundled local ones (e.g.
-  # local `code-review` loses to matt-pocock's).
+  # Ordered source list for the merged skills directory of `target`. Later
+  # entries win on a name collision, so the upstream sets shadow the bundled
+  # local ones (e.g. local `code-review` loses to matt-pocock's). Local skills
+  # carry a generated SKILL.md; upstream ones are copied untouched.
   skillSources =
-    map (name: "${bundledDir}/${name}") cfg.local.include
-    ++ map (name: "${inputs.caveman}/skills/${name}") cfg.caveman.include
-    ++ map (name: mattPocockSkills.${name}) (
-      if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include
-    );
+    target:
+    map (
+      name:
+      let
+        d = cfg.definitions.${name};
+      in
+      {
+        inherit name;
+        inherit (d) src;
+        skillMd = pkgs.writeText "${name}-SKILL.md" (
+          ai.render (headers.${target} name d) (builtins.readFile (d.src + "/SKILL.md"))
+        );
+      }
+    ) (lib.filter (name: lib.elem target cfg.definitions.${name}.targets) cfg.local.include)
+    ++ map (name: {
+      inherit name;
+      src = "${inputs.caveman}/skills/${name}";
+    }) cfg.caveman.include
+    ++
+      map
+        (name: {
+          inherit name;
+          src = mattPocockSkills.${name};
+        })
+        (
+          if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include
+        );
 
-  # opencode only scans `skills/<name>/SKILL.md`, so the whole set has to land
-  # in one directory. Built as a store path; home-manager lndir's it into
-  # ~/.config/opencode/skills/ (real directory, read-only per-file symlinks),
-  # which keeps runtime-added skills (astrocode extraDirs, learned patterns)
-  # possible.
-  skillsDir = pkgs.runCommandLocal "opencode-skills" { } ''
-    mkdir -p $out
-    ${lib.concatMapStrings (src: ''
-      name=$(basename ${lib.escapeShellArg src})
-      rm -rf "$out/$name"
-      cp -r --no-preserve=mode ${lib.escapeShellArg src} "$out/$name"
-    '') skillSources}
-  '';
+  # Both CLIs only scan `skills/<name>/SKILL.md`, so the whole set has to land
+  # in one directory per CLI. Built as a store path; home-manager lndir's it
+  # into ~/.config/opencode/skills/ and ~/.claude/skills/ (real directories,
+  # read-only per-file symlinks), which keeps runtime-added skills (astrocode
+  # extraDirs, learned patterns) possible.
+  skillsDir =
+    target:
+    pkgs.runCommandLocal "${target}-skills" { } ''
+      mkdir -p $out
+      ${lib.concatMapStrings (s: ''
+        rm -rf "$out/${s.name}"
+        cp -r --no-preserve=mode ${lib.escapeShellArg "${s.src}"} "$out/${s.name}"
+        ${lib.optionalString (s ? skillMd) ''cp --no-preserve=mode ${s.skillMd} "$out/${s.name}/SKILL.md"''}
+      '') (skillSources target)}
+    '';
 
   # Always-on snippet from the caveman README:
   # https://github.com/JuliusBrussee/caveman#install — "Want it always on?"
@@ -86,15 +174,26 @@ in
 {
   options = with lib; {
     custom.ai.skill = {
-      # Bundled local skill set (this module's directory). Opt-in by name.
+      definitions = mkOption {
+        type = types.attrsOf (types.submodule skillModule);
+        default = { };
+        description = ''
+          Local skill definitions; each SKILL.md gets a generated header per
+          CLI. The bundled ones (skills/definitions.nix) are set with mkDefault
+          per field, so a profile can override single fields or add a new
+          skill with its own `src`.
+        '';
+      };
+
+      # Local skill set (`definitions`). Opt-in by name.
       local = {
         include = mkOption {
           type = types.listOf types.str;
           default = [ ];
           description = ''
-            Names of bundled local skills (directories next to
-            skills/default.nix) to deploy to `~/.config/opencode/skills/`.
-            Empty = deploy none.
+            Names of skills in `custom.ai.skill.definitions` (bundled ones:
+            directories next to skills/default.nix) to deploy to opencode and
+            claude-code. Empty = deploy none.
           '';
         };
       };
@@ -138,40 +237,29 @@ in
     # Eval-time guards against typos in include lists (assertions stay lazy,
     # unlike a bare `assert`, which would force cfg during merging).
     {
+      custom.ai.skill.definitions = ai.mkDefaultLeaves (import ./definitions.nix);
+
       assertions = [
-        {
-          assertion = lib.all (name: builtins.hasAttr name bundledSkills) cfg.local.include;
-          message = ''
-            custom.ai.skill.local.include: unknown skills: ${
-              toString (lib.filter (name: !(builtins.hasAttr name bundledSkills)) cfg.local.include)
-            }
-            Available: ${toString (lib.attrNames bundledSkills)}'';
-        }
-        {
-          assertion = lib.all (name: builtins.hasAttr name cavemanSkills) cfg.caveman.include;
-          message = ''
-            custom.ai.skill.caveman.include: unknown skills: ${
-              toString (lib.filter (name: !(builtins.hasAttr name cavemanSkills)) cfg.caveman.include)
-            }
-            Available: ${toString (lib.attrNames cavemanSkills)}'';
-        }
-        {
-          assertion = lib.all (name: builtins.hasAttr name mattPocockSkills) cfg.matt-pocock.include;
-          message = ''
-            custom.ai.skill.matt-pocock.include: unknown skills: ${
-              toString (lib.filter (name: !(builtins.hasAttr name mattPocockSkills)) cfg.matt-pocock.include)
-            }
-            Available: ${toString (lib.attrNames mattPocockSkills)}'';
-        }
+        (ai.includeAssertion "custom.ai.skill.local.include" cfg.local.include (
+          lib.attrNames cfg.definitions
+        ))
+        (ai.includeAssertion "custom.ai.skill.caveman.include" cfg.caveman.include (
+          lib.attrNames cavemanSkills
+        ))
+        (ai.includeAssertion "custom.ai.skill.matt-pocock.include" cfg.matt-pocock.include (
+          lib.attrNames mattPocockSkills
+        ))
       ];
     }
 
-    (lib.mkIf (skillSources != [ ]) {
-      # Declarative alternative to copying into skills/ at
-      # activation. The whole catalog is materialized as one store directory
-      # (see skillsDir above); home-manager lndirs it into place.
-      programs.opencode.skills = "${skillsDir}";
-      programs.claude-code.skills = "${skillsDir}";
+    # Declarative alternative to copying into skills/ at activation. Each CLI's
+    # catalog is materialized as one store directory (see skillsDir above);
+    # home-manager lndirs it into place.
+    (lib.mkIf (skillSources "opencode" != [ ]) {
+      programs.opencode.skills = "${skillsDir "opencode"}";
+    })
+    (lib.mkIf (skillSources "claude-code" != [ ]) {
+      programs.claude-code.skills = "${skillsDir "claude-code"}";
     })
   ];
 }

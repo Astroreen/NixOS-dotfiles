@@ -1,7 +1,3 @@
----
-description: "Create a detailed context summary for continuing work in a new session"
----
-
 <!-- astrocode builtin command (ported from oh-my-openagent) -->
 # Handoff Command
 

@@ -1,8 +1,3 @@
----
-name: docx
-description: Create, read, edit and verify Word documents (.docx) with local CLI tools only — LibreOffice, unzip/zip, no pandoc required. Use when producing or inspecting .docx/.doc files.
----
-
 # docx
 
 Working .docx files with whatever the machine actually has installed.

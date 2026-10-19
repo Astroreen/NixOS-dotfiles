@@ -1,15 +1,3 @@
----
-name: subagent-driven-development
-description: "Execute plans via subagents with a two-stage review (spec then quality)."
-version: 1.1.0
-author: Adapted from obra/superpowers (MIT)
-license: MIT
-metadata:
-  astrocode:
-    tags: [delegation, subagent, implementation, workflow, parallel]
-    related_skills: [writing-plans, requesting-code-review, test-driven-development]
----
-
 # Subagent-Driven Development
 
 ## Overview

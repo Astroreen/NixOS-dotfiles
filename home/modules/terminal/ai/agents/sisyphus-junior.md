@@ -1,10 +1,3 @@
----
-description: "Focused Task Executor - direct implementation"
-mode: "subagent"
-temperature: 0
-color: "#16A085"
----
-
 sisyphus-junior - Focused executor.
 Execute tasks directly.
 

@@ -1,47 +1,121 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 let
   cfg = config.custom.ai.agent;
+  ai = import ../lib.nix { inherit lib; };
 
-  # Bundled agent definitions: the `.md` files next to this file. Selected by
-  # name through `custom.ai.agent.local.include` (empty = deploy none).
+  # Bundled agents: frontmatter-free `<name>.md` bodies next to this file, with
+  # their metadata in definitions.nix. The header of each CLI is generated from
+  # `custom.ai.agent.definitions.<name>`.
   bundledDir = ./.;
-  bundledAgents =
-    builtins.removeAttrs (lib.filterAttrs (_: type: type == "regular") (builtins.readDir bundledDir))
-      [
-        "default.nix"
-      ];
 
-  # opencode accepts an attrset of file paths and symlinks each entry itself.
-  # Real Nix paths are required: the module only resolves `lib.isPath` values to
-  # a store file (a store-path string is written as inline file content), so the
-  # path is built with `+` instead of string interpolation.
-  agentFile = name: bundledDir + "/${name}.md";
+  agentModule =
+    { name, ... }:
+    {
+      options =
+        with lib;
+        {
+          body = mkOption (
+            {
+              type = types.either types.path types.lines;
+              description = "Agent prompt (Markdown body without frontmatter), as a file or inline text.";
+            }
+            // ai.optionalDefault (bundledDir + "/${name}.md")
+          );
 
-  # claude-code only exposes a directory option, so the same selection is
-  # materialized as a store directory.
-  claudeAgentsDir = pkgs.runCommandLocal "claude-code-agents" { } ''
-    mkdir -p $out
-    ${lib.concatMapStrings (name: ''
-      cp --no-preserve=mode ${lib.escapeShellArg "${bundledDir}/${name}.md"} "$out/${name}.md"
-    '') cfg.local.include}
-  '';
+          mode = mkOption {
+            type = types.nullOr (
+              types.enum [
+                "primary"
+                "subagent"
+                "all"
+              ]
+            );
+            default = null;
+            description = "opencode agent mode. claude-code agents are always subagents, so it is opencode-only.";
+          };
+
+          temperature = mkOption {
+            type = types.nullOr types.number;
+            default = null;
+            description = "Sampling temperature. opencode-only: claude-code agents have no temperature setting.";
+          };
+
+          color = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            example = "#3498DB";
+            description = ''
+              Hex color. opencode gets it as is; claude-code gets the nearest of
+              its named colors (override with `claude.color`).
+            '';
+          };
+        }
+        // ai.commonOptions {
+          toolsDescription = ''
+            opencode receives the map as `tools`; for claude-code the disabled
+            entries become `disallowedTools` (unlisted tools stay available in
+            both). For a claude-code allowlist set `claude.tools`.
+          '';
+        };
+    };
+
+  # Generated fields first, then the shared and per-CLI passthrough attrsets.
+  opencodeHeader =
+    _: d:
+    {
+      inherit (d)
+        description
+        mode
+        temperature
+        color
+        ;
+      tools = ai.nonEmpty d.tools;
+    }
+    // d.extra
+    // d.opencode;
+
+  claudeHeader =
+    name: d:
+    {
+      inherit name;
+      inherit (d) description;
+      color = ai.claudeColor d.color;
+      disallowedTools = ai.nonEmpty (
+        lib.concatStringsSep ", " (ai.claudeTools (ai.disabledTools d.tools))
+      );
+    }
+    // d.extra
+    // d.claude;
+
+  renderFor = ai.renderIncluded cfg.definitions cfg.local.include;
 in
 {
   options = with lib; {
     custom.ai.agent = {
+      definitions = mkOption {
+        type = types.attrsOf (types.submodule agentModule);
+        default = { };
+        description = ''
+          Agent definitions, rendered into opencode and claude-code agent files.
+          The bundled ones (agents/definitions.nix) are set with mkDefault per
+          field, so a profile can tweak e.g.
+          `custom.ai.agent.definitions.atlas.temperature` or add a new agent
+          with its own `body`.
+        '';
+      };
+
       local = {
         include = mkOption {
           type = types.listOf types.str;
           default = [ ];
           description = ''
-            Names of bundled agent definitions to deploy to opencode and
-            claude-code. Names are the `.md` files next to
-            `agents/default.nix`, without the suffix (e.g. `atlas`).
+            Names of agents in `custom.ai.agent.definitions` to deploy to
+            opencode and claude-code (bundled ones: the `.md` files next to
+            `agents/default.nix`, without the suffix, e.g. `atlas`).
             Empty = deploy none.
           '';
         };
@@ -50,24 +124,19 @@ in
   };
 
   config = lib.mkMerge [
-    # Eval-time guard against typos in the include list (assertions stay lazy,
-    # unlike a bare `assert`, which would force cfg during merging).
     {
+      custom.ai.agent.definitions = ai.mkDefaultLeaves (import ./definitions.nix);
+
       assertions = [
-        {
-          assertion = lib.all (name: builtins.hasAttr "${name}.md" bundledAgents) cfg.local.include;
-          message = ''
-            custom.ai.agent.local.include: unknown agents: ${
-              toString (lib.filter (name: !(builtins.hasAttr "${name}.md" bundledAgents)) cfg.local.include)
-            }
-            Available: ${toString (map (lib.removeSuffix ".md") (lib.attrNames bundledAgents))}'';
-        }
+        (ai.includeAssertion "custom.ai.agent.local.include" cfg.local.include (
+          lib.attrNames cfg.definitions
+        ))
       ];
     }
 
     (lib.mkIf (cfg.local.include != [ ]) {
-      programs.opencode.agents = lib.genAttrs cfg.local.include agentFile;
-      programs.claude-code.agentsDir = "${claudeAgentsDir}";
+      programs.opencode.agents = renderFor "opencode" opencodeHeader;
+      programs.claude-code.agents = renderFor "claude-code" claudeHeader;
     })
   ];
 }

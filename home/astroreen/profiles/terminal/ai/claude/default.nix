@@ -36,7 +36,7 @@ in
       enable = true;
 
       # Everything except the package comes from custom.ai.*
-      # (`prompt` → CLAUDE.md, `agent`/`command` → agentsDir/commandsDir,
+      # (`prompt` → CLAUDE.md, `agent`/`command` → agents/commands,
       # `skill` → skills).
 
       package = claudeFixed;

@@ -42,8 +42,10 @@ in
     # module appends the caveman always-on snippet when it is enabled.
     prompt = ../CustomPrompt.md;
 
-    # Bundled payload (home/modules/terminal/ai/<kind>/<name>.md). Shared with
-    # claude-code: the modules wire both programs from these lists.
+    # Bundled payload (home/modules/terminal/ai/<kind>/<name>.md, metadata in
+    # <kind>/definitions.nix). Shared with claude-code: the modules render a
+    # header per CLI and wire both programs from these lists. Per-item tweaks
+    # go in `<kind>.definitions.<name>` (e.g. `agent.definitions.atlas.temperature`).
     agent.local.include = [
       "atlas"
       "explore"

@@ -1,8 +1,3 @@
----
-name: commit-message
-description: Generate a Conventional Commits message from the staged diff. Subject <=50 chars, body only when the "why" is not obvious.
----
-
 # commit-message
 
 Write a commit message for the currently staged changes.

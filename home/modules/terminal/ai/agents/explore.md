@@ -1,18 +1,3 @@
----
-description: 'Contextual grep for codebases. Answers "Where is X?", "Which file has Y?", "Find the code that does Z". Specify thoroughness: "quick" for basic, "medium" for moderate, "very thorough" for comprehensive analysis.'
-mode: subagent
-temperature: 0.1
-color: "#2ECC71"
-tools:
-  bash: true
-  edit: false
-  glob: true
-  grep: true
-  lsp: true
-  read: true
-  write: false
----
-
 You are a codebase search specialist. Your job: find files and code, return actionable results.
 
 ## Your Mission

@@ -1,8 +1,3 @@
----
-name: verify-before-done
-description: Evidence gate checklist before claiming a task is done. Run tests and typecheck, report observed output faithfully, never claim done without evidence.
----
-
 # verify-before-done
 
 Do not claim a task is complete until every item below is checked.

@@ -1,45 +1,110 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 let
   cfg = config.custom.ai.command;
+  ai = import ../lib.nix { inherit lib; };
 
-  # Bundled slash commands: the `.md` files next to this file. Selected by name
-  # through `custom.ai.command.local.include` (empty = deploy none).
+  # Bundled slash commands: frontmatter-free `<name>.md` bodies next to this
+  # file, with their metadata in definitions.nix. The header of each CLI is
+  # generated from `custom.ai.command.definitions.<name>`.
   bundledDir = ./.;
-  bundledCommands = builtins.removeAttrs (lib.filterAttrs (_: type: type == "regular") (
-    builtins.readDir bundledDir
-  )) [ "default.nix" ];
 
-  # opencode accepts an attrset of file paths and symlinks each entry itself.
-  # Real Nix paths are required: the module only resolves `lib.isPath` values to
-  # a store file (a store-path string is written as inline file content), so the
-  # path is built with `+` instead of string interpolation.
-  commandFile = name: bundledDir + "/${name}.md";
+  commandModule =
+    { name, ... }:
+    {
+      options =
+        with lib;
+        {
+          body = mkOption (
+            {
+              type = types.either types.path types.lines;
+              description = "Command template (Markdown body without frontmatter, `$ARGUMENTS` works in both CLIs), as a file or inline text.";
+            }
+            // ai.optionalDefault (bundledDir + "/${name}.md")
+          );
 
-  # claude-code only exposes a directory option, so the same selection is
-  # materialized as a store directory.
-  claudeCommandsDir = pkgs.runCommandLocal "claude-code-commands" { } ''
-    mkdir -p $out
-    ${lib.concatMapStrings (name: ''
-      cp --no-preserve=mode ${lib.escapeShellArg "${bundledDir}/${name}.md"} "$out/${name}.md"
-    '') cfg.local.include}
-  '';
+          agent = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            description = ''
+              Agent that runs the command. opencode always honors it; claude-code
+              only when `subtask = true` (rendered as `context: fork` + `agent`).
+            '';
+          };
+
+          subtask = mkOption {
+            type = types.nullOr types.bool;
+            default = null;
+            description = "Run the command as a subagent task instead of in the current session.";
+          };
+
+          argumentHint = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            example = "[file] [focus]";
+            description = "Argument hint shown in autocomplete (claude-code `argument-hint`; opencode has none).";
+          };
+        }
+        // ai.commonOptions {
+          toolsDescription = ''
+            Enabled entries become claude-code `allowed-tools` (used without a
+            permission prompt while the command runs). opencode commands have no
+            tool setting, so it is claude-code-only.
+          '';
+        };
+    };
+
+  # Generated fields first, then the shared and per-CLI passthrough attrsets.
+  opencodeHeader =
+    _: d:
+    {
+      inherit (d) description agent subtask;
+    }
+    // d.extra
+    // d.opencode;
+
+  claudeHeader =
+    _: d:
+    let
+      forked = d.subtask == true && d.agent != null;
+    in
+    {
+      inherit (d) description;
+      argument-hint = d.argumentHint;
+      allowed-tools = ai.nonEmpty (ai.claudeTools (ai.enabledTools d.tools));
+      context = if forked then "fork" else null;
+      agent = if forked then d.agent else null;
+    }
+    // d.extra
+    // d.claude;
+
+  renderFor = ai.renderIncluded cfg.definitions cfg.local.include;
 in
 {
   options = with lib; {
     custom.ai.command = {
+      definitions = mkOption {
+        type = types.attrsOf (types.submodule commandModule);
+        default = { };
+        description = ''
+          Slash command definitions, rendered into opencode and claude-code
+          command files. The bundled ones (commands/definitions.nix) are set
+          with mkDefault per field, so a profile can override single fields or
+          add a new command with its own `body`.
+        '';
+      };
+
       local = {
         include = mkOption {
           type = types.listOf types.str;
           default = [ ];
           description = ''
-            Names of bundled slash commands to deploy to opencode and
-            claude-code. Names are the `.md` files next to
-            `commands/default.nix`, without the suffix (e.g. `handoff`).
+            Names of commands in `custom.ai.command.definitions` to deploy to
+            opencode and claude-code (bundled ones: the `.md` files next to
+            `commands/default.nix`, without the suffix, e.g. `handoff`).
             Empty = deploy none.
           '';
         };
@@ -48,24 +113,19 @@ in
   };
 
   config = lib.mkMerge [
-    # Eval-time guard against typos in the include list (assertions stay lazy,
-    # unlike a bare `assert`, which would force cfg during merging).
     {
+      custom.ai.command.definitions = ai.mkDefaultLeaves (import ./definitions.nix);
+
       assertions = [
-        {
-          assertion = lib.all (name: builtins.hasAttr "${name}.md" bundledCommands) cfg.local.include;
-          message = ''
-            custom.ai.command.local.include: unknown commands: ${
-              toString (lib.filter (name: !(builtins.hasAttr "${name}.md" bundledCommands)) cfg.local.include)
-            }
-            Available: ${toString (map (lib.removeSuffix ".md") (lib.attrNames bundledCommands))}'';
-        }
+        (ai.includeAssertion "custom.ai.command.local.include" cfg.local.include (
+          lib.attrNames cfg.definitions
+        ))
       ];
     }
 
     (lib.mkIf (cfg.local.include != [ ]) {
-      programs.opencode.commands = lib.genAttrs cfg.local.include commandFile;
-      programs.claude-code.commandsDir = "${claudeCommandsDir}";
+      programs.opencode.commands = renderFor "opencode" opencodeHeader;
+      programs.claude-code.commands = renderFor "claude-code" claudeHeader;
     })
   ];
 }
