@@ -26,7 +26,7 @@ DEFAULT_SOURCE_DIR = "~/.t3/userdata"
 # Dotted paths dropped before writing; "*" matches any single key.
 #   projectSettingsOverrides                    per-project UUIDs, not portable
 #   defaultThemeSetAt                           service-managed timestamp
-#   environmentIcon                             host-specific (server/laptop)
+#   environmentIcon                             host-specific (pc/laptop)
 #   providerInstances.*.config.serverPassword   secret
 EXCLUDED_PATHS = (
     "projectSettingsOverrides",

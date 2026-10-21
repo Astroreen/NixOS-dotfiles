@@ -1,6 +1,6 @@
 # AGENTS.md: NixOS configuration repository
 
-NixOS flake-based dotfiles. Two hosts (`laptop`, `server`), user `astroreen`. Home-manager embedded in NixOS via `home-manager.nixosModules.home-manager` (not standalone).
+NixOS flake-based dotfiles. Two hosts (`laptop`, `pc`), user `astroreen`. Home-manager embedded in NixOS via `home-manager.nixosModules.home-manager` (not standalone).
 
 ---
 
@@ -8,8 +8,8 @@ NixOS flake-based dotfiles. Two hosts (`laptop`, `server`), user `astroreen`. Ho
 
 Two rules agents get wrong constantly. Read both before running anything:
 
-1. **Host**: never hardcode `laptop` or `server`. The machine you are on RIGHT NOW is the deploy
-   target. Determine it with `hostname -s`; its output is exactly the flake host name (`laptop` or `server`).
+1. **Host**: never hardcode `laptop` or `pc`. The machine you are on RIGHT NOW is the deploy
+   target. Determine it with `hostname -s`; its output is exactly the flake host name (`laptop` or `pc`).
 2. **devenv**: scripts (`nixos`, `home`, `nx`, `hm`, `update-flake`, ...) exist ONLY inside the
    `devenv` shell. Interactive `.envrc`/direnv auto-activation does NOT apply to agent/SSH bash
    sessions. Wrap every call as `devenv shell -- <command>`. Run from the repo root.
@@ -17,11 +17,11 @@ Two rules agents get wrong constantly. Read both before running anything:
 ### Host selection
 
 ```bash
-hostname -s    # "laptop" or "server"; use this as <host> in every command below
+hostname -s    # "laptop" or "pc"; use this as <host> in every command below
 ```
 
 Use `"$(hostname -s)"` substitution, never a literal host name copied from examples. If the output
-is neither `laptop` nor `server`, stop and ask the user which flake host to target.
+is neither `laptop` nor `pc`, stop and ask the user which flake host to target.
 
 - `switch` / `test` / `rollback` / `dry-activate` ALWAYS target the current machine (`"$(hostname -s)"`).
 - `build` / `dry-build` for the OTHER host only when the user explicitly names that host.
@@ -120,7 +120,7 @@ hosts/
   astroreen/
     common/                # Shared system settings
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
-    server/configuration.nix   # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
+    pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
   modules/                 # Generic system modules (options/defaults only, no preconfigured values), currently empty
@@ -128,7 +128,7 @@ home/
   astroreen/
     common/                # Shared HM config (hyprland/caelestia, assets)
     laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia)
-    server/home.nix        # Server HM overrides
+    pc/home.nix            # PC HM overrides
     profiles/              # HM profiles, preconfigured for astroreen
       apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/hyprland/
   modules/
@@ -143,7 +143,7 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 
 ## Host differences
 
-| | laptop | server |
+| | laptop | pc |
 |---|---|---|
 | GPU | Intel (primary) + NVIDIA PRIME offload | NVIDIA only (nvidiaPersistenced=true for Ollama) |
 | NVIDIA mode | Finegrained power mgmt, offload on demand | Always-on, full power |
@@ -236,7 +236,7 @@ Some names exist in both with different semantics (e.g. `programs.zsh`).
 
 ## Do not touch
 
-- `system.stateVersion` is `"25.11"` on both hosts (`hosts/astroreen/{laptop,server}/configuration.nix`); never change it
+- `system.stateVersion` is `"25.11"` on both hosts (`hosts/astroreen/{laptop,pc}/configuration.nix`); never change it
 - `home.stateVersion` is `"26.05"` (set once in `flake.nix` `createHost`, applies to both hosts); never change it. It intentionally differs from `system.stateVersion`; not a typo.
 - `hardware-configuration.nix` is auto-generated; edit only if hardware changed
 - `.devenv/`, `.direnv/` are build artifacts, gitignored
@@ -278,8 +278,8 @@ flake.nix (homeConfigurations."astroreen@<host>")
         → ../profiles/wm/hyprland/{default.nix, caelestia}
     → ./hyprland/settings.nix                      (host-specific Hyprland binds/monitors)
 ```
-In `home/astroreen/server/home.nix` only, also imports `../profiles/apps/arduino.nix` and
-`../../modules/terminal/ai/lmstudio.nix` (the server-only LMStudio package).
+In `home/astroreen/pc/home.nix` only, also imports `../profiles/apps/arduino.nix` and
+`../../modules/terminal/ai/lmstudio.nix` (the pc-only LMStudio package).
 
 Reusable HM modules (not profiles), under `home/modules/`:
 - `home/modules/terminal/ai/` holds MCP servers, the Meridian proxy, and the `custom.ai.{agent,command,skill}` payload dirs + options — the single place that wires opencode and claude-code.
@@ -288,7 +288,7 @@ Reusable HM modules (not profiles), under `home/modules/`:
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
   WM-agnostic; imported from `home/astroreen/common/imports.nix`. The Hyprland hold-to-talk binds live in
   `home/astroreen/common/hyprland/caelestia/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
-  Server sets `custom.dictation.host = "0.0.0.0"` to expose the transcription server on the LAN/tailnet.
+  PC sets `custom.dictation.host = "0.0.0.0"` to expose the transcription server on the LAN/tailnet.
 
 **Dormant / unimported** (exist but not referenced in `home/astroreen/common/imports.nix` or any host `home.nix`):
 - `home/astroreen/profiles/apps/blender.nix`
@@ -302,7 +302,7 @@ Reusable HM modules (not profiles), under `home/modules/`:
 
 - `nixpkgs.config.allowUnfree = true` and `android_sdk.accept_license = true` are set in the flake, not per-host
 - Hyprland comes from the upstream flake input (`inputs.hyprland`), not nixpkgs; the cachix cache depends on that
-- Hyprland uses Lua config (`configType = "lua"`), not `hyprland.conf`. Settings are attrsets with `_args` + `lib.generators.mkLuaInline` dispatchers. Base binds live in `home/astroreen/profiles/wm/hyprland/settings/binds.nix`; host overrides in `home/astroreen/{laptop,server}/hyprland/settings.nix`
+- Hyprland uses Lua config (`configType = "lua"`), not `hyprland.conf`. Settings are attrsets with `_args` + `lib.generators.mkLuaInline` dispatchers. Base binds live in `home/astroreen/profiles/wm/hyprland/settings/binds.nix`; host overrides in `home/astroreen/{laptop,pc}/hyprland/settings.nix`
 - `nix-ld` is enabled on both hosts so prebuilt ELF binaries run without patching
 - No automated test suite; validate with `dry-build` / `dry-activate`
 - The `caelestia-shell` config is written via `home.activation` (not symlinked); the shell mutates it at runtime

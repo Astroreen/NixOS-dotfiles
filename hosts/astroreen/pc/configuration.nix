@@ -147,7 +147,7 @@
 
   # Enable networking
   networking = {
-    hostName = "server"; # Define your hostname.
+    hostName = "pc"; # Define your hostname.
     interfaces.enp5s0.wakeOnLan = {
       enable = true;
       policy = [

@@ -5,7 +5,7 @@
   # in the generated Lua, which either throws (indexing a string like a
   # table) or silently no-ops under the Lua provider, the same class of bug
   # as the old `hyprctl dispatch <string>` syntax being invalid post-Lua-
-  # migration (see home/astroreen/server/hyprland-settings.nix comments).
+  # migration (see home/astroreen/pc/hyprland/settings.nix comments).
   monitor = [
     {
       output = "eDP-1";

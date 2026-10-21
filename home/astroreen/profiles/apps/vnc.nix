@@ -15,7 +15,7 @@
   #     useful.
   #   - Pointer clicks are mismapped on any monitor with a non-zero
   #     Hyprland `transform` (see monitor = [...] in
-  #     home/astroreen/server/hyprland-settings.nix - DP-2/HDMI-A-1):
+  #     home/astroreen/pc/hyprland/settings.nix - DP-2/HDMI-A-1):
   #     wayvnc only re-applies its (correct) rotation-compensation math
   #     when the active screencopy backend reports
   #     SCREENCOPY_CAP_TRANSFORM and the compositor sends a `transform`

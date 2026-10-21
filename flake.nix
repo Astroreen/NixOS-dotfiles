@@ -182,7 +182,7 @@
           username = "astroreen";
         }
         {
-          host = "server";
+          host = "pc";
           username = "astroreen";
         }
       ];

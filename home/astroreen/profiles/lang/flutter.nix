@@ -291,14 +291,14 @@ in
       # monitor only spans 0-3440px). Both drifted the same direction by a
       # similar offset, which points at Hyprland's centering math going
       # wrong specifically for monitors that use a `transform` (rotated
-      # side monitors on the server host) - if center-on-monitor uses the
+      # side monitors on the pc host) - if center-on-monitor uses the
       # pre-transform width/height instead of the rotated logical size, the
       # computed center point ends up way off-screen. Use explicit move
       # coordinates instead of relying on `center`'s per-monitor math.
       #
       # Deliberately NOT pinning `monitor = ...` here: this module is
       # shared across hosts with different monitor names/topologies (e.g.
-      # server's "DP-3" vs laptop's single "eDP-1") - a hardcoded monitor
+      # pc's "DP-3" vs laptop's single "eDP-1") - a hardcoded monitor
       # name would silently fail to match on hosts that don't have that
       # output, leaving the emulator off-screen there too. `move "500 300"`
       # alone lands within bounds on any single reasonably-sized monitor;
