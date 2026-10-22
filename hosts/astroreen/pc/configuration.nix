@@ -10,7 +10,8 @@
 
     ./microphone.nix # Virtual microphone for OBS Studio
 
-    ../common # Common settings for all hosts
+    ../common/base # Headless settings shared by all hosts
+    ../common/desktop # Graphical workstation layer
 
     ../profiles/style/theme/dark/adwaita # Adwaita dark theme
     ../profiles/wm/hyprland # Window manager Hyprland

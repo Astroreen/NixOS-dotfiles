@@ -1,8 +1,7 @@
 { pkgs, ... }: {
 
-  # Default choices for the system
+  # Default choices for the system (kitty.nix is imported by common/desktop)
   imports = [
-    ./kitty.nix
     ./zsh.nix
   ];
 

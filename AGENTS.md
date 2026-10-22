@@ -118,7 +118,9 @@ devenv.nix                 # Dev shell: nixos/home/nx/hm scripts, VPN helpers
 overlays/                  # nixpkgs overlays: default.nix (aggregator), spotx.nix
 hosts/
   astroreen/
-    common/                # Shared system settings
+    common/
+      base/                # Headless settings for every host (nix, user, locale, network, ssh, tailscale, shell)
+      desktop/             # Workstation layer (xserver, DM, audio, graphics, GUI nix-ld libs, steam, kitty)
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
     profiles/              # System-level profiles, preconfigured for astroreen
@@ -126,7 +128,9 @@ hosts/
   modules/                 # Generic system modules (options/defaults only, no preconfigured values), currently empty
 home/
   astroreen/
-    common/                # Shared HM config (hyprland/caelestia, assets)
+    common/
+      base.nix             # Headless HM for every host (shell, devenv, ranger, opencode, claude, python, js)
+      desktop.nix          # Workstation HM (hyprland/caelestia, GUI apps, kitty, dictation, java/csharp/flutter)
     laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia)
     pc/home.nix            # PC HM overrides
     profiles/              # HM profiles, preconfigured for astroreen
@@ -251,30 +255,36 @@ Some names exist in both with different semantics (e.g. `programs.zsh`).
 flake.nix (createHost)
   → hosts/${username}/${host}/configuration.nix   (e.g. hosts/astroreen/laptop/configuration.nix)
     → ./hardware-configuration.nix
-    → ../common                                    (hosts/astroreen/common/default.nix)
-        → nix-ld.nix, generic.nix, user.nix, language.nix, services.nix, network.nix,
-          display-manager.nix, graphics.nix, audio.nix, fonts.nix, certificates.nix, printing.nix
+    → ../common/base                               (hosts/astroreen/common/base/default.nix)
+        → nix-ld.nix (minimal libs), generic.nix, user.nix, language.nix, network.nix, certificates.nix
+        → ../../profiles/terminal/{shell,tailscale.nix,ssh.nix}
+    → ../common/desktop                            (laptop/pc only; hosts/astroreen/common/desktop/default.nix)
+        → nix-ld.nix (GUI libs), packages.nix, network.nix (nm-applet, LocalSend/KDE Connect ports),
+          services.nix, display-manager.nix, graphics.nix, audio.nix, fonts.nix, printing.nix
+        → ../../profiles/apps/{steam,nautilus,wireshark}.nix, ../../profiles/terminal/{openvpn,shell/kitty.nix},
+          ../../profiles/lang/flutter.nix
     → ../profiles/style/theme/dark/adwaita
     → ../profiles/wm/{hyprland,plasma}
-    → ../profiles/apps/{steam,nautilus,wireshark}.nix, ../profiles/terminal/{shell,openvpn,ssh,tailscale}.nix,
-      ../profiles/lang/flutter.nix
 ```
+Anything a headless host also needs goes in `common/base`; anything graphical goes in `common/desktop`.
+
 `hosts/modules/` is currently empty.
 
 **Home Manager:**
 ```
 flake.nix (homeConfigurations."astroreen@<host>")
   → home/${username}/${host}/home.nix              (e.g. home/astroreen/laptop/home.nix)
-    → ../common/home.nix
+    → ../common/base.nix
+        → ../profiles/terminal/{shell,devenv.nix,ranger.nix}, ../profiles/terminal/ai/{opencode,claude}
+        → ../profiles/lang/{javascript,python}.nix
+    → ../common/desktop.nix                        (laptop/pc only)
         → ./hyprland/caelestia/default.nix
         → ../profiles/style/{cursor/breeze, theme/dark/adwaita}
-        → ./imports.nix
-            → ../profiles/apps/*  (apps, clipboard, screenshot, vesktop, vscode, obs, lutris,
-              nautilus, gnome-text-editor, kdeconnect, vnc, tailscale, browser, music, minecraft)
-            → ../profiles/terminal/{wine,shell,htop,devenv,ranger}.nix
-            → ../../modules/terminal/dictation           (faster-whisper server + socket PTT daemon + Quickshell overlay)
-            → ../profiles/terminal/ai/{fabric,opencode,claude}
-            → ../profiles/lang/{java,javascript,csharp,python,flutter}.nix
+        → ../profiles/apps/*  (apps, clipboard, screenshot, vesktop, vscode, obs, lutris,
+          nautilus, gnome-text-editor, kdeconnect, vnc, tailscale, browser, music, minecraft, hyprmod, t3code)
+        → ../profiles/terminal/{shell/kitty,wine,htop}.nix, ../profiles/terminal/ai/fabric
+        → ../../modules/terminal/dictation           (faster-whisper server + socket PTT daemon + Quickshell overlay)
+        → ../profiles/lang/{java,csharp,flutter}.nix
         → ../profiles/wm/hyprland/{default.nix, caelestia}
     → ./hyprland/settings.nix                      (host-specific Hyprland binds/monitors)
 ```
@@ -286,11 +296,11 @@ Reusable HM modules (not profiles), under `home/modules/`:
 - `home/modules/terminal/dictation/` has push-to-talk dictation: `server.py` (faster-whisper HTTP, port 7777,
   CUDA, model `faster-whisper-large-v3`), `daemon.py` (unix-socket PTT controller; also its own client via
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
-  WM-agnostic; imported from `home/astroreen/common/imports.nix`. The Hyprland hold-to-talk binds live in
+  WM-agnostic; imported from `home/astroreen/common/desktop.nix`. The Hyprland hold-to-talk binds live in
   `home/astroreen/common/hyprland/caelestia/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
   PC sets `custom.dictation.host = "0.0.0.0"` to expose the transcription server on the LAN/tailnet.
 
-**Dormant / unimported** (exist but not referenced in `home/astroreen/common/imports.nix` or any host `home.nix`):
+**Dormant / unimported** (exist but not referenced in `home/astroreen/common/{base,desktop}.nix` or any host `home.nix`):
 - `home/astroreen/profiles/apps/blender.nix`
 - `home/astroreen/profiles/terminal/ssh.nix`
 - `home/astroreen/profiles/terminal/ollama.nix`

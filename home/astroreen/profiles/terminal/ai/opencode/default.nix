@@ -243,8 +243,8 @@ in
     };
   };
 
-  # Desktop entry: open a kitty terminal running the OpenCode TUI.
-  xdg.desktopEntries.opencode = {
+  # Desktop entry: open a kitty terminal running the OpenCode TUI (desktop hosts only).
+  xdg.desktopEntries.opencode = lib.mkIf config.programs.kitty.enable {
     name = "OpenCode";
     genericName = "AI Coding Agent";
     exec = "${pkgs.kitty}/bin/kitty --title opencode ${config.programs.opencode.package}/bin/opencode";

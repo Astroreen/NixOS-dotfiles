@@ -3,33 +3,12 @@
   ...
 }:
 {
-  # Allow unfree packages
-  # nixpkgs.config.allowUnfree = true;
-  # Automatically creates a loader in /lib/* to avoid patching stuff
-  # To disable it temporarily use
-  # unset NIX_LD
+  # GUI, game and media libraries on top of the base list in ../base/nix-ld.nix.
   programs.nix-ld = {
-    enable = true;
     libraries = with pkgs; [
       # Required for Android Emulator (Flutter)
       mesa
       libvirt
-
-      # List by default
-      zlib
-      zstd
-      stdenv.cc.cc
-      curl
-      openssl
-      attr
-      libssh
-      bzip2
-      libxml2
-      acl
-      libsodium
-      util-linux
-      xz
-      systemd
 
       # My own additions
       libXcomposite

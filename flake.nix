@@ -147,7 +147,6 @@
             modules = [
               ./overlays # Overlays
               ./hosts/${username}/${host}/configuration.nix # Host configuration
-              inputs.hyprland.nixosModules.default # Hyprland default module
             ]
             ++ extraModules; # Allow passing extra modules from host configuration
           };
@@ -180,10 +179,12 @@
         {
           host = "laptop";
           username = "astroreen";
+          extraModules = [ inputs.hyprland.nixosModules.default ];
         }
         {
           host = "pc";
           username = "astroreen";
+          extraModules = [ inputs.hyprland.nixosModules.default ];
         }
       ];
 

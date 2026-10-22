@@ -1,9 +1,8 @@
 { pkgs, config, ... }:
 {
-  # Default choices
+  # Default choices (kitty.nix is imported by common/desktop.nix)
   imports = [
     ./zsh.nix
-    ./kitty.nix
     ./fastfetch.nix
   ];
 

@@ -1,7 +1,8 @@
 { lib, ... }:
 {
   imports = [
-    ../common/home.nix
+    ../common/base.nix # Headless home shared by all hosts
+    ../common/desktop.nix # Graphical workstation layer
 
     # ../../modules/tui/ollama.nix
     ../../modules/terminal/ai/lmstudio.nix

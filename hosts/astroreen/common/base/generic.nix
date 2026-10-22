@@ -21,24 +21,12 @@
 
   # System wide packages
   environment.systemPackages = with pkgs; [
-    # Essential packages
-    bluez # Bluetooth management
-    ddcutil # Monitor brightness control
-    brightnessctl # Monitor brightness control
-    upower # Power management daemon
-    libnotify # Notifications
-    pavucontrol # Sound control
-
     # Development tools
     vim # Vim text editor
 
     # Libraries
     gnugrep # GNU grep
     gawk # GNU Awk
-    openal # OpenAL library
-    gtk3 # Multi-platform toolkit for graphical interfaces
-    gtk4
-    glib # C library - building blocks
 
     # System utilities
     coreutils # GNU Core Utilities
