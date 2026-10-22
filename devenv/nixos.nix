@@ -36,6 +36,53 @@
     };
     hm.exec = "home $@"; # Alias for home manager
 
+    deploy = {
+      description = "Deploy NixOS + Home Manager to a remote host over SSH (switch, test, boot, dry-activate)";
+      exec = ''
+        ACTION="''${1:?Usage: deploy <action> <host>}"
+        HOST="''${2:?Usage: deploy <action> <host>}"
+        TARGET="$CURRENT_USER@$HOST"
+
+        git add .
+        # Built locally, copied and activated on the target.
+        nixos-rebuild "$ACTION" --no-reexec --flake ".#$TARGET" --target-host "$TARGET" --elevate sudo
+
+        if [ "$ACTION" = "switch" ]; then
+          HM=$(nix build --no-link --print-out-paths ".#homeConfigurations.\"$TARGET\".activationPackage")
+          nix copy --to "ssh://$TARGET" "$HM"
+          ssh "$TARGET" "$HM/activate"
+        fi
+      '';
+    };
+
+    bootstrap = {
+      description = "Install a host from scratch with nixos-anywhere (WIPES the target disk)";
+      exec = ''
+        HOST="''${1:?Usage: bootstrap <host> <root@ip> [tailscale-authkey-file]}"
+        TARGET="''${2:?Usage: bootstrap <host> <root@ip> [tailscale-authkey-file]}"
+        AUTHKEY="''${3:-}"
+        HOST_DIR="hosts/$CURRENT_USER/$HOST"
+
+        # Password login is disabled on the installed system: no key = locked out.
+        if ! grep -qv '^[[:space:]]*\(#\|$\)' "$HOST_DIR/authorized_keys"; then
+          echo "error: $HOST_DIR/authorized_keys has no public key" >&2
+          exit 1
+        fi
+
+        EXTRA=$(mktemp -d)
+        trap 'rm -rf "$EXTRA"' EXIT
+        if [ -n "$AUTHKEY" ]; then
+          install -D -m 600 "$AUTHKEY" "$EXTRA/var/lib/tailscale/authkey"
+        fi
+
+        git add .
+        nixos-anywhere --flake ".#$CURRENT_USER@$HOST" \
+          --generate-hardware-config nixos-generate-config "$HOST_DIR/hardware-configuration.nix" \
+          --extra-files "$EXTRA" \
+          "$TARGET"
+      '';
+    };
+
     update-flake = {
       exec = "nix flake update --extra-experimental-features nix-command --extra-experimental-features flakes";
       description = "Update the Nix flake";

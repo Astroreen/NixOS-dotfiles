@@ -10,6 +10,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Declarative disk partitioning, used by nixos-anywhere to install the server.
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Do not override nixpkgs version of Hyprland, as it may break cachix and other things.
     hyprland.url = "github:hyprwm/Hyprland";
 
@@ -185,6 +191,14 @@
           host = "pc";
           username = "astroreen";
           extraModules = [ inputs.hyprland.nixosModules.default ];
+        }
+        {
+          host = "server";
+          username = "astroreen";
+          extraModules = [
+            inputs.disko.nixosModules.disko
+            home-manager.nixosModules.home-manager # HM for the `agent` account
+          ];
         }
       ];
 

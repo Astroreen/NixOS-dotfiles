@@ -1,0 +1,3 @@
+# Public SSH keys allowed to log in as astroreen and agent on the server,
+# one per line. Password login is disabled, so this must not be empty
+# before the first install (`bootstrap` refuses to run otherwise).
