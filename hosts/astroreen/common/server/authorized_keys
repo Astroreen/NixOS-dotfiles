@@ -1,0 +1,4 @@
+# Public SSH keys allowed to log in as astroreen and agent on every server host,
+# one per line. Password login is disabled, so this must not be empty
+# before the first install (`bootstrap` refuses to run otherwise).
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGp38R6wy8zgHmJPNgXC7DaH66HPWEOvfR68G38ha7Lz astroreen@server

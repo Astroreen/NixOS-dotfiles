@@ -1,6 +1,6 @@
 # AGENTS.md: NixOS configuration repository
 
-NixOS flake-based dotfiles. Three hosts (`laptop`, `pc`, headless `server`), user `astroreen`. Home-manager embedded in NixOS via `home-manager.nixosModules.home-manager` (not standalone).
+NixOS flake-based dotfiles. Three hosts (`laptop`, `pc`, headless server `aktkc`), user `astroreen`. Home-manager embedded in NixOS via `home-manager.nixosModules.home-manager` (not standalone).
 
 ---
 
@@ -8,8 +8,8 @@ NixOS flake-based dotfiles. Three hosts (`laptop`, `pc`, headless `server`), use
 
 Two rules agents get wrong constantly. Read both before running anything:
 
-1. **Host**: never hardcode `laptop`, `pc` or `server`. The machine you are on RIGHT NOW is the deploy
-   target. Determine it with `hostname -s`; its output is exactly the flake host name (`laptop`, `pc` or `server`).
+1. **Host**: never hardcode `laptop`, `pc` or `aktkc`. The machine you are on RIGHT NOW is the deploy
+   target. Determine it with `hostname -s`; its output is exactly the flake host name (`laptop`, `pc` or `aktkc`).
 2. **devenv**: scripts (`nixos`, `home`, `nx`, `hm`, `update-flake`, ...) exist ONLY inside the
    `devenv` shell. Interactive `.envrc`/direnv auto-activation does NOT apply to agent/SSH bash
    sessions. Wrap every call as `devenv shell -- <command>`. Run from the repo root.
@@ -17,11 +17,11 @@ Two rules agents get wrong constantly. Read both before running anything:
 ### Host selection
 
 ```bash
-hostname -s    # "laptop", "pc" or "server"; use this as <host> in every command below
+hostname -s    # "laptop", "pc" or "aktkc"; use this as <host> in every command below
 ```
 
 Use `"$(hostname -s)"` substitution, never a literal host name copied from examples. If the output
-is not `laptop`, `pc` or `server`, stop and ask the user which flake host to target.
+is not `laptop`, `pc` or `aktkc`, stop and ask the user which flake host to target.
 
 - `switch` / `test` / `rollback` / `dry-activate` ALWAYS target the current machine (`"$(hostname -s)"`).
 - `build` / `dry-build` for the OTHER host only when the user explicitly names that host.
@@ -56,14 +56,14 @@ devenv shell -- home rollback "$(hostname -s)"        # Roll back HM generation
 
 HM configs are `homeConfigurations."astroreen@<host>"` in the flake, managed independently from the NixOS system.
 
-### Remote hosts (`server`)
+### Remote server hosts (`aktkc`)
 
 ```bash
-devenv shell -- deploy <action> server                      # nixos-rebuild --target-host (switch/test/boot/dry-activate); on switch also copies + activates astroreen's HM
-devenv shell -- bootstrap server root@<ip> [authkey-file]   # nixos-anywhere fresh install: WIPES the disk in hosts/astroreen/server/disko.nix
+devenv shell -- deploy <action> <host>                      # nixos-rebuild --target-host (switch/test/boot/dry-activate); on switch also copies + activates astroreen's HM
+devenv shell -- bootstrap <host> root@<ip> [authkey-file]   # nixos-anywhere fresh install: WIPES the disk set in disko.devices.disk.main.device
 ```
 
-`bootstrap` refuses to run while `hosts/astroreen/server/authorized_keys` has no key (password SSH is
+`bootstrap` refuses to run while `hosts/astroreen/common/server/authorized_keys` has no key (password SSH is
 off), regenerates `hardware-configuration.nix`, and copies the optional Tailscale auth key to
 `/var/lib/tailscale/authkey` for unattended tailnet login. The `agent` account's HM is applied by the
 system itself (`home-manager.users.agent`), so `deploy` covers it.
@@ -135,22 +135,24 @@ hosts/
     common/
       base/                # Headless settings for every host (nix, user, locale, network, ssh, tailscale, shell)
       desktop/             # Workstation layer (xserver, DM, audio, graphics, GUI nix-ld libs, steam, kitty)
+      server/              # Server/VPS layer (disko, hybrid BIOS+UEFI GRUB, disk auto-grow, firewall, authorized_keys, agent HM, no sleep)
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
-    server/                    # Headless home server: configuration.nix, disko.nix, authorized_keys, placeholder hardware config
+    aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk, extra services), hardware config
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
-      server/              # hardening, agent account, containers, restic backup, uptime-kuma
+      server/              # hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
   modules/                 # Generic system modules (options/defaults only, no preconfigured values), currently empty
 home/
   astroreen/
     common/
       base.nix             # Headless HM for every host (shell, devenv, ranger, opencode, claude, python, js)
       desktop.nix          # Workstation HM (hyprland/caelestia, GUI apps, kitty, dictation, java/csharp/flutter)
+      server.nix           # Server HM: base.nix + T3 Code with `t3 serve` user service (0.0.0.0:3773)
+      agent.nix            # HM for the `agent` account on server hosts, applied via the NixOS home-manager module
     laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia)
     pc/home.nix            # PC HM overrides
-    server/home.nix        # Server HM (common/base.nix only)
-    server/agent.nix       # HM for the `agent` account, applied via the NixOS home-manager module
+    aktkc/home.nix         # aktkc HM (common/server.nix only)
     profiles/              # HM profiles, preconfigured for astroreen
       apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/hyprland/
   modules/
@@ -165,21 +167,22 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 
 ## Host differences
 
-| | laptop | pc | server |
+| | laptop | pc | aktkc |
 |---|---|---|---|
-| Layers | base + desktop | base + desktop | base only (headless) |
+| Layers | base + desktop | base + desktop | base + server (headless) |
 | GPU | Intel (primary) + NVIDIA PRIME offload | NVIDIA only (nvidiaPersistenced=true for Ollama) | None |
 | NVIDIA mode | Finegrained power mgmt, offload on demand | Always-on, full power | N/A |
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No |
-| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), restic (daily 03:00), Docker, rootless podman |
+| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773) |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A |
-| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted, nothing else open), key-only SSH |
+| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` |
 
-Server accounts: `astroreen` (wheel, passwordless sudo, docker) and `agent` (no wheel/docker, lingering,
-rootless podman) for autonomous agents. Restic reads its repository URL and password from
+Server accounts: `astroreen` (wheel, passwordless sudo, docker, lingering for the T3 user service) and `agent` (no wheel/docker, lingering,
+rootless podman) for autonomous agents. Restic backups (`profiles/server/backup.nix`) are disabled until a
+backup target exists; when enabled, they read the repository URL and password from
 `/etc/restic/{repository,password}`, created by hand on the host (not in the repo).
 
 All hosts use Lix (`nix.package = pkgs.lixPackageSets.stable.lix`) instead of stock Nix.
@@ -265,7 +268,7 @@ Some names exist in both with different semantics (e.g. `programs.zsh`).
 
 ## Do not touch
 
-- `system.stateVersion` is `"25.11"` on laptop/pc and `"26.11"` on server (`hosts/astroreen/<host>/configuration.nix`); never change it
+- `system.stateVersion` is `"25.11"` on laptop/pc and `"26.11"` on aktkc (`hosts/astroreen/<host>/configuration.nix`); never change it
 - `home.stateVersion` is `"26.05"` (set once in `flake.nix` `createHost`, applies to all hosts); never change it. It intentionally differs from `system.stateVersion`; not a typo.
 - `hardware-configuration.nix` is auto-generated; edit only if hardware changed
 - `.devenv/`, `.direnv/` are build artifacts, gitignored
@@ -291,11 +294,16 @@ flake.nix (createHost)
     → ../profiles/style/theme/dark/adwaita
     → ../profiles/wm/{hyprland,plasma}
 ```
-Anything a headless host also needs goes in `common/base`; anything graphical goes in `common/desktop`.
+Anything a headless host also needs goes in `common/base`; anything graphical goes in `common/desktop`;
+anything every server/VPS needs goes in `common/server`.
 
-`server` imports `./hardware-configuration.nix`, `./disko.nix`, `../common/base` and
-`../profiles/server/{hardening,agent,containers,backup,monitoring}.nix`; its flake entry adds
-`inputs.disko.nixosModules.disko` and `home-manager.nixosModules.home-manager` (for `agent`).
+Server hosts (`aktkc`) import `./hardware-configuration.nix`, `../common/base`, `../common/server`
+(→ `./disko.nix`, `../../profiles/server/{hardening,agent,containers}.nix`) plus per-host
+profiles (`../profiles/server/monitoring.nix`). Each sets `networking.hostName`,
+`disko.devices.disk.main.device` and `system.stateVersion`. Their flake entry uses
+`extraModules = serverModules` (`inputs.disko.nixosModules.disko` + `home-manager.nixosModules.home-manager` for `agent`).
+New server/VPS: add `hosts/astroreen/<host>/configuration.nix`, `home/astroreen/<host>/home.nix`
+(imports `../common/server.nix`), a `hosts` entry in `flake.nix`, then `bootstrap <host> root@<ip>`.
 
 `hosts/modules/` is currently empty.
 

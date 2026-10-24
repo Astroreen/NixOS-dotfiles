@@ -63,9 +63,11 @@
         AUTHKEY="''${3:-}"
         HOST_DIR="hosts/$CURRENT_USER/$HOST"
 
+        KEYS="hosts/$CURRENT_USER/common/server/authorized_keys"
+
         # Password login is disabled on the installed system: no key = locked out.
-        if ! grep -qv '^[[:space:]]*\(#\|$\)' "$HOST_DIR/authorized_keys"; then
-          echo "error: $HOST_DIR/authorized_keys has no public key" >&2
+        if ! grep -qv '^[[:space:]]*\(#\|$\)' "$KEYS"; then
+          echo "error: $KEYS has no public key" >&2
           exit 1
         fi
 

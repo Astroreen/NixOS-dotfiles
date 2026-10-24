@@ -1,14 +1,23 @@
 { lib, ... }:
 {
   # Partitioning applied by nixos-anywhere on first install (wipes the disk).
-  # Point `device` at the real disk first: `lsblk -o NAME,SIZE,MODEL` on the
-  # target, preferably as a stable /dev/disk/by-id/... path.
+  # Each host sets `disko.devices.disk.main.device` to its real disk:
+  # `lsblk -o NAME,SIZE,MODEL` on the target, preferably as a stable
+  # /dev/disk/by-id/... path.
+  #
+  # The layout boots on both legacy BIOS and UEFI machines (see GRUB in
+  # ./default.nix): the 1M EF02 partition holds GRUB's BIOS core image,
+  # the ESP holds the EFI loader and /boot.
   disko.devices.disk.main = {
     type = "disk";
-    device = lib.mkDefault "/dev/nvme0n1";
+    device = lib.mkDefault "/dev/sda";
     content = {
       type = "gpt";
       partitions = {
+        boot = {
+          size = "1M";
+          type = "EF02"; # BIOS boot partition, unused on UEFI
+        };
         ESP = {
           size = "1G";
           type = "EF00";

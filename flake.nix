@@ -10,7 +10,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Declarative disk partitioning, used by nixos-anywhere to install the server.
+    # Declarative disk partitioning, used by nixos-anywhere to install server hosts.
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -181,6 +181,12 @@
           };
         };
 
+      # Extra NixOS modules for every host importing hosts/<user>/common/server.
+      serverModules = [
+        inputs.disko.nixosModules.disko
+        home-manager.nixosModules.home-manager # HM for the `agent` account
+      ];
+
       hosts = [
         {
           host = "laptop";
@@ -193,12 +199,9 @@
           extraModules = [ inputs.hyprland.nixosModules.default ];
         }
         {
-          host = "server";
+          host = "aktkc";
           username = "astroreen";
-          extraModules = [
-            inputs.disko.nixosModules.disko
-            home-manager.nixosModules.home-manager # HM for the `agent` account
-          ];
+          extraModules = serverModules;
         }
       ];
 

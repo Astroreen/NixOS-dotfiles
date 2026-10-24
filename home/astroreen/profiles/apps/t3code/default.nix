@@ -2,7 +2,7 @@
 # The module (home/modules/apps/t3code) owns the options; this profile supplies
 # the concrete values. settings/keybindings are plain JSON files so updating is
 # a copy from ~/.t3/userdata/ (the module also accepts inline nix values).
-{ ... }:
+{ lib, ... }:
 {
   imports = [
     ../../../../modules/apps/t3code
@@ -29,7 +29,7 @@
     # Connections); the app otherwise spawns a second server on the same
     # state dir (~/.t3). Then connect the app to this server via pairing.
     service = {
-      enable = false;
+      enable = lib.mkDefault false;
       host = "0.0.0.0";
       port = 3773;
       extraArgs = [];
