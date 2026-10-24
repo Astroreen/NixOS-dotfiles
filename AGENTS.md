@@ -138,7 +138,7 @@ hosts/
       server/              # Server/VPS layer (disko, hybrid BIOS+UEFI GRUB, disk auto-grow, firewall, authorized_keys, agent HM, no sleep)
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
-    aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk, extra services), hardware config
+    aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk, extra services), github-runners.nix (Caspian ERP CI), hardware config
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
@@ -175,7 +175,7 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No |
-| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773) |
+| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A |
 | Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` |
@@ -184,6 +184,11 @@ Server accounts: `astroreen` (wheel, passwordless sudo, docker, lingering for th
 rootless podman) for autonomous agents. Restic backups (`profiles/server/backup.nix`) are disabled until a
 backup target exists; when enabled, they read the repository URL and password from
 `/etc/restic/{repository,password}`, created by hand on the host (not in the repo).
+
+aktkc runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/aktkc/github-runners.nix`: `caspian-ci` ×3,
+`caspian-e2e`, `caspian-pipeline`) as `astroreen`, with HOME and work dirs under `/var/lib/caspian-ci`.
+The registration token lives in `/var/lib/secrets/github-runner-caspian` (by hand, not in the repo; the
+command is in the file header). The Playwright Chromium libraries are added to `programs.nix-ld.libraries` there.
 
 All hosts use Lix (`nix.package = pkgs.lixPackageSets.stable.lix`) instead of stock Nix.
 
@@ -299,7 +304,7 @@ anything every server/VPS needs goes in `common/server`.
 
 Server hosts (`aktkc`) import `./hardware-configuration.nix`, `../common/base`, `../common/server`
 (→ `./disko.nix`, `../../profiles/server/{hardening,agent,containers}.nix`) plus per-host
-profiles (`../profiles/server/monitoring.nix`). Each sets `networking.hostName`,
+profiles (`../profiles/server/monitoring.nix`) and own files (`./github-runners.nix` on aktkc). Each sets `networking.hostName`,
 `disko.devices.disk.main.device` and `system.stateVersion`. Their flake entry uses
 `extraModules = serverModules` (`inputs.disko.nixosModules.disko` + `home-manager.nixosModules.home-manager` for `agent`).
 New server/VPS: add `hosts/astroreen/<host>/configuration.nix`, `home/astroreen/<host>/home.nix`
