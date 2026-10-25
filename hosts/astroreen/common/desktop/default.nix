@@ -1,6 +1,8 @@
 # Workstation layer on top of ../base: graphical session, audio, GUI apps.
 _: {
   imports = [
+    ../base # Headless base shared by every host (desktop and server)
+    
     ./nix-ld.nix
     ./packages.nix
     ./network.nix

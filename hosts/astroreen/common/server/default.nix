@@ -4,11 +4,13 @@
 { pkgs, ... }:
 {
   imports = [
+    ../base # Headless base shared by every host (desktop and server)
     ./disko.nix # Declarative disk layout for nixos-anywhere
 
     ../../profiles/server/hardening.nix # Key-only SSH, passwordless sudo for wheel
     ../../profiles/server/agent.nix # Unprivileged `agent` account
     ../../profiles/server/containers.nix # Docker for services, rootless podman for agents
+    ../../profiles/server/monitoring.nix # Uptime Kuma
     # ../../profiles/server/backup.nix # Daily restic snapshots; off until there is a backup target
   ];
 
@@ -51,10 +53,6 @@
     };
     agent.openssh.authorizedKeys.keyFiles = [ ./authorized_keys ];
   };
-
-  # Home Manager for the agent account is applied together with the system,
-  # so agents get the same opencode/claude-code setup without a second deploy.
-  home-manager.users.agent = import ../../../../home/astroreen/common/agent.nix;
 
   # Always-on headless box: never sleep.
   systemd.targets = {

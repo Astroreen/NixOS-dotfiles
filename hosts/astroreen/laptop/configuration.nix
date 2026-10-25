@@ -6,8 +6,6 @@
 {
   imports = [
     ./hardware-configuration.nix # Required.
-
-    ../common/base # Headless settings shared by all hosts
     ../common/desktop # Graphical workstation layer
 
     ../profiles/style/theme/dark/adwaita # Adwaita dark theme

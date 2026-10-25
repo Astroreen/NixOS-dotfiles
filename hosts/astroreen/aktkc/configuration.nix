@@ -1,11 +1,8 @@
 _: {
   imports = [
     ./hardware-configuration.nix # Replaced by `bootstrap aktkc <target>` on first install
-
-    ../common/base # Headless settings shared by all hosts
     ../common/server # Server layer: disko, GRUB, hardening, agent, containers, backup
 
-    ../profiles/server/monitoring.nix # Uptime Kuma
     ./github-runners.nix # Caspian ERP CI runners
   ];
 

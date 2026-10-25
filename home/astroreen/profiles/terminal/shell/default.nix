@@ -1,11 +1,5 @@
 { pkgs, config, ... }:
 {
-  # Default choices (kitty.nix is imported by common/desktop.nix)
-  imports = [
-    ./zsh.nix
-    ./fastfetch.nix
-  ];
-
   # Apply changes through home-manager and nixos system-wide configuration
   programs = {
     bash.enable = true;
