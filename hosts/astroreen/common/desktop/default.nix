@@ -20,6 +20,7 @@ _: {
 
     # Terminal related apps (tui)
     ../../profiles/terminal/openvpn # Open VPN configuration
+    ../../profiles/terminal/shell/zsh.nix # Zsh shell
     ../../profiles/terminal/shell/kitty.nix # Kitty terminal emulator
 
     # Languages

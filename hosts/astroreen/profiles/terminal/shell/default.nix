@@ -1,10 +1,4 @@
 { pkgs, ... }: {
-
-  # Default choices for the system (kitty.nix is imported by common/desktop)
-  imports = [
-    ./zsh.nix
-  ];
-
   environment.systemPackages = with pkgs; [
     # File utilities
     lsof # List open files and sockets
