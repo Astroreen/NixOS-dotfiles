@@ -79,5 +79,6 @@
 
   environment.systemPackages = with pkgs; [
     btop # Resource monitor
+    kitty.terminfo # SSH from kitty sends TERM=xterm-kitty; without its terminfo, ncurses tools fail
   ];
 }
