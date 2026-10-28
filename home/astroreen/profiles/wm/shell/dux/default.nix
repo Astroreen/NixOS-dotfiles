@@ -19,6 +19,9 @@
     # Additional packages to support dux shell
     home.packages = with pkgs; [
       papirus-icon-theme # Icons
+      # Dux bundles its own Material Symbols Rounded, but Qt resolves the
+      # filled/weighted icon variants through fontconfig by family name
+      material-symbols
       kdePackages.qt6ct # Qt6 configuration tool (QT_QPA_PLATFORMTHEME=qt6ct is set system-wide)
     ];
   };

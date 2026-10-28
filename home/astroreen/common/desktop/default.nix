@@ -57,6 +57,11 @@
   # switch. Every association is declared in the app profiles, so overwrite it.
   xdg.configFile."mimeapps.list".force = true;
 
+  # Rebuild the user fontconfig cache on switch. Without it, removing a font
+  # package (material-symbols left with caelestia) left stale cache entries
+  # pointing at deleted files, and dux showed "…" for its filled icons.
+  fonts.fontconfig.enable = true;
+
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = config.home.sessionVariables;
 

@@ -149,6 +149,7 @@ in
       wtype
       wl-clipboard
       cava
+      material-symbols # overlay icons ("Material Symbols Outlined")
       daemonCli # control client: dictation-daemon start|stop|toggle|status
     ];
 
