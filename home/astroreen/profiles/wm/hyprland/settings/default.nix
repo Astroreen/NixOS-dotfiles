@@ -50,6 +50,9 @@ in
       force_default_wallpaper = 0;
       disable_hyprland_logo = true;
       session_lock_xray = true;
+      # Honor activation requests (xdg-activation): jump to the browser when
+      # an app opens a link, to VS Code when a CLI opens a file, etc.
+      focus_on_activate = true;
     };
 
     animations.enabled = true;
@@ -67,9 +70,9 @@ in
         };
         shake = {
           enabled = true;
-          threshold = 6.0;
-          base = 4.0;
-          timeout = 2000;
+          threshold = 7.0;
+          base = 2.0;
+          timeout = 500;
         };
         hyprcursor = {
           enabled = true;
