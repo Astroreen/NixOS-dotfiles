@@ -1,5 +1,9 @@
 { lib, ... }:
 {
+  imports = [
+    ../../../../modules/wm/keybinds # custom.keybinds
+  ];
+
   programs.kitty = {
     enable = true;
     enableGitIntegration = true;
@@ -47,6 +51,12 @@
     };
   };
 
+  # Floats centered at 1300x800 through the window rule below
+  custom.keybinds.binds.terminal = {
+    key = lib.mkDefault "SUPER + T";
+    exec = lib.mkDefault "kitty";
+  };
+
   wayland.windowManager.hyprland = {
     settings.window_rule = [
       {
@@ -55,15 +65,6 @@
         float = true;
         center = true;
       }
-    ];
-
-    settings.bind = [
-      {
-        _args = [
-          "SUPER + T"
-          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"[float; size 1300 800] kitty\")")
-        ];
-      } # Terminal
     ];
   };
 }

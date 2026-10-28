@@ -1,5 +1,9 @@
 { pkgs, lib, ... }:
 {
+  imports = [
+    ../../../modules/wm/keybinds # custom.keybinds
+  ];
+
   # Plain home-manager wayvnc module: single instance, default (first)
   # output, flat address/port config - this is what was in place before
   # the hyprlang->Lua migration and "worked flawlessly". Two known,
@@ -36,17 +40,15 @@
     tigervnc # VNC viewer
   ];
 
+  # Cycle wayvnc output across monitors
+  custom.keybinds.binds.vncCycleOutput = {
+    key = lib.mkDefault "CTRL + SUPER + SHIFT + semicolon";
+    exec = lib.mkDefault "wayvncctl output-cycle";
+  };
+
   wayland.windowManager.hyprland.settings = {
     # NOTE: F12 passthrough submap dropped during hyprlang->Lua migration
     # (wayvnc is disabled; re-add via hl.define_submap if VNC is re-enabled)
-    bind = [
-      {
-        _args = [
-          "CTRL + SUPER + SHIFT + semicolon"
-          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"wayvncctl output-cycle\")")
-        ];
-      } # Cycle wayvnc output across monitors
-    ];
 
     window_rule = [
       # VNC viewer should float and be centered
