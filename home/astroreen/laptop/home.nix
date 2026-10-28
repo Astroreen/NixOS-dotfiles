@@ -9,7 +9,6 @@
 
   custom.caelestia = {
     enable = true;
-    enableDefaultKeyboardBinds = true;
     settings = lib.mkDefault (builtins.fromJSON (builtins.readFile ./assets/caelestia-shell-config.json));
   };
 }

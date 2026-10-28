@@ -18,14 +18,15 @@ in
 {
   # Emoji picker on SUPER + Period: rofi grid, category tabs (Shift + Left/Right),
   # most used emojis first in the 🕘 tab. Replaces `caelestia emoji -p`.
+  imports = [
+    ../../../../modules/wm/keybinds # custom.keybinds
+  ];
+
   home.packages = [ emoji-picker ];
 
-  wayland.windowManager.hyprland.settings.bind = [
-    {
-      _args = [
-        "SUPER + Period"
-        (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"pkill -x rofi || emoji-picker\")")
-      ];
-    } # Emoji picker
-  ];
+  # Shell-agnostic, so it works with caelestia and dux alike
+  custom.keybinds.binds.emoji = {
+    key = lib.mkDefault "SUPER + Period";
+    exec = lib.mkDefault "pkill -x rofi || emoji-picker";
+  };
 }

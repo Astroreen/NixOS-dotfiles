@@ -1,10 +1,8 @@
 { config, lib, ... }:
 {
-  # Workstation layer on top of ./base.nix: Hyprland, Caelestia, GUI apps.
+  # Workstation layer on top of ./base.nix: Hyprland, desktop shell, GUI apps.
   imports = [
     ../base # Headless base shared by every host (desktop and server)
-
-    ../hyprland/caelestia # Custom Caelestia shell module
 
     # Style
     ../../profiles/style/cursor/breeze # Breeze cursor style
@@ -13,6 +11,8 @@
     # Apps (gui)
     ../../profiles/apps/apps.nix # Standard apps to install
     ../../profiles/apps/localsend.nix # LocalSend always-on file transfer server
+    ../../profiles/apps/qview.nix # qView image viewer
+    ../../profiles/apps/postman.nix # Postman API client
     ../../profiles/apps/clipboard.nix # Clipboard ui
     ../../profiles/apps/emoji-picker # Emoji picker (SUPER + Period)
     ../../profiles/apps/screenshot.nix # Screenshot tooling (satty + swappy shim)
@@ -48,7 +48,8 @@
 
     # Windows manager (wm)
     ../../profiles/wm/hyprland # Hyprland window manager
-    ../../profiles/wm/hyprland/caelestia # Caelestia shell
+    ../../profiles/wm/keybinds # WM-agnostic keybinds (custom.keybinds)
+    ../../profiles/wm/shell # Desktop shell: host enables custom.caelestia or custom.dux
   ];
 
   # Wayland, X, etc. support for session vars
@@ -63,7 +64,7 @@
   wayland.windowManager.hyprland = {
     # Hyprland settings
     settings = lib.mkMerge [
-      (import ../hyprland/settings.nix { inherit lib; })
+      (import ./hyprland/settings.nix { inherit lib; })
       {
         # Why is it not in binds.nix? Because these are my personal keybinds, and not general Hyprland ones
         bind =
