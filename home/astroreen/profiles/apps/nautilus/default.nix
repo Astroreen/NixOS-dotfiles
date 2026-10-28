@@ -31,6 +31,16 @@
         "inode/directory" = "org.gnome.Nautilus.desktop";
         "application/x-gnome-saved-search" = "org.gnome.Nautilus.desktop";
       };
+      # "Open With" Files on archives extracts them in place
+      associations.added = lib.genAttrs [
+        "application/gzip"
+        "application/x-7z-compressed"
+        "application/x-bzip2"
+        "application/x-rar"
+        "application/x-tar"
+        "application/x-xz"
+        "application/zip"
+      ] (_: "org.gnome.Nautilus.desktop");
     };
   };
 

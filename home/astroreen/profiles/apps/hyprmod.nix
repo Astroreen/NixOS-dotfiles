@@ -35,6 +35,19 @@ in
     require("hyprland-gui")
   '';
 
+  # HyprMod reads hyprland.lua through hyprland-config's Lua reader, which
+  # stubs `hl` and runs every hl.on callback right away to record its execs.
+  # The stub cannot catch os.execute, so home-manager's shutdown hook
+  # (`systemctl --user stop hyprland-session.target`) really ran on every
+  # HyprMod launch and took the shell and all session services down.
+  # extraLuaFiles load before that hook; in real Hyprland hl.on is a C
+  # function, under the reader it is Lua, so os.execute is disabled there only.
+  wayland.windowManager.hyprland.extraLuaFiles.hyprmod-guard = ''
+    if debug.getinfo(hl.on, "S").what ~= "C" then
+      os.execute = function() return true end
+    end
+  '';
+
   # `require("hyprland-gui")` errors if the module is missing, so ensure the
   # file exists before Hyprland starts. `touch` (not overwrite) preserves
   # whatever HyprMod has written across rebuilds.

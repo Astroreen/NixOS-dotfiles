@@ -8,6 +8,7 @@
 let
   cfg = config.custom.caelestia;
   system = pkgs.stdenv.hostPlatform.system;
+  shellLib = import ../lib.nix { inherit pkgs lib; };
 in
 {
   imports = [
@@ -37,12 +38,26 @@ in
       settings = mkOption {
         type = types.attrsOf types.anything;
         default = { };
-        description = "Caelestia shell settings, copied (writable) to ~/.config/caelestia/shell.json.";
+        description = ''
+          Default caelestia shell settings, merged into the writable
+          ~/.config/caelestia/shell.json: only keys the file does not have yet
+          are added, so changes made from the shell survive a rebuild (unless `overrideSettings`).
+        '';
+      };
+      overrideSettings = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Whether `settings` win over values already in ~/.config/caelestia/shell.json
+          (e.g. saved from the shell's settings UI). Off: `settings` only
+          fill keys the file does not have yet. Keys only the file has are
+          kept either way.
+        '';
       };
       settingsOverrides = mkOption {
         type = types.attrsOf types.anything;
         default = { };
-        description = "Recursively merged over `settings`, winning on conflicts.";
+        description = "Recursively merged over shell.json and `settings`, always winning.";
       };
       recordExtraArgs = mkOption {
         type = types.listOf types.str;
@@ -102,37 +117,36 @@ in
     systemd.user.services.caelestia.Service.LimitNOFILE = lib.mkDefault "524288";
 
     # Home activation is used here to not symlink file into nix store, thus making it writable
-    home.activation.caelestiaConfig =
-      let
-        mergedConfig = lib.recursiveUpdate cfg.settings cfg.settingsOverrides;
-        configFile = pkgs.writeText "caelestia-config" (builtins.toJSON mergedConfig);
-        cliConfigFile = pkgs.writeText "caelestia-cli-config" (
-          builtins.toJSON {
-            record = {
-              extraArgs = cfg.recordExtraArgs;
-            };
-          }
-        );
-      in
-      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        CONF="${config.home.homeDirectory}/.config/caelestia/shell.json"
-        NEW=${configFile}
+    home.activation = {
+      caelestiaConfig = shellLib.mkJsonConfigActivation {
+        path = "${config.home.homeDirectory}/.config/caelestia/shell.json";
+        defaults = cfg.settings;
+        overrideDefaults = cfg.overrideSettings;
+        overrides = cfg.settingsOverrides;
+        service = "caelestia";
+      };
 
-        if [ ! -f "$CONF" ] || ! diff -q "$CONF" "$NEW" > /dev/null 2>&1; then
-          cp "$NEW" "$CONF"
-          chmod 644 "$CONF"
-          systemctl --user restart caelestia || true
-        fi
-
-        ${lib.optionalString (cfg.recordExtraArgs != [ ]) ''
+      caelestiaCliConfig = lib.mkIf (cfg.recordExtraArgs != [ ]) (
+        let
+          cliConfigFile = pkgs.writeText "caelestia-cli-config" (
+            builtins.toJSON {
+              record = {
+                extraArgs = cfg.recordExtraArgs;
+              };
+            }
+          );
+        in
+        lib.hm.dag.entryAfter [ "writeBoundary" ] ''
           CLI="${config.home.homeDirectory}/.config/caelestia/cli.json"
           CLI_NEW=${cliConfigFile}
 
           if [ ! -f "$CLI" ] || ! diff -q "$CLI" "$CLI_NEW" > /dev/null 2>&1; then
+            mkdir -p "$(dirname "$CLI")"
             cp "$CLI_NEW" "$CLI"
             chmod 644 "$CLI"
           fi
-        ''}
-      '';
+        ''
+      );
+    };
   };
 }

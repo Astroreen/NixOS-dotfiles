@@ -23,6 +23,11 @@
 
       # Window
       window_padding_width = "10 20 10 20";
+      # kitty saves the last window size *and state* (~/.cache/kitty/main.json)
+      # and asks for it on the next start. Once one window was closed
+      # maximized, every new kitty requested maximize, which overrides the
+      # Hyprland float/size/center rule below.
+      remember_window_size = "no";
     };
 
     keybindings = {

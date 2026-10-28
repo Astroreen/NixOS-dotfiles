@@ -28,6 +28,17 @@ in
     (withGpuAccel "pear-desktop" pkgs.pear-desktop)
   ];
 
+  # Shadows the package's entry (same id), renaming Pear Desktop in launchers.
+  # Pear reports this id as its MPRIS identity too, so the dux media widget
+  # shows "YouTube Music" via the desktop entry lookup (modules/wm/shell/dux).
+  xdg.desktopEntries."com.github.th-ch.youtube-music" = {
+    name = "YouTube Music";
+    exec = "pear-desktop %u";
+    icon = "pear-desktop";
+    categories = [ "AudioVideo" ];
+    settings.StartupWMClass = "com.github.th-ch.youtube-music";
+  };
+
   wayland.windowManager.hyprland.settings = {
     on = [
       {

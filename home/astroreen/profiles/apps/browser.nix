@@ -23,10 +23,15 @@ in
     };
   };
 
-  # Open PDFs in the browser instead of a dedicated viewer.
+  # Default browser, plus PDFs in the browser instead of a dedicated viewer.
+  # Declared so Vivaldi has no reason to rewrite mimeapps.list itself.
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
+      "text/html" = "vivaldi-stable.desktop";
+      "application/xhtml+xml" = "vivaldi-stable.desktop";
+      "x-scheme-handler/http" = "vivaldi-stable.desktop";
+      "x-scheme-handler/https" = "vivaldi-stable.desktop";
       "application/pdf" = "vivaldi-stable.desktop";
     };
   };

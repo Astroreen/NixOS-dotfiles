@@ -16,6 +16,12 @@
   custom.dictation.host = "0.0.0.0";
 
   custom = {
+    dux = {
+      enable = true;
+      overrideSettings = false;
+      settings = lib.mkDefault (builtins.fromJSON (builtins.readFile ./assets/dux-settings.json));
+    };
+
     caelestia = {
       enable = false;
       settings = lib.mkDefault (
@@ -29,10 +35,6 @@
         "-fallback-cpu-encoding"
         "yes"
       ];
-    };
-
-    dux = {
-      enable = true;
     };
   };
 }

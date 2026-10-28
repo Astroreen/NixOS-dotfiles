@@ -7,6 +7,30 @@
       exec = "python3 scripts/sync-caelestia-config.py $@";
     };
 
+    sync-dux-config = {
+      description = "Copy the live Dux settings (~/.config/dms/settings.json) into home/astroreen/<host>/assets/dux-settings.json";
+      exec = ''
+        HOST="''${1:-$(hostname -s)}"
+        SRC="''${XDG_CONFIG_HOME:-$HOME/.config}/dms/settings.json"
+        DIR="''${DEVENV_ROOT:-.}/home/astroreen/$HOST"
+        DST="$DIR/assets/dux-settings.json"
+
+        if [ ! -d "$DIR" ]; then
+          echo "❌ Unknown host '$HOST' (no $DIR)"
+          exit 1
+        fi
+        if [ ! -s "$SRC" ]; then
+          echo "❌ $SRC does not exist; is Dux running on this host?"
+          exit 1
+        fi
+
+        # Validate + normalize (2-space indent, like dux itself writes it)
+        jq --indent 2 . "$SRC" > "$DST.tmp" && mv "$DST.tmp" "$DST"
+        echo "✅ $SRC -> $DST"
+        git -C "''${DEVENV_ROOT:-.}" diff --stat -- "$DST"
+      '';
+    };
+
     sync-t3code-config = {
       description = "Fetch T3 Code settings/keybindings from live userdata into the repo (drops host-specific and secret keys)";
       exec = "python3 scripts/sync-t3code-config.py $@";

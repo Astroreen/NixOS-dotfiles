@@ -52,6 +52,11 @@
     ../../profiles/wm/shell # Desktop shell: host enables custom.caelestia or custom.dux
   ];
 
+  # Apps (Vesktop, browsers, `xdg-mime default`) rewrite mimeapps.list in place,
+  # turning the home-manager symlink into a regular file that blocks the next
+  # switch. Every association is declared in the app profiles, so overwrite it.
+  xdg.configFile."mimeapps.list".force = true;
+
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = config.home.sessionVariables;
 

@@ -43,8 +43,13 @@ in
 
         # Dux utilities
         settings = {
-          key = "SUPER + Comma";
+          key = "SUPER + I";
           exec = ipc "settings focusOrToggle";
+        };
+        # Dux clipboard history (replaces copyq, see profiles/apps/clipboard.nix)
+        clipboard = {
+          key = "SUPER + V";
+          exec = ipc "clipboard toggle";
         };
         restartShell = {
           key = "CTRL + SUPER + SHIFT + R";

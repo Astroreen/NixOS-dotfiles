@@ -1,5 +1,14 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
+  # Dux ships its own clipboard history (SUPER + V in its binds.nix), so
+  # copyq only runs with the other shells.
+  useCopyq = !(config.custom.dux.enable or false);
+
   # hl.exec_once does not exist in the real Lua API; official pattern is
   # hl.on("hyprland.start", function() hl.exec_cmd(cmd) end).
   mkStartup = cmd: {
@@ -10,6 +19,10 @@ let
   };
 in
 {
+  imports = [
+    ../../../modules/wm/keybinds # custom.keybinds
+  ];
+
   home.packages = with pkgs; [
     # Clipboard history
     cliphist
@@ -32,7 +45,7 @@ in
       ];
     };
 
-    copyq.enable = true;
+    copyq.enable = useCopyq;
   };
 
   # copyq's systemd --user unit doesn't inherit the session's
@@ -52,10 +65,14 @@ in
   # around the existing xcb entry.
   systemd.user.services.copyq.Service.Environment = lib.mkForce "QT_QPA_PLATFORM=wayland";
 
+  custom.keybinds.binds.clipboard = lib.mkIf useCopyq {
+    key = lib.mkDefault "SUPER + V";
+    exec = lib.mkDefault "copyq toggle";
+  };
+
   wayland.windowManager = {
     # If it is not enabled, service may not even start.
     sway.systemd.enable = true;
-    # Bind for clipboard
     hyprland = {
       settings = {
         on = map mkStartup [
@@ -71,15 +88,6 @@ in
             center = true;
             float = true;
           }
-        ];
-
-        bind = [
-          {
-            _args = [
-              "SUPER + V"
-              (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"copyq toggle\")")
-            ];
-          } # Clipboard menu
         ];
       };
     };
