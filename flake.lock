@@ -589,6 +589,26 @@
         "type": "github"
       }
     },
+    "nixdatifier": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792854929,
+        "narHash": "sha256-OQ/uC72XOaM5jMK0+HRC4KjwT75cCfByQa+/D4i9qzc=",
+        "owner": "Muddyblack",
+        "repo": "nixdatifier",
+        "rev": "52269db2a7a2ff74b596057fd0e7d1e7c374aef4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Muddyblack",
+        "repo": "nixdatifier",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1789921291,
@@ -757,6 +777,7 @@
         "hyprland": "hyprland",
         "hyprmod": "hyprmod",
         "mattpocock-skills": "mattpocock-skills",
+        "nixdatifier": "nixdatifier",
         "nixpkgs": "nixpkgs_4",
         "nixpkgs-stable": "nixpkgs-stable",
         "opencode-v2": "opencode-v2",

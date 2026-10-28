@@ -84,6 +84,13 @@
     # release that also locks node_modules hashes (nix/hashes.json).
     opencode-v2.url = "github:anomalyco/opencode/v2.0.28";
 
+    # Nixdatifier: tray app for NixOS generations, diffs and flake input updates.
+    # Imported via its Home Manager module in home/astroreen/profiles/apps/nixdatifier.nix.
+    nixdatifier = {
+      url = "github:Muddyblack/nixdatifier";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # NOTE: HyprCapture was tried and dropped (2026-07-26) — after fixing
     # several generated-header path issues (version.h, protocols/,
     # Monitor.hpp relocation), it hit a hard wall: its C++ source calls
@@ -136,9 +143,8 @@
         let
           hostPkgs = pkgsFor.${systemVersion};
           hostPkgsStable = pkgsStableFor.${systemVersion};
-        in
-        {
-          nixosConfigurations."${username}@${host}" = nixpkgs.lib.nixosSystem rec {
+
+          nixosSystem = nixpkgs.lib.nixosSystem {
             # Pass pre-instantiated pkgs via modules
             pkgs = hostPkgs;
             system = systemVersion;
@@ -155,6 +161,14 @@
               ./hosts/${username}/${host}/configuration.nix # Host configuration
             ]
             ++ extraModules; # Allow passing extra modules from host configuration
+          };
+        in
+        {
+          nixosConfigurations = {
+            "${username}@${host}" = nixosSystem;
+            # Bare host name alias: tools that pick the configuration by
+            # `hostname -s` (nixdatifier update previews) find it too.
+            ${host} = nixosSystem;
           };
 
           homeConfigurations."${username}@${host}" = home-manager.lib.homeManagerConfiguration {
