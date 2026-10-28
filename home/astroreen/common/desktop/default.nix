@@ -14,6 +14,7 @@
     ../../profiles/apps/apps.nix # Standard apps to install
     ../../profiles/apps/localsend.nix # LocalSend always-on file transfer server
     ../../profiles/apps/clipboard.nix # Clipboard ui
+    ../../profiles/apps/emoji-picker # Emoji picker (SUPER + Period)
     ../../profiles/apps/screenshot.nix # Screenshot tooling (satty + swappy shim)
     ../../profiles/apps/vesktop.nix # VDesktop configuration
     ../../profiles/apps/vscode # VSCode
@@ -62,7 +63,7 @@
   wayland.windowManager.hyprland = {
     # Hyprland settings
     settings = lib.mkMerge [
-      (import ./hyprland/settings.nix { inherit lib; })
+      (import ../hyprland/settings.nix { inherit lib; })
       {
         # Why is it not in binds.nix? Because these are my personal keybinds, and not general Hyprland ones
         bind =

@@ -1,0 +1,92 @@
+/* Emoji picker. Colours frozen from caelestia's fuzzel.ini, so the look
+ * survives a shell switch. */
+
+* {
+  bg: #131317dd;
+  fg: #e5e1e7;
+  dim: #918f9a;
+  accent: #c2c1ff;
+  selected: #c2c1ff40;
+  border-col: #c2c1ff77;
+
+  font: "JetBrains Mono NF 15";
+  background-color: transparent;
+  text-color: @fg;
+}
+
+window {
+  width: 640px;
+  location: center;
+  anchor: center;
+  background-color: @bg;
+  border: 2px;
+  border-color: @border-col;
+  border-radius: 10px;
+}
+
+mainbox {
+  padding: 15px 20px;
+  spacing: 10px;
+  children: [ inputbar, mode-switcher, listview ];
+}
+
+inputbar {
+  spacing: 8px;
+  children: [ prompt, entry ];
+}
+
+prompt {
+  text-color: @accent;
+}
+
+entry {
+  placeholder: "Type to search emojis";
+  placeholder-color: @dim;
+  cursor: text;
+}
+
+mode-switcher {
+  spacing: 4px;
+}
+
+button {
+  padding: 4px 0;
+  border-radius: 8px;
+  horizontal-align: 0.5;
+  text-color: @dim;
+}
+
+button selected {
+  background-color: @selected;
+  text-color: @fg;
+}
+
+listview {
+  columns: 10;
+  lines: 6;
+  fixed-columns: true;
+  flow: horizontal;
+  fixed-height: true;
+  spacing: 4px;
+  scrollbar: false;
+}
+
+element {
+  padding: 6px 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+element normal.normal, element alternate.normal {
+  background-color: transparent;
+}
+
+element selected.normal {
+  background-color: @selected;
+}
+
+element-text {
+  horizontal-align: 0.5;
+  font: "JetBrains Mono NF 16";
+  cursor: inherit;
+}

@@ -174,13 +174,7 @@ in
           }
 
           # Caelestia utilities
-          # Emoji picker
-          {
-            _args = [
-              "SUPER + Period"
-              (exec "pkill fuzzel || caelestia emoji -p")
-            ];
-          }
+          # Emoji picker (SUPER + Period) lives in profiles/apps/emoji-picker
           # Kill/restart Caelestia shell
           {
             _args = [
