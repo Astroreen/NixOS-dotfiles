@@ -69,8 +69,12 @@ ShellRoot {
                 anchors.centerIn: parent
                 spacing: 14
 
+                // Material Symbols ligature names, so the glyph comes from this
+                // font itself. Nerd Font codepoints only rendered through Qt's
+                // font fallback, which broke when the font set changed under
+                // the running overlay.
                 Text {
-                    text: shell.state === "transcribing" ? "󰔟" : "󰍬"
+                    text: shell.state === "transcribing" ? "hourglass_empty" : "mic"
                     color: shell.state === "transcribing" ? "#f9e2af" : "#a6e3a1"
                     font.pixelSize: 22
                     font.family: "Material Symbols Outlined"

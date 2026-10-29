@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   # Workstation layer on top of ./base.nix: Hyprland, desktop shell, GUI apps.
   imports = [
@@ -57,10 +62,19 @@
   # switch. Every association is declared in the app profiles, so overwrite it.
   xdg.configFile."mimeapps.list".force = true;
 
-  # Rebuild the user fontconfig cache on switch. Without it, removing a font
-  # package (material-symbols left with caelestia) left stale cache entries
-  # pointing at deleted files, and dux showed "…" for its filled icons.
+  # Register the user profile fonts with fontconfig.
   fonts.fontconfig.enable = true;
+
+  # fontconfig trusts a cached font dir while the dir's mtime is unchanged, and
+  # every store path has mtime 1. So the cache of ~/.nix-profile/share/fonts
+  # never notices a profile change: removed fonts stay listed with deleted files
+  # (dux showed "…" for its filled icons, the dictation overlay lost its icons)
+  # and new fonts stay invisible. Rebuild that cache after the profile changes.
+  home.activation.refreshFontCache = lib.hm.dag.entryAfter [ "installPackages" ] ''
+    if [ -d ${config.home.profileDirectory}/share/fonts ]; then
+      run ${lib.getBin pkgs.fontconfig}/bin/fc-cache -f ${config.home.profileDirectory}/share/fonts
+    fi
+  '';
 
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = config.home.sessionVariables;
