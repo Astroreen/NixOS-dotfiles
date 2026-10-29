@@ -41,7 +41,11 @@ in
       # Patch: picked image paths were spliced into Qt.createQmlObject code.
       quickCapture.src = plugin hthienloc "quickCapture" [ ./quickcapture-qml-escape.patch ];
       # Emoji picker (SUPER + Period under dux, see ../binds.nix)
-      emojiPicker.src = plugin hthienloc "emojiPicker" [ ];
+      emojiPicker = {
+        src = plugin hthienloc "emojiPicker" [ ];
+        # Paste the picked emoji instead of only copying it (plugin default: "copy")
+        settings.defaultAction = "paste";
+      };
 
       # Phone integration over KDE Connect ("PhoneConnect").
       # Patch: a phone filename with $(...) ran as a command on drag.
