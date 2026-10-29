@@ -51,6 +51,10 @@
       "rightWidgets": [
         "systemTray",
         {
+          "id": "dankPomodoroTimer",
+          "enabled": true
+        },
+        {
           "id": "cpuUsage",
           "enabled": true,
           "overflowMode": "section"
@@ -60,12 +64,27 @@
           "enabled": true,
           "overflowMode": "section"
         },
+        {
+          "id": "dankscale",
+          "enabled": true
+        },
         "controlCenterButton",
         {
           "id": "battery",
           "enabled": false
         },
-        "clipboard",
+        {
+          "id": "clipboard",
+          "enabled": false
+        },
+        {
+          "id": "dankKDEConnect",
+          "enabled": true
+        },
+        {
+          "id": "quickCapture",
+          "enabled": true
+        },
         "notificationButton",
         {
           "id": "powerMenuButton",
