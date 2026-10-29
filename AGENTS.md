@@ -140,11 +140,12 @@ hosts/
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
     aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk, extra services), github-runners.nix (Caspian ERP CI), hardware config
-    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver + container toolkit), hardware config
+    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
-      server/              # hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
-  modules/                 # Generic system modules (options/defaults only, no preconfigured values), currently empty
+      server/              # services/ (Docker services, preconfigured for hercules), hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
+  modules/                 # Generic system modules (options/defaults only, no preconfigured values)
+    server/services/       # custom.services.<name>: Docker services (actual, n8n, nextcloud-aio, pihole, vaultwarden) on one shared network (custom.services.network)
 home/
   astroreen/
     common/
@@ -155,7 +156,7 @@ home/
     laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia; dux settings ready for the switch)
     pc/home.nix            # PC HM overrides
     aktkc/home.nix         # aktkc HM (common/server.nix only)
-    hercules/home.nix      # hercules HM (common/server.nix only)
+    hercules/home.nix      # hercules HM (common/server.nix + astro-dashboard.nix, moved from aktkc)
     profiles/              # HM profiles, preconfigured for astroreen
       apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/{hyprland,keybinds,shell}/
   modules/
@@ -180,7 +181,7 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
-| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773); services from `pc` move here gradually |
+| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000) |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | toolkit only (CDI: `--device nvidia.com/gpu=all`) |
 | Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Same as aktkc (LAN 192.168.50.192) |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
@@ -316,7 +317,11 @@ profiles (`../profiles/server/monitoring.nix`) and own files (`./github-runners.
 New server/VPS: add `hosts/astroreen/<host>/configuration.nix`, `home/astroreen/<host>/home.nix`
 (imports `../common/server.nix`), a `hosts` entry in `flake.nix`, then `bootstrap <host> root@<ip>`.
 
-`hosts/modules/` is currently empty.
+`hosts/modules/server/services/` holds the Docker service modules (`custom.services.<name>`); their preconfigured values are in
+`hosts/astroreen/profiles/server/services/` (imported by hercules), secrets in `/var/lib/secrets/<name>.env` on the host (by hand,
+not in the repo). State lives in `/var/lib/<name>` (root-only, 0700); Nextcloud AIO keeps its own `nextcloud_aio_*` Docker volumes.
+The AIO mastercontainer is started by a oneshot unit with `docker run -d` (not oci-containers) so its watchtower can update it.
+Docker-published ports bypass the NixOS firewall, so these services are reachable from the LAN.
 
 **Home Manager:**
 ```

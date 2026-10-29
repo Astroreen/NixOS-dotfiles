@@ -4,7 +4,19 @@ _: {
     ../common/server # Server layer: disko, GRUB, hardening, agent, containers, backup
 
     ./nvidia.nix # RTX 4080 SUPER for GPU services
+    ../profiles/server/services # Vaultwarden, Pi-hole, n8n, Actual, Nextcloud AIO (Docker)
   ];
+
+  # 4TB USB disk with the bulk of the Nextcloud files (External storage),
+  # moved over from pc. nofail: the host still boots while it is unplugged.
+  fileSystems."/mnt/nextcloud_storage" = {
+    device = "/dev/disk/by-uuid/be83c981-ab7e-40fb-b0fc-836eaaf07324";
+    fsType = "ext4";
+    options = [
+      "nofail"
+      "x-systemd.device-timeout=10s"
+    ];
+  };
 
   # Bare-metal home server (Gigabyte Z790 AORUS ELITE X, i7-14700KF).
   # NixOS takes the whole NVMe; the SATA Samsung 860 EVO
