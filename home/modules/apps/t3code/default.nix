@@ -9,10 +9,12 @@ let
 
   # T3 Code keeps its mutable state under <baseDir>/userdata, where baseDir
   # defaults to ~/.t3 (overridable via T3CODE_HOME). settings.json and
-  # keybindings.json are read-modify-written by the server and the CLI, so they
-  # cannot be store symlinks; themes/ is only read by the server.
+  # keybindings.json are read-modify-written by the server and the CLI, and
+  # client-settings.json by the desktop app, so none can be a store symlink;
+  # themes/ is only read by the server.
   stateDir = cfg.stateDir;
   settingsFile = "${stateDir}/settings.json";
+  clientSettingsFile = "${stateDir}/client-settings.json";
   keybindingsFile = "${stateDir}/keybindings.json";
   themesDir = "${stateDir}/themes";
 
@@ -32,6 +34,12 @@ let
     else
       cfg.settings;
 
+  clientSettingsValue =
+    if cfg.clientSettingsFile != null then
+      builtins.fromJSON (builtins.readFile cfg.clientSettingsFile)
+    else
+      cfg.clientSettings;
+
   keybindingsValue =
     if cfg.keybindingsFile != null then
       builtins.fromJSON (builtins.readFile cfg.keybindingsFile)
@@ -39,10 +47,26 @@ let
       cfg.keybindings;
 
   hasSettings = cfg.settingsFile != null || cfg.settings != { };
+  hasClientSettings = cfg.clientSettingsFile != null || cfg.clientSettings != { };
   hasKeybindings = cfg.keybindingsFile != null || cfg.keybindings != [ ];
 
   settingsJson = pkgs.writeText "t3code-settings.json" (builtins.toJSON settingsValue);
+  clientSettingsJson = pkgs.writeText "t3code-client-settings.json" (
+    builtins.toJSON clientSettingsValue
+  );
   keybindingsJson = pkgs.writeText "t3code-keybindings.json" (builtins.toJSON keybindingsValue);
+
+  # Shallow merge: each declarative top-level key replaces the live value as a
+  # whole (a recursive merge would keep stale nested keys, e.g. `options` of a
+  # previous defaultModelSelection); keys only present live are kept.
+  mergeObject = live: declared: ''
+    if [ -f ${lib.escapeShellArg live} ]; then
+      ${jq} -s '.[0] + .[1]' ${lib.escapeShellArg live} ${declared} > ${lib.escapeShellArg live}.tmp
+      mv ${lib.escapeShellArg live}.tmp ${lib.escapeShellArg live}
+    else
+      install -Dm644 ${declared} ${lib.escapeShellArg live}
+    fi
+  '';
 
   copyThemes = lib.concatStringsSep "\n" (
     lib.mapAttrsToList (name: src: ''
@@ -86,8 +110,9 @@ in
       type = lib.types.attrs;
       default = { };
       description = ''
-        Keys merged into settings.json (recursive merge, declarative keys win).
-        Mutually exclusive with `settingsFile`.
+        Keys merged into settings.json (each top-level key replaces the live
+        value; keys only present live are kept). Mutually exclusive with
+        `settingsFile`.
       '';
     };
 
@@ -97,6 +122,27 @@ in
       description = ''
         Path to a JSON file merged into settings.json (e.g. a copy of
         ~/.t3/userdata/settings.json). Takes precedence over `settings`.
+      '';
+    };
+
+    clientSettings = lib.mkOption {
+      type = lib.types.attrs;
+      default = { };
+      description = ''
+        Keys merged into client-settings.json, the desktop app's UI settings
+        (fonts, contrast, diff layout, notifications, ...), the same way as
+        `settings`. The app reads it at startup, so restart it to apply.
+        Mutually exclusive with `clientSettingsFile`.
+      '';
+    };
+
+    clientSettingsFile = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = ''
+        Path to a JSON file merged into client-settings.json (e.g. a copy of
+        ~/.t3/userdata/client-settings.json). Takes precedence over
+        `clientSettings`.
       '';
     };
 
@@ -167,6 +213,10 @@ in
         message = "custom.t3code: set either `settings` or `settingsFile`, not both.";
       }
       {
+        assertion = !(cfg.clientSettingsFile != null && cfg.clientSettings != { });
+        message = "custom.t3code: set either `clientSettings` or `clientSettingsFile`, not both.";
+      }
+      {
         assertion = !(cfg.keybindingsFile != null && cfg.keybindings != [ ]);
         message = "custom.t3code: set either `keybindings` or `keybindingsFile`, not both.";
       }
@@ -219,14 +269,9 @@ in
         ${copyThemes}
       ''}
 
-      ${lib.optionalString hasSettings ''
-        if [ -f ${lib.escapeShellArg settingsFile} ]; then
-          ${jq} -s '.[0] * .[1]' ${lib.escapeShellArg settingsFile} ${settingsJson} > ${lib.escapeShellArg settingsFile}.tmp
-          mv ${lib.escapeShellArg settingsFile}.tmp ${lib.escapeShellArg settingsFile}
-        else
-          install -Dm644 ${settingsJson} ${lib.escapeShellArg settingsFile}
-        fi
-      ''}
+      ${lib.optionalString hasSettings (mergeObject settingsFile settingsJson)}
+
+      ${lib.optionalString hasClientSettings (mergeObject clientSettingsFile clientSettingsJson)}
 
       ${lib.optionalString hasKeybindings ''
         if [ -f ${lib.escapeShellArg keybindingsFile} ]; then

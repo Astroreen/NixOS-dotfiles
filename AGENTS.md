@@ -79,6 +79,7 @@ devenv shell -- add-work-dns                # DNS only (no VPN start)
 devenv shell -- delete-work-dns             # DNS only (no VPN stop)
 devenv shell -- sync-caelestia-config       # Merge official caelestia example config into host JSONs (scripts/sync-caelestia-config.py)
 devenv shell -- sync-dux-config [host]      # Copy live ~/.config/dms/settings.json into home/astroreen/<host>/assets/dux-settings.json (default: hostname -s)
+devenv shell -- sync-t3code-config [--host <h>] [--dry-run]  # Copy live T3 Code settings/client-settings/keybindings/themes into home/astroreen/profiles/apps/t3code/ (drops host-specific + secret keys)
 devenv shell -- list-generations            # nixos-rebuild list-generations
 devenv shell -- delete-generations [N]      # Delete old NixOS generations, keep last N (default 5)
 devenv shell -- find-large-files [N] [dir]  # Top-N largest files on disk (default 30, /)

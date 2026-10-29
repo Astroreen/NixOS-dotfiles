@@ -57,6 +57,7 @@
       "config": {
         "binaryPath": "opencode",
         "serverUrl": "",
+        "serverPassword": "",
         "customModels": []
       }
     },
