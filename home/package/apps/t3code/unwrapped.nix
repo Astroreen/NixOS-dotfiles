@@ -1,9 +1,11 @@
 # t3code package (fork of the nixpkgs recipe, pinned to the newest upstream
-# tag, stable or nightly; nixpkgs only tracks stable releases and lags them).
+# NIGHTLY tag; nixpkgs only tracks stable releases and lags them).
+# Always use a nightly (`v<x.y.z>-nightly.<date>.<n>`), never a stable `v<x.y.z>`
+# tag and never `android-beta-*` / `*-preview.*`, even if the stable is newer.
 #
-# Updating to a newer release:
-#   1. Latest tag: curl -s https://api.github.com/repos/pingdotgg/t3code/releases \
-#        | grep '"tag_name"' | head -5        (nightlies are prereleases)
+# Updating to a newer nightly:
+#   1. Latest nightly: curl -s 'https://api.github.com/repos/pingdotgg/t3code/releases?per_page=30' \
+#        | jq -r '.[].tag_name' | grep -- '-nightly\.' | head -1
 #   2. Set `version` below (without the leading "v").
 #   3. src hash: nix-prefetch-url --unpack \
 #        https://github.com/pingdotgg/t3code/archive/refs/tags/v<version>.tar.gz
@@ -54,9 +56,9 @@ stdenv.mkDerivation (
   in
   {
     pname = "t3code-unwrapped";
-    # Newest upstream tag (stable or nightly), pinned ourselves since nixpkgs
+    # Newest upstream nightly tag, pinned ourselves since nixpkgs
     # lags behind (see the update steps at the top of this file).
-    version = "0.1.5";
+    version = "0.1.6-nightly.20261029.3892";
     strictDeps = true;
     __structuredAttrs = true;
 
@@ -64,7 +66,7 @@ stdenv.mkDerivation (
       owner = "pingdotgg";
       repo = "t3code";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-MUIf+6/gk2jG3eziHFjtvOfooDeQbbcJxMBECFZh6KQ=";
+      hash = "sha256-FFPC549L0Q1N0YSHK4BdSVQL1/mu0nGTqBhGtplSgxI=";
     };
 
     postPatch = ''
