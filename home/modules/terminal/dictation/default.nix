@@ -35,6 +35,7 @@ let
     export FW_COMPUTE_TYPE=${lib.escapeShellArg cfg.computeType}
     export FW_HOST=${lib.escapeShellArg cfg.host}
     export FW_PORT=${toString cfg.port}
+    export FW_IDLE_UNLOAD=${toString (cfg.server.idleUnloadMinutes * 60)}
     exec ${pythonEnv}/bin/python ${./server.py}
   '';
 
@@ -123,6 +124,16 @@ in
       description = ''
         Run the transcription server (`whisper-server` user service). Can be
         enabled alone to serve other machines without the dictation client.
+      '';
+    };
+
+    server.idleUnloadMinutes = lib.mkOption {
+      type = lib.types.ints.unsigned;
+      default = 0;
+      example = 10;
+      description = ''
+        Free the model's VRAM after this many idle minutes (0: keep it loaded).
+        The next request reloads it, adding about a second.
       '';
     };
 

@@ -20,5 +20,7 @@ _: {
     host = "0.0.0.0";
     modelPath = "/home/astroreen/.local/share/faster-whisper-large-v3-russian";
     modelRepo = "bzikst/faster-whisper-large-v3-russian";
+    # Give the ~3.6 GB of VRAM back to other GPU services between dictations.
+    server.idleUnloadMinutes = 10;
   };
 }
