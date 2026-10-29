@@ -5,6 +5,7 @@ _: {
     ../../profiles/terminal/shell # Shell settings
     ../../profiles/terminal/devenv.nix # DevEnv for project scripts
     ../../profiles/terminal/ranger.nix # Terminal file manager
+    ../../profiles/terminal/nix-gc.nix # Expire old user profile generations
     ../../profiles/terminal/ai/opencode # Open Code
     ../../profiles/terminal/ai/claude # Claude Code
 
