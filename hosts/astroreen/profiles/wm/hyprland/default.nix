@@ -11,8 +11,14 @@
       withUWSM = false;
     };
 
-    # Enable GPU screen recording (mostly for Caelestia shell, but could be useful for other)
-    gpu-screen-recorder.enable = true;
+    # GPU screen recording (caelestia, dux QuickCapture, ...)
+    gpu-screen-recorder = {
+      enable = true;
+      # gsr derives the NVENC API it needs from the FFmpeg major version:
+      # FFmpeg 9 (libavcodec 63) wants 13.1, newer than the 595 driver's 13.0,
+      # so it finds no encoder at all. FFmpeg 8 asks for 13.0.
+      package = pkgs.gpu-screen-recorder.override { ffmpeg = pkgs.ffmpeg_8; };
+    };
   };
 
   # XDG portal configuration

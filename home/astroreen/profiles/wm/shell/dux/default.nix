@@ -8,6 +8,7 @@
 {
   imports = [
     ./binds.nix # Dux keybinds (custom.keybinds)
+    ./plugins # Reviewed, pinned dux plugins
   ];
 
   config = lib.mkIf config.custom.dux.enable {

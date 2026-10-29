@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   # Emoji data comes from rofimoji's bundled CSVs; rofimoji itself is not used
   # because its rofi script mode types while rofi still holds the keyboard.
@@ -24,8 +29,10 @@ in
 
   home.packages = [ emoji-picker ];
 
-  # Shell-agnostic, so it works with caelestia and dux alike
-  custom.keybinds.binds.emoji = {
+  # Dux uses its emojiPicker plugin on the same key instead
+  # (profiles/wm/shell/dux/binds.nix)
+  custom.keybinds.binds.emoji = lib.mkIf (!(config.custom.dux.enable or false)) {
+    description = lib.mkDefault "Emoji picker";
     key = lib.mkDefault "SUPER + Period";
     exec = lib.mkDefault "pkill -x rofi || emoji-picker";
   };

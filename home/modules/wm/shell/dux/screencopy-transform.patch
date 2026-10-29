@@ -1,0 +1,60 @@
+--- a/internal/screenshot/region.go
++++ b/internal/screenshot/region.go
+@@ -539,7 +539,7 @@
+ 		if pc.width == 0 {
+ 			pc.width, pc.height, pc.stride = int(e.Width), int(e.Height), int(e.Stride)
+ 			pc.format = uint32(capturedFormat.To8Bit())
+-			if bpp == 4 && output.transform == TransformNormal {
++			if bpp == 4 && screencopyTransform(output, int(e.Width), int(e.Height)) == TransformNormal {
+ 				r.prepareSlots(output, pc)
+ 			}
+ 		}
+@@ -609,8 +609,8 @@
+ 			pc.yInverted = false
+ 		}
+ 
+-		if output.transform != TransformNormal {
+-			invTransform := InverseTransform(output.transform)
++		if transform := screencopyTransform(output, capturedBuf.Width, capturedBuf.Height); transform != TransformNormal {
++			invTransform := InverseTransform(transform)
+ 			transformed, err := capturedBuf.ApplyTransform(invTransform)
+ 			if err != nil {
+ 				log.Error("apply transform failed", "err", err)
+--- a/internal/screenshot/screenshot.go
++++ b/internal/screenshot/screenshot.go
+@@ -677,11 +677,12 @@
+ 		result.YInverted = false
+ 	}
+ 
+-	if output.transform == TransformNormal {
++	transform := screencopyTransform(output, result.Buffer.Width, result.Buffer.Height)
++	if transform == TransformNormal {
+ 		return result, nil
+ 	}
+ 
+-	invTransform := InverseTransform(output.transform)
++	invTransform := InverseTransform(transform)
+ 	transformed, err := result.Buffer.ApplyTransform(invTransform)
+ 	if err != nil {
+ 		result.Buffer.Close()
+--- a/internal/screenshot/shm.go
++++ b/internal/screenshot/shm.go
+@@ -38,3 +38,18 @@
+ func InverseTransform(transform int32) int32 {
+ 	return shm.InverseTransform(transform)
+ }
++
++// screencopyTransform is the transform still to undo on a whole-output
++// wlr-screencopy buffer. The protocol delivers the output's untransformed
++// pixels, but Hyprland 0.57 renders the frame already in the logical
++// (rotated) orientation, and rotating it again turns 90/270 degree monitors
++// sideways. A buffer sized like the mode with width and height swapped is
++// already rotated.
++func screencopyTransform(output *WaylandOutput, bufWidth, bufHeight int) int32 {
++	t := output.transform
++	if t%2 == 1 && output.width != output.height &&
++		bufWidth == int(output.height) && bufHeight == int(output.width) {
++		return TransformNormal
++	}
++	return t
++}

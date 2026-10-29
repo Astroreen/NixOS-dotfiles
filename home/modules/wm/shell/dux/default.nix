@@ -57,6 +57,9 @@ in
           "cursor"
           "input"
           "windowrules"
+          # Empty unless `dms setup` writes dux's stock binds; only required
+          # so the Keybinds page finds its include (no "First Time Setup")
+          "binds"
           "binds-user"
         ];
         description = ''
@@ -66,15 +69,43 @@ in
           the read-only home-manager hyprland.lua. Empty disables it.
         '';
       };
+      plugins = mkOption {
+        default = { };
+        description = ''
+          Dux plugins, keyed by plugin id (`id` in plugin.json). Each `src` is
+          linked to ~/.config/dms/plugins/<id> and the plugin is enabled in the
+          writable ~/.config/dms/plugin_settings.json, so plugin settings stay
+          editable in the UI. Pin sources by rev + hash and review the code:
+          plugins run with your full privileges.
+        '';
+        type = types.attrsOf (
+          types.submodule {
+            options = {
+              src = mkOption {
+                type = types.either types.package types.path;
+                description = "Plugin directory (the one holding plugin.json).";
+              };
+              settings = mkOption {
+                type = types.attrsOf types.anything;
+                default = { };
+                description = "Default plugin settings; values saved from the UI win, like `settings`.";
+              };
+            };
+          }
+        );
+      };
     };
   };
 
   config = lib.mkIf cfg.enable {
     programs.dank-material-shell = {
       enable = true;
-      # Player names come from desktop entries (see the patch), so an app
+      # QML patch: player names come from desktop entries, so an app
       # reporting its app id as MPRIS identity still shows a readable name.
+      # Go patch: `dms screenshot` rotated already-rotated Hyprland 0.57
+      # screencopy frames again, turning 90/270 degree monitors sideways.
       package = inputs.dux-shell.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
+        patches = (old.patches or [ ]) ++ [ ./screencopy-transform.patch ];
         postInstall = old.postInstall + ''
           patch -d $out/share/quickshell/dms -p1 < ${./mpris-display-name.patch}
         '';
@@ -84,6 +115,10 @@ in
       # Keep empty so the upstream module does not symlink read-only
       # settings.json; `settings` merges into a mutable copy instead.
       settings = { };
+      plugins = lib.mapAttrs (_: plugin: { inherit (plugin) src; }) cfg.plugins;
+      # The upstream module would symlink a read-only plugin_settings.json;
+      # duxPluginSettings below merges into a writable one instead.
+      managePluginSettings = false;
     };
 
     # Same fd exhaustion as caelestia.service (see the caelestia module):
@@ -104,9 +139,20 @@ in
         shellLib.mkJsonConfigActivation {
           path = "${config.xdg.configHome}/dms/settings.json";
           defaults = cfg.settings;
-        overrideDefaults = cfg.overrideSettings;
+          overrideDefaults = cfg.overrideSettings;
           overrides = cfg.settingsOverrides;
           service = "dms";
+        }
+      );
+
+      duxPluginSettings = lib.mkIf (cfg.plugins != { }) (
+        shellLib.mkJsonConfigActivation {
+          path = "${config.xdg.configHome}/dms/plugin_settings.json";
+          defaults = lib.mapAttrs (_: plugin: { enabled = true; } // plugin.settings) cfg.plugins;
+          service = "dms";
+          # Restart only once the plugin dirs are linked: dux watches
+          # ~/.config/dms/plugins only if it existed when the shell started.
+          after = [ "linkGeneration" ];
         }
       );
 

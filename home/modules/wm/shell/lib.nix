@@ -16,6 +16,8 @@
       overrideDefaults ? false,
       overrides ? { },
       service ? null,
+      # Activation steps this one must follow
+      after ? [ "writeBoundary" ],
     }:
     let
       jq = lib.getExe pkgs.jq;
@@ -25,7 +27,7 @@
       # jq slurps [defaults, file, overrides]; `*` lets the right side win
       mergeExpr = if overrideDefaults then ".[1] * .[0] * .[2]" else ".[0] * .[1] * .[2]";
     in
-    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    lib.hm.dag.entryAfter after ''
       CONF=${lib.escapeShellArg path}
       mkdir -p "$(dirname "$CONF")"
 

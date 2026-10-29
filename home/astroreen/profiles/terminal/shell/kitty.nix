@@ -53,6 +53,7 @@
 
   # Floats centered at 1300x800 through the window rule below
   custom.keybinds.binds.terminal = {
+    description = lib.mkDefault "Terminal";
     key = lib.mkDefault "SUPER + T";
     exec = lib.mkDefault "kitty";
   };

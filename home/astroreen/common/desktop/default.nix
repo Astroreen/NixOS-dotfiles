@@ -76,14 +76,17 @@
   # Personal keyboard layout switching (not general Hyprland binds)
   custom.keybinds.binds = lib.mapAttrs (_: lib.mapAttrs (_: lib.mkDefault)) {
     layoutEnglish = {
+      description = "Keyboard layout: English";
       key = "SHIFT + ALT + E";
       exec = "hyprctl switchxkblayout all 0"; # us
     };
     layoutRussian = {
+      description = "Keyboard layout: Russian";
       key = "SHIFT + ALT + R";
       exec = "hyprctl switchxkblayout all 1"; # ru
     };
     layoutLithuanian = {
+      description = "Keyboard layout: Lithuanian";
       key = "SHIFT + ALT + L";
       exec = "hyprctl switchxkblayout all 2"; # lt
     };

@@ -74,6 +74,7 @@
 
   # File manager; floats centered at 1400x800 through the window rule above
   custom.keybinds.binds.fileManager = {
+    description = lib.mkDefault "File manager";
     key = lib.mkDefault "SUPER + E";
     exec = lib.mkDefault "nautilus";
   };

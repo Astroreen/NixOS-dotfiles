@@ -33,6 +33,9 @@ in
 
   config = lib.mkIf config.custom.caelestia.enable {
     custom.caelestia = {
+      # Same NVENC/FFmpeg fix as programs.gpu-screen-recorder in
+      # hosts/astroreen/profiles/wm/hyprland
+      recorderPackage = lib.mkDefault (pkgs.gpu-screen-recorder.override { ffmpeg = pkgs.ffmpeg_8; });
       package = caelestiaShellPkg;
       cliPackage = caelestiaCliPkg;
       environment = [

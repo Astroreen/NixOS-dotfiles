@@ -42,6 +42,7 @@
 
   # Cycle wayvnc output across monitors
   custom.keybinds.binds.vncCycleOutput = {
+    description = lib.mkDefault "VNC: cycle shared monitor";
     key = lib.mkDefault "CTRL + SUPER + SHIFT + semicolon";
     exec = lib.mkDefault "wayvncctl output-cycle";
   };

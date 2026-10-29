@@ -39,68 +39,82 @@ in
     {
       # --- Window management ---
       closeWindow = {
+        description = "Close window";
         key = "SUPER + C";
         hyprland.dispatch = "hl.dsp.window.close()";
       };
       exit = {
+        description = "Exit Hyprland";
         key = "SUPER + M";
         hyprland.dispatch = "hl.dsp.exit()";
       };
 
       # Window resizing (dwindle split ratio, a layout message)
       splitShrink = {
+        description = "Shrink split ratio";
         key = "SUPER + Minus";
         hyprland.dispatch = ''hl.dsp.layout("splitratio -0.1")'';
       };
       splitGrow = {
+        description = "Grow split ratio";
         key = "SUPER + Equal";
         hyprland.dispatch = ''hl.dsp.layout("splitratio 0.1")'';
       };
 
       # Window states
       fullscreen = {
+        description = "Toggle fullscreen";
         key = "SUPER + F";
         hyprland.dispatch = "hl.dsp.window.fullscreen()";
       };
       toggleFloat = {
+        description = "Toggle floating";
         key = "CTRL + SUPER + Space";
         hyprland.dispatch = ''hl.dsp.window.float({ action = "toggle" })'';
       };
       pseudo = {
+        description = "Toggle pseudo-tiling";
         key = "SUPER + P";
         hyprland.dispatch = "hl.dsp.window.pseudo()";
       };
       toggleSplit = {
+        description = "Toggle split direction";
         key = "SUPER + J";
         hyprland.dispatch = ''hl.dsp.layout("togglesplit")'';
       };
 
       # Window cycling (SUPER + Tab: next window, raised to the top)
       cycleWindowsAlt = {
+        description = "Cycle windows";
         key = "ALT + Tab";
         hyprland.dispatch = "hl.dsp.window.cycle_next()";
       };
       cycleWindows = {
+        description = "Cycle windows";
         key = "SUPER + Tab";
         hyprland.dispatch = "hl.dsp.window.cycle_next()";
       };
       cycleWindowsRaise = {
+        description = "Raise cycled window";
         key = "SUPER + Tab";
         hyprland.dispatch = "hl.dsp.window.bring_to_top()";
       };
 
       # Special workspace (toggled by the shell's SUPER + S)
       moveToSpecial = {
+        description = "Move window to special workspace";
         key = "CTRL + SUPER + up";
         hyprland.dispatch = ''hl.dsp.window.move({ workspace = "special:special" })'';
       };
       moveFromSpecial = {
+        description = "Move window out of special workspace";
         key = "CTRL + SUPER + down";
         hyprland.dispatch = ''hl.dsp.window.move({ workspace = "e+0" })'';
       };
 
       # Mouse: SUPER + LMB drags, SUPER + RMB resizes, SUPER + Z drags too
       dragWindow = {
+        description = "Move window with mouse";
         key = "SUPER + mouse:272";
         hyprland = {
           dispatch = "hl.dsp.window.drag()";
@@ -108,6 +122,7 @@ in
         };
       };
       resizeWindow = {
+        description = "Resize window with mouse";
         key = "SUPER + mouse:273";
         hyprland = {
           dispatch = "hl.dsp.window.resize()";
@@ -115,6 +130,7 @@ in
         };
       };
       dragWindowKey = {
+        description = "Move window (hold)";
         key = "SUPER + Z";
         hyprland = {
           dispatch = "hl.dsp.window.drag()";
@@ -125,19 +141,23 @@ in
     # focusLeft..focusDown, swapLeft..swapDown
     // perDirection "focus" (dir: {
       key = "SUPER + ${dir}";
+      description = "Focus window ${dir}";
       hyprland.dispatch = ''hl.dsp.focus({ direction = "${dir}" })'';
     })
     // perDirection "swap" (dir: {
       key = "SUPER + SHIFT + ${dir}";
+      description = "Swap window ${dir}";
       hyprland.dispatch = ''hl.dsp.window.swap({ direction = "${dir}" })'';
     })
     # workspace1..workspace10, moveToWorkspace1..moveToWorkspace10
     // perWorkspace "workspace" (ws: {
       key = "SUPER + ${keyOf ws}";
+      description = "Go to workspace ${toString ws}";
       hyprland.dispatch = "hl.dsp.focus({ workspace = ${toString ws} })";
     })
     // perWorkspace "moveToWorkspace" (ws: {
       key = "SUPER + SHIFT + ${keyOf ws}";
+      description = "Move window to workspace ${toString ws}";
       hyprland.dispatch = "hl.dsp.window.move({ workspace = ${toString ws} })";
     })
   );

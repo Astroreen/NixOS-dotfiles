@@ -10,6 +10,7 @@ in
   # where further caelestia shell/package overrides belong too).
   home.packages = with pkgs; [
     satty # Screenshot annotation tool (text, arrows, palette, blur)
+    slurp # Region selection (shell-agnostic grim + slurp screenshots)
     swappyShim # Fake `swappy` -> satty
   ];
 

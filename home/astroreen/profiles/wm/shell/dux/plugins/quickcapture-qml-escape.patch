@@ -1,0 +1,20 @@
+--- a/QuickCaptureModal.qml
++++ b/QuickCaptureModal.qml
+@@ -2697,7 +2697,7 @@
+             fileUrl = "file://" + fileUrl;
+         }
+ 
+-        const tempImg = Qt.createQmlObject('import QtQuick; Image { visible: false; source: "' + fileUrl + '" }', window, "tempImgLoader_" + Date.now());
++        const tempImg = Qt.createQmlObject('import QtQuick; Image { visible: false; source: ' + JSON.stringify(fileUrl) + ' }', window, "tempImgLoader_" + Date.now());
+         if (!tempImg)
+             return;
+ 
+@@ -4107,7 +4107,7 @@
+                     };
+                     Helpers.copyStrokeProperties(rs, stroke);
+                     if (rs.tool === "image" && rs.source) {
+-                        const restoredImg = Qt.createQmlObject('import QtQuick; Image { visible: false; source: "' + rs.source + '" }', window, "restoredImgLoader_" + rsi + "_" + Date.now());
++                        const restoredImg = Qt.createQmlObject('import QtQuick; Image { visible: false; source: ' + JSON.stringify(String(rs.source)) + ' }', window, "restoredImgLoader_" + rsi + "_" + Date.now());
+                         if (restoredImg) {
+                             stroke.imageObj = restoredImg;
+                             if (restoredImg.status !== Image.Ready) {

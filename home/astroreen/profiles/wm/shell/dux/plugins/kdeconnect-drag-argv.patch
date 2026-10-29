@@ -1,0 +1,11 @@
+--- a/DankKDEConnect.qml
++++ b/DankKDEConnect.qml
+@@ -2725,7 +2725,7 @@
+     // --- System Drag (works from layer shell via ripdrag/xdragon) ---
+     function startSystemDrag(path) {
+         fileDragger.running = false; // Reset the process object
+-        fileDragger.command = ["bash", "-c", "pkill -x ripdrag; pkill -x xdragon; pkill -x dragon; " + "f=" + JSON.stringify(path) + "; " + "if command -v ripdrag >/dev/null 2>&1; then ripdrag --and-exit --icons-only --icon-size 64 --content-width 90 --content-height 64 \"$f\"; " + "elif command -v xdragon >/dev/null 2>&1; then xdragon --and-exit --small \"$f\"; " + "elif command -v dragon >/dev/null 2>&1; then dragon --and-exit --small \"$f\"; fi"];
++        fileDragger.command = ["bash", "-c", "pkill -x ripdrag; pkill -x xdragon; pkill -x dragon; " + "f=\"$1\"; " + "if command -v ripdrag >/dev/null 2>&1; then ripdrag --and-exit --icons-only --icon-size 64 --content-width 90 --content-height 64 \"$f\"; " + "elif command -v xdragon >/dev/null 2>&1; then xdragon --and-exit --small \"$f\"; " + "elif command -v dragon >/dev/null 2>&1; then dragon --and-exit --small \"$f\"; fi", "bash", String(path)];
+         fileDragger.running = true;
+     }
+ 

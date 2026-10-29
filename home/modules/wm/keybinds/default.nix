@@ -11,6 +11,16 @@ let
       bind.hyprland.dispatch
     ];
 
+  # Bind name -> readable label: "moveToWorkspace10" -> "Move to workspace 10".
+  humanize =
+    name:
+    let
+      words = lib.concatMapStrings (
+        part: if lib.isList part then " " + lib.toLower (lib.head part) else part
+      ) (builtins.split "([A-Z]|[0-9]+)" name);
+    in
+    lib.toUpper (lib.substring 0 1 words) + lib.substring 1 (-1) words;
+
   # Hyprland backend: one bind -> one hl.bind(keys, dispatcher, opts?) entry.
   toHyprland =
     bind:
@@ -25,14 +35,25 @@ let
         else
           lua bind.hyprland.dispatch;
       flags =
-        lib.filterAttrs (_: enabled: enabled) { inherit (bind) locked repeating; } // bind.hyprland.flags;
+        lib.filterAttrs (_: enabled: enabled) { inherit (bind) locked repeating; }
+        // bind.hyprland.flags
+        // lib.optionalAttrs (bind.description != null) { inherit (bind) description; };
     in
     {
       _args = [
         bind.key
         dispatcher
       ]
-      ++ lib.optional (flags != { }) flags;
+      # One-line `{ key = value, ... }` table instead of home-manager's
+      # multi-line `["key"] = value`: dux's keybind parser reads hl.bind
+      # line by line and only matches bare `description = "..."` there.
+      ++ lib.optional (flags != { }) (
+        lua "{ ${
+          lib.concatStringsSep ", " (
+            lib.mapAttrsToList (name: value: "${name} = ${lib.generators.toLua { } value}") flags
+          )
+        } }"
+      );
     };
 in
 {
@@ -47,57 +68,70 @@ in
         skips actions it cannot express. Implemented backends: Hyprland.
       '';
       type = types.attrsOf (
-        types.submodule {
-          options = {
-            enable = mkOption {
-              type = types.bool;
-              default = true;
-              description = "Whether to bind this key.";
-            };
-            key = mkOption {
-              type = types.str;
-              example = "SUPER + SHIFT + Q";
-              description = ''Modifiers and key joined with " + " (Hyprland key names).'';
-            };
-            exec = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              description = "Shell command to run. Portable across window managers.";
-            };
-            global = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              example = "caelestia:launcher";
-              description = "XDG global shortcut to trigger, as `<app id>:<shortcut id>`.";
-            };
-            locked = mkOption {
-              type = types.bool;
-              default = false;
-              description = "Also works while the session is locked.";
-            };
-            repeating = mkOption {
-              type = types.bool;
-              default = false;
-              description = "Repeats while the key is held.";
-            };
-            hyprland = {
-              dispatch = mkOption {
+        types.submodule (
+          { name, ... }:
+          {
+            options = {
+              enable = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Whether to bind this key.";
+              };
+              key = mkOption {
+                type = types.str;
+                example = "SUPER + SHIFT + Q";
+                description = ''Modifiers and key joined with " + " (Hyprland key names).'';
+              };
+              description = mkOption {
+                type = types.nullOr types.str;
+                default = humanize name;
+                defaultText = literalExpression "the bind name in words";
+                example = "Open the launcher";
+                description = ''
+                  Label shown by keybind viewers (dux settings, cheatsheet,
+                  LauncherKeys); Hyprland's `description` bind option. Null omits it.
+                '';
+              };
+              exec = mkOption {
                 type = types.nullOr types.str;
                 default = null;
-                example = "hl.dsp.workspace.toggle_special()";
-                description = "Raw Hyprland Lua dispatcher. Hyprland only.";
+                description = "Shell command to run. Portable across window managers.";
               };
-              flags = mkOption {
-                type = types.attrsOf types.bool;
-                default = { };
-                example = {
-                  ignore_mods = true;
+              global = mkOption {
+                type = types.nullOr types.str;
+                default = null;
+                example = "caelestia:launcher";
+                description = "XDG global shortcut to trigger, as `<app id>:<shortcut id>`.";
+              };
+              locked = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Also works while the session is locked.";
+              };
+              repeating = mkOption {
+                type = types.bool;
+                default = false;
+                description = "Repeats while the key is held.";
+              };
+              hyprland = {
+                dispatch = mkOption {
+                  type = types.nullOr types.str;
+                  default = null;
+                  example = "hl.dsp.workspace.toggle_special()";
+                  description = "Raw Hyprland Lua dispatcher. Hyprland only.";
                 };
-                description = "Extra hl.bind options, merged over `locked`/`repeating`. Hyprland only.";
+                flags = mkOption {
+                  type = types.attrsOf types.bool;
+                  default = { };
+                  example = {
+                    ignore_mods = true;
+                  };
+                  description = "Extra hl.bind options, merged over `locked`/`repeating`. Hyprland only.";
+                };
               };
             };
-          };
-        }
+          }
+        )
       );
     };
   };

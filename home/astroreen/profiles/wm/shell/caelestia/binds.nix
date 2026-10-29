@@ -43,63 +43,76 @@ in
       {
         # Menu/Launcher
         launcher = {
+          description = "App launcher";
           key = "SUPER + Q";
           global = "caelestia:launcher";
         };
         dashboard = {
+          description = "Dashboard";
           key = "SUPER + K";
           global = "caelestia:showall";
         };
         # Notification sidebar
         notifications = {
+          description = "Notification center";
           key = "SUPER + N";
           global = "caelestia:sidebar";
         };
         lock = {
+          description = "Lock screen";
           key = "SUPER + L";
           global = "caelestia:lock";
         };
         sessionMenu = {
+          description = "Power / session menu";
           key = "CTRL + ALT + Delete";
           global = "caelestia:session";
         };
 
         # Caelestia utilities
         restartShell = {
+          description = "Restart shell";
           key = "CTRL + SUPER + SHIFT + R";
           exec = "systemctl --user restart caelestia";
         };
         screenshot = {
+          description = "Region screenshot to satty";
           key = "Print";
           global = "caelestia:screenshotFreeze";
         };
         # Disable closing program with CTRL Q
         blockCtrlQ = {
+          description = "Block Ctrl+Q (no accidental app quit)";
           key = "CTRL + Q";
           global = "caelestia:launcherInterrupt";
         };
         specialWorkspace = {
+          description = "Toggle special workspace";
           key = "SUPER + S";
           exec = "caelestia toggle specialws";
         };
 
         # Media, locked (work while session locked)
         mediaStop = {
+          description = "Stop playback";
           key = "XF86AudioStop";
           global = "caelestia:mediaStop";
           locked = true;
         };
         mediaToggle = {
+          description = "Play / pause";
           key = "CTRL + SUPER + S";
           global = "caelestia:mediaToggle";
           locked = true;
         };
         mediaNext = {
+          description = "Next track";
           key = "CTRL + SUPER + Equal";
           global = "caelestia:mediaNext";
           locked = true;
         };
         mediaPrev = {
+          description = "Previous track";
           key = "CTRL + SUPER + Minus";
           global = "caelestia:mediaPrev";
           locked = true;
@@ -107,17 +120,21 @@ in
 
         # Fire alongside the plain brightnessctl binds (../../keybinds)
         shellBrightnessUp = {
+          description = "Brightness up";
           key = "XF86MonBrightnessUp";
           global = "caelestia:brightnessUp";
           locked = true;
         };
         shellBrightnessDown = {
+          description = "Brightness down";
           key = "XF86MonBrightnessDown";
           global = "caelestia:brightnessDown";
           locked = true;
         };
 
         clearNotifications = {
+
+          description = "Clear all notifications";
           key = "CTRL + ALT + C";
           global = "caelestia:clearNotifs";
           locked = true;
@@ -125,11 +142,13 @@ in
 
         # Lock restore: bring the shell back if it died while locked
         restoreShell = {
+          description = "Start shell if it died while locked";
           key = "SUPER + ALT + L";
           exec = "caelestia shell -d";
           locked = true;
         };
         restoreLock = {
+          description = "Re-lock session";
           key = "SUPER + ALT + L";
           global = "caelestia:lock";
           locked = true;

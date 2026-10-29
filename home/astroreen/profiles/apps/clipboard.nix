@@ -66,6 +66,7 @@ in
   systemd.user.services.copyq.Service.Environment = lib.mkForce "QT_QPA_PLATFORM=wayland";
 
   custom.keybinds.binds.clipboard = lib.mkIf useCopyq {
+    description = lib.mkDefault "Clipboard history";
     key = lib.mkDefault "SUPER + V";
     exec = lib.mkDefault "copyq toggle";
   };
