@@ -1,10 +1,28 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }:
 let
-  baseMcpServers = config.programs.mcp.servers or { };
+  # `.mcp.json` has no `disabled`/`enabled` field (Claude Code ignores them and
+  # starts every listed server), so drop disabled servers here and strip the
+  # HM-only keys, like HM's own `enableMcpIntegration` does.
+  baseMcpServers =
+    lib.mapAttrs
+      (
+        _: server:
+        lib.hm.mcp.transformMcpServer {
+          inherit server;
+          exclude = [ "enabled" ];
+          extraTransforms = [ lib.hm.mcp.addType ];
+        }
+      )
+      (
+        lib.filterAttrs (_: s: !(s.disabled or false) && (s.enabled or null) != false) (
+          config.programs.mcp.servers or { }
+        )
+      );
 
   # Newer than nixpkgs' copy, which T3 Code's `claudeAgent` driver reports as
   # outdated (needs >= 2.1.280). Pin + update notes live in the package.
