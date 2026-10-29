@@ -33,5 +33,7 @@
         "yes"
       ];
     };
+
+    dictation.mode = "remote";
   };
 }
