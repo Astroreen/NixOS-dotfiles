@@ -19,6 +19,7 @@
   electron_44,
   fetchFromGitHub,
   installShellFiles,
+  jq,
   lib,
   libicns,
   libsecret,
@@ -81,6 +82,7 @@ stdenv.mkDerivation (
 
     nativeBuildInputs = [
       installShellFiles
+      jq
       makeBinaryWrapper
       node-gyp
       nodejs
@@ -165,6 +167,15 @@ stdenv.mkDerivation (
       cp --recursive --no-preserve=mode \
         apps/desktop/{package.json,node_modules,dist-electron} \
         "$out"/libexec/t3code/apps/desktop
+
+      # Electron names its libsecret safeStorage key after productName, and
+      # upstream renamed it "T3 Code (Alpha)" -> "T3 Code (Beta)" in 0.1.x. A
+      # new name means a new key, so ~/.t3/userdata/connection-catalog.json
+      # (encrypted with the old one) no longer decrypts and the window loses
+      # its local environment: no projects, threads, theme or settings. Pin
+      # the name so every upgrade keeps reading the same key.
+      jq --arg name ${lib.escapeShellArg appName} '.productName = $name' \
+        apps/desktop/package.json > "$out"/libexec/t3code/apps/desktop/package.json
 
       mkdir --parents "$out"/libexec/t3code/apps/desktop/prod-resources
       install --mode=444 ${desktopIcon} \
