@@ -29,15 +29,16 @@ in
 {
   imports = [
     ../../../../../modules/terminal/ai # agents/commands/skills payload + custom.ai.* options
+    ../payload.nix # prompt + agents/commands/skills, shared with opencode
   ];
 
   programs = {
     claude-code = {
       enable = true;
 
-      # Everything except the package comes from custom.ai.*
-      # (`prompt` → CLAUDE.md, `agent`/`command` → agents/commands,
-      # `skill` → skills).
+      # Everything except the package comes from custom.ai.* (set in
+      # ../payload.nix: `prompt` → CLAUDE.md, `agent`/`command` →
+      # agents/commands, `skill` → skills).
 
       package = claudeFixed;
     };

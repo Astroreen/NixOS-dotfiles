@@ -1,7 +1,7 @@
-# t3code nightly package (fork of nixpkgs recipe, bumped to the nightly channel;
-# nixpkgs itself only tracks stable releases).
+# t3code package (fork of the nixpkgs recipe, pinned to the newest upstream
+# tag, stable or nightly; nixpkgs only tracks stable releases and lags them).
 #
-# Updating to a newer nightly:
+# Updating to a newer release:
 #   1. Latest tag: curl -s https://api.github.com/repos/pingdotgg/t3code/releases \
 #        | grep '"tag_name"' | head -5        (nightlies are prereleases)
 #   2. Set `version` below (without the leading "v").
@@ -23,7 +23,7 @@
   makeBinaryWrapper,
   makeDesktopItem,
   node-gyp,
-  nodejs,
+  nodejs_26,
   pkg-config,
   python3,
   spdx-license-list-data,
@@ -31,7 +31,7 @@
   writeDarwinBundle,
   xcbuild,
   fetchPnpmDeps,
-  pnpm_11,
+  pnpm_12,
   pnpmConfigHook,
   pnpmBuildHook,
   cacert,
@@ -42,7 +42,9 @@ stdenv.mkDerivation (
   let
     appName = "T3 Code (Alpha)";
     electron = electron_44;
-    pnpm = pnpm_11;
+    # Upstream package.json requires Node.js 26; the nixpkgs default is still 24.
+    nodejs = nodejs_26;
+    pnpm = pnpm_12;
     desktopIcon =
       if stdenv.hostPlatform.isDarwin then
         "assets/prod/black-macos-1024.png"
@@ -52,9 +54,9 @@ stdenv.mkDerivation (
   in
   {
     pname = "t3code-unwrapped";
-    # Nightly channel: nixpkgs tracks stable releases only, so we pin the
-    # latest nightly tag ourselves (see home/package/apps/t3code/).
-    version = "0.0.46-nightly.20261013.3053";
+    # Newest upstream tag (stable or nightly), pinned ourselves since nixpkgs
+    # lags behind (see the update steps at the top of this file).
+    version = "0.1.5";
     strictDeps = true;
     __structuredAttrs = true;
 
@@ -62,7 +64,7 @@ stdenv.mkDerivation (
       owner = "pingdotgg";
       repo = "t3code";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-nZ+NkxnsIppURFqMSV9VvT2USfp6M7/VQ8Zx0TevAcU=";
+      hash = "sha256-MUIf+6/gk2jG3eziHFjtvOfooDeQbbcJxMBECFZh6KQ=";
     };
 
     postPatch = ''
@@ -118,12 +120,12 @@ stdenv.mkDerivation (
         pnpmWorkspaces
         ;
 
-      fetcherVersion = 4;
-      hash = "sha256-cIsCMDSm5qwyfNcc5sHPb/sfRxDNyTjVSNyNg4P9+9k=";
+      fetcherVersion = 5;
+      hash = "sha256-uj7IxNMdubCtIqkv1M/vg5dRTeUaysC+1l/7ag+D7/4=";
     };
 
     preBuild = ''
-      # pnpm 11 otherwise detects the package version updates below as
+      # pnpm otherwise detects the package version updates below as
       # dependency drift and runs another install, including lifecycle scripts.
       export pnpm_config_verify_deps_before_run=false
 

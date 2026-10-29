@@ -207,6 +207,7 @@ AI tooling lives in two places:
 |------|------|
 | Add MCP server | `home/modules/terminal/ai/mcps.nix`, add to `servers` attrset |
 | Enable MCP per-host | host HM config, `programs.mcp.servers.<name>.disabled = false` |
+| Pick agents/commands/skills for both CLIs | `home/astroreen/profiles/terminal/ai/payload.nix` (`custom.ai.{agent,command,skill}.*.include`) |
 | Add/edit opencode plugin config | `home/astroreen/profiles/terminal/ai/opencode/default.nix` (user-level profile, not under `modules/`) |
 | Edit astrocode model/agent/fallback config | `home/astroreen/profiles/terminal/ai/opencode/astrocode.jsonc`, deployed to `~/.opencode/astrocode.jsonc` |
 | Add agent definition | drop a frontmatter-free body `home/modules/terminal/ai/agents/<name>.md`, add its metadata to `agents/definitions.nix`, then list `<name>` in `custom.ai.agent.local.include` |
@@ -218,7 +219,7 @@ AI tooling lives in two places:
 | Meridian proxy config | `home/modules/terminal/ai/meridian.nix`, `custom.ai.meridian.*`, port 3456, systemd user service |
 
 - All MCPs are disabled by default (`lib.mkDefault true`); enable them per host
-- opencode and claude-code are never wired directly: the `custom.ai.*` options declared under `home/modules/terminal/ai/` (`prompt` in `default.nix`, `agent`/`command`/`skill` in their own dirs) set `programs.opencode.*` / `programs.claude-code.*` themselves. profiles only pass the prompt (file or inline text) and pick names
+- opencode and claude-code are never wired directly: the `custom.ai.*` options declared under `home/modules/terminal/ai/` (`prompt` in `default.nix`, `agent`/`command`/`skill` in their own dirs) set `programs.opencode.*` / `programs.claude-code.*` themselves. The prompt and the picked names live in `home/astroreen/profiles/terminal/ai/payload.nix`, imported by both the opencode and claude profiles, so both CLIs always get the same set
 - Every `*.local.include` is **empty = deploy nothing**; the upstream skill sets `caveman.include` / `matt-pocock.include` are **empty = copy all**. Skill sources are concatenated local → caveman → matt-pocock, so a later source wins a name collision (e.g. matt-pocock's `code-review` shadows the bundled one)
 - Payloads land via home-manager `lndir`, so `~/.config/opencode/{agents,commands,skills}/` and `~/.claude/{agents,commands,skills}/` stay writable directories of read-only store symlinks — edit payloads in the repo, never in `$HOME`
 - Payload `.md` files carry **no frontmatter**: the header is rendered per CLI from `custom.ai.{agent,command,skill}.definitions` by `home/modules/terminal/ai/lib.nix` (opencode forwards unknown agent fields to the provider, so the CLIs never share a header). `tools` uses opencode tool names and is translated for claude-code (agents: disabled → `disallowedTools`; commands/skills: enabled → `allowed-tools`); hex `color` is mapped to a claude named color; `temperature`/`mode` are opencode-only. CLI-specific fields go in `.opencode` / `.claude` (override generated ones, `null` removes), shared extras in `.extra`; `targets` limits an item to one CLI

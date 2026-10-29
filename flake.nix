@@ -93,7 +93,7 @@
     # "supported" and 1.14.19-1.x as "graceful" (limited compatibility) in its
     # driver matrix. Upstream ships Nix expressions since v2; the tag pins the
     # release that also locks node_modules hashes (nix/hashes.json).
-    opencode-v2.url = "github:anomalyco/opencode/v2.0.28";
+    opencode-v2.url = "github:anomalyco/opencode/v2.2.1";
 
     # Nixdatifier: tray app for NixOS generations, diffs and flake input updates.
     # Imported via its Home Manager module in home/astroreen/profiles/apps/nixdatifier.nix.

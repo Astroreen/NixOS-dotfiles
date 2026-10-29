@@ -14,16 +14,20 @@
 # derivation's version + prebuilt release binary at a newer release. The base
 # package (fetchurl + unzstd + wrapper) is reused as-is via overrideAttrs.
 #
-# To update: take `version` and the per-platform `checksum` from
+# To update: the newest version is at
+#   https://downloads.claude.ai/claude-code-releases/latest
+# take the per-platform `checksum` (hex sha256) from
 #   https://downloads.claude.ai/claude-code-releases/<version>/manifest.zst.json
-# (plain JSON despite the name) and refresh both below.
+# (plain JSON despite the name), convert it with
+#   nix hash convert --hash-algo sha256 --to sri <checksum>
+# and refresh both below.
 let
-  version = "2.1.296";
+  version = "2.1.312";
 
   # Same platform key scheme nixpkgs' claude-code/package.nix uses.
   platformKey = "${stdenv.hostPlatform.node.platform}-${stdenv.hostPlatform.node.arch}";
   checksums = {
-    "linux-x64" = "sha256-+sHXi+lEYFKsCEh4wEwmSKu2si1TJ5poX6Ge5RfXRBA=";
+    "linux-x64" = "sha256-b7njKZR8ADdAvoiPmNsa7KojjWx9nO74WB63HVpZSAs=";
   };
 
   baseUrl = "https://downloads.claude.ai/claude-code-releases";
