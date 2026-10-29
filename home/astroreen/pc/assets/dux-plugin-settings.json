@@ -1,0 +1,32 @@
+{
+  "dankKDEConnect": {
+    "selectedDeviceId": "a79efd8d79a74f0e924bb436db0b88b9"
+  },
+  "linuxWallpaperEngine": {
+    "monitorScenes": {
+      "*": "1368159273",
+      "DP-2": "2530355779",
+      "DP-3": "1498197700",
+      "HDMI-A-1": "2530355779"
+    },
+    "outputSettings": {
+      "*": {
+        "disableParallax": false,
+        "disableParticles": false,
+        "scaling": "fill"
+      },
+      "DP-2": {
+        "scaling": "fill"
+      },
+      "DP-3": {
+        "disableParallax": false,
+        "disableParticles": false,
+        "noFullscreenPause": true,
+        "scaling": "fill"
+      },
+      "HDMI-A-1": {
+        "scaling": "fill"
+      }
+    }
+  }
+}

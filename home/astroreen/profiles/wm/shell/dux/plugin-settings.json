@@ -1,0 +1,45 @@
+{
+  "calculator": {
+    "enabled": true,
+    "trigger": "="
+  },
+  "dankActions": {
+    "enabled": true
+  },
+  "dankHyprlandWindows": {
+    "enabled": true
+  },
+  "dankKDEConnect": {
+    "enabled": true
+  },
+  "dankLauncherKeys": {
+    "enabled": true
+  },
+  "dankPomodoroTimer": {
+    "enabled": true
+  },
+  "dankscale": {
+    "enabled": true,
+    "lastAccount": "Astroreen@github"
+  },
+  "emojiPicker": {
+    "defaultAction": "paste",
+    "enabled": true
+  },
+  "fullscreenPowerMenu": {
+    "enabled": true
+  },
+  "linuxWallpaperEngine": {
+    "activeType": "scene",
+    "enabled": true,
+    "namedPlaylists": {
+      "Default": []
+    }
+  },
+  "nixPackageRunner": {
+    "enabled": true
+  },
+  "quickCapture": {
+    "enabled": true
+  }
+}

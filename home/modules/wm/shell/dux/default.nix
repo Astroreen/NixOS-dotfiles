@@ -33,14 +33,32 @@ in
           added, so changes made in the dux settings UI survive a rebuild (unless `overrideSettings`).
         '';
       };
+      session = mkOption {
+        type = types.attrsOf types.anything;
+        default = { };
+        description = ''
+          Default dux session state (weather, terminal, locale, wallpapers,
+          night mode, pinned apps, display layout, ...), merged into the
+          writable ~/.local/state/dms/session.json like `settings`.
+        '';
+      };
+      pluginSettings = mkOption {
+        type = types.attrsOf (types.attrsOf types.anything);
+        default = { };
+        description = ''
+          Plugin settings keyed by plugin id, merged into
+          ~/.config/dms/plugin_settings.json on top of each `plugins.<id>.settings`,
+          like `settings`.
+        '';
+      };
       overrideSettings = mkOption {
         type = types.bool;
         default = false;
         description = ''
-          Whether `settings` win over values already in ~/.config/dms/settings.json
-          (e.g. saved from the shell's settings UI). Off: `settings` only
-          fill keys the file does not have yet. Keys only the file has are
-          kept either way.
+          Whether `settings`, `session` and plugin settings win over values
+          already in the live files (e.g. saved from the shell's settings UI).
+          Off: they only fill keys the files do not have yet. Keys only the
+          files have are kept either way.
         '';
       };
       settingsOverrides = mkOption {
@@ -145,10 +163,22 @@ in
         }
       );
 
-      duxPluginSettings = lib.mkIf (cfg.plugins != { }) (
+      duxSession = lib.mkIf (cfg.session != { }) (
+        shellLib.mkJsonConfigActivation {
+          path = "${config.xdg.stateHome}/dms/session.json";
+          defaults = cfg.session;
+          overrideDefaults = cfg.overrideSettings;
+          service = "dms";
+        }
+      );
+
+      duxPluginSettings = lib.mkIf (cfg.plugins != { } || cfg.pluginSettings != { }) (
         shellLib.mkJsonConfigActivation {
           path = "${config.xdg.configHome}/dms/plugin_settings.json";
-          defaults = lib.mapAttrs (_: plugin: { enabled = true; } // plugin.settings) cfg.plugins;
+          defaults = lib.recursiveUpdate (lib.mapAttrs (
+            _: plugin: { enabled = true; } // plugin.settings
+          ) cfg.plugins) cfg.pluginSettings;
+          overrideDefaults = cfg.overrideSettings;
           service = "dms";
           # Restart only once the plugin dirs are linked: dux watches
           # ~/.config/dms/plugins only if it existed when the shell started.

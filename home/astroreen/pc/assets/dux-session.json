@@ -1,0 +1,63 @@
+{
+  "desktopWidgetGridSettings": {
+    "DP-2": {
+      "size": 110
+    },
+    "DP-3": {
+      "enabled": true
+    }
+  },
+  "islandFreePositions": {
+    "[\"DP-3\",\"default\"]": {
+      "x": 0.49030321538448335,
+      "y": 0.09433622952302297
+    }
+  },
+  "lockScreenAutoPositions": {
+    "DELL S2522HG": {
+      "height": 1920,
+      "positions": {},
+      "width": 1080
+    },
+    "DELL U2414H": {
+      "height": 1920,
+      "positions": {},
+      "width": 1080
+    },
+    "DP-2": {
+      "height": 1920,
+      "positions": {
+        "lock_clock": {
+          "x": 48,
+          "y": 48
+        }
+      },
+      "width": 1080
+    },
+    "DP-3": {
+      "height": 1440,
+      "positions": {
+        "lock_clock": {
+          "x": 1510,
+          "y": 48
+        }
+      },
+      "width": 3440
+    },
+    "HDMI-A-1": {
+      "height": 1920,
+      "positions": {},
+      "width": 1080
+    },
+    "U34G3G3R3": {
+      "height": 1440,
+      "positions": {
+        "lock_clock": {
+          "x": 1510,
+          "y": 48
+        }
+      },
+      "width": 3440
+    }
+  }
+}

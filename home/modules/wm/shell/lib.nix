@@ -7,8 +7,11 @@
   #              `overrideDefaults` they win over the file instead (keys only
   #              the file has are still kept)
   #   overrides  always win, for values that must track the nix config
-  # Objects merge recursively; arrays are replaced whole. `service` is
-  # restarted (only if running) when the merged content actually changed.
+  # Objects merge recursively; arrays are replaced whole. When the merged
+  # content actually changed, a running `service` is stopped before the write
+  # and started again after it: the shell may save its in-memory copy on exit,
+  # which would otherwise overwrite the merge (the merge is redone on top of
+  # whatever it saved).
   mkJsonConfigActivation =
     {
       path,
@@ -34,13 +37,30 @@
       CURRENT="$CONF"
       [ -s "$CONF" ] || CURRENT=${emptyFile}
 
-      if MERGED=$(${jq} -s '${mergeExpr}' ${defaultsFile} "$CURRENT" ${overridesFile}); then
+      merge() {
+        ${jq} -s '${mergeExpr}' ${defaultsFile} "$CURRENT" ${overridesFile}
+      }
+
+      if MERGED=$(merge); then
         # Compare canonical forms, so formatting differences alone don't rewrite the file
         if [ ! -s "$CONF" ] || [ "$(${jq} -cS . <<< "$MERGED")" != "$(${jq} -cS . "$CONF")" ]; then
-          rm -f "$CONF" # drop a stale read-only store symlink, if any
-          printf '%s\n' "$MERGED" > "$CONF"
-          chmod 644 "$CONF"
-          ${lib.optionalString (service != null) "systemctl --user try-restart ${service} || true"}
+          ${lib.optionalString (service != null) ''
+            WAS_ACTIVE=
+            if systemctl --user is-active --quiet ${service}; then
+              WAS_ACTIVE=1
+              systemctl --user stop ${service} || true
+              [ -s "$CONF" ] && CURRENT="$CONF"
+              MERGED=$(merge) || MERGED=
+            fi
+          ''}
+          if [ -n "$MERGED" ]; then
+            rm -f "$CONF" # drop a stale read-only store symlink, if any
+            printf '%s\n' "$MERGED" > "$CONF"
+            chmod 644 "$CONF"
+          fi
+          ${lib.optionalString (
+            service != null
+          ) ''[ -n "$WAS_ACTIVE" ] && systemctl --user start ${service} || true''}
         fi
       else
         echo "warning: $CONF is not valid JSON, leaving it untouched" >&2

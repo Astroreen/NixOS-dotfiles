@@ -1,0 +1,27 @@
+{
+  "locale": "en",
+  "materialWallpapers": {
+    "": {
+      "dark": {
+        "preset": "bloom",
+        "seed": "#d0bcff"
+      },
+      "light": {
+        "preset": "bloom",
+        "seed": "#d0bcff"
+      },
+      "shared": {
+        "preset": "bloom",
+        "seed": "#d0bcff"
+      }
+    }
+  },
+  "recentColors": [
+    "#e560b9"
+  ],
+  "showThirdPartyPlugins": true,
+  "terminalOverride": "kitty",
+  "timeLocale": "en",
+  "weatherCoordinates": "54.6870458,25.2829111",
+  "weatherLocation": "Vilnius, Vilniaus apskritis"
+}

@@ -1,0 +1,16 @@
+{
+  "dankKDEConnect": {
+    "selectedDeviceId": "01af478a40dc4014a6799132489624f5"
+  },
+  "linuxWallpaperEngine": {
+    "monitorScenes": {
+      "eDP-1": "1498197700"
+    },
+    "outputSettings": {
+      "eDP-1": {
+        "noFullscreenPause": true,
+        "scaling": "fill"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "lockScreenAutoPositions": {
+    "0x0A2D": {
+      "height": 1080,
+      "positions": {
+        "lock_clock": {
+          "x": 750,
+          "y": 48
+        }
+      },
+      "width": 1920
+    }
+  }
+}

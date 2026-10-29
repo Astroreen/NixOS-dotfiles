@@ -12,6 +12,16 @@
   ];
 
   config = lib.mkIf config.custom.dux.enable {
+    # Portable part of the dux config, shared by every host; each host adds
+    # its machine-bound keys (monitors, power, devices) from
+    # home/astroreen/<host>/assets/dux-*.json. Both are refreshed from a live
+    # host with `sync-dux-config [host]` (scripts/sync-dux-config.py).
+    custom.dux = {
+      settings = lib.importJSON ./settings.json;
+      session = lib.importJSON ./session.json;
+      pluginSettings = lib.importJSON ./plugin-settings.json;
+    };
+
     # Same quickshell build as caelestia: shares our nixpkgs Qt6, so the
     # shell and its QML plugins link against one Qt6 minor version.
     custom.dux.quickshellPackage =
