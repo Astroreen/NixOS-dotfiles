@@ -14,6 +14,7 @@
     }
   ],
   "storageCleanup": {
+    "worktreeAfterDays": 7,
     "worktreeOnMerge": true,
     "worktreeOnDelete": true,
     "browserArtifactsAfterDays": 8,
@@ -26,24 +27,22 @@
   ],
   "defaultAutoPull": true,
   "defaultModelSelection": {
-    "instanceId": "opencode",
-    "model": "openrouter/~deepseek/deepseek-flash-latest",
-    "options": [
-      {
-        "id": "agent",
-        "value": "Sisyphus - ultraworker"
-      }
-    ]
+    "instanceId": "claudeAgent",
+    "model": "claude-opus-5-5"
   },
   "projectSettingsFolded": true,
   "enableAgentDeviceAccess": true,
   "enableDeviceSupport": true,
   "deviceOnboardingCompleted": true,
+  "idleCompaction": "onReturn",
+  "snoozeLimitedThreads": true,
+  "autoResumeLimitedThreads": true,
+  "linkedEnvironmentsEnabled": true,
   "defaultTheme": "gruvbox",
-  "defaultThreadEnvMode": "local",
+  "defaultThreadEnvMode": "worktree",
   "textGenerationModelSelection": {
     "instanceId": "opencode",
-    "model": "openrouter/~deepseek/deepseek-flash-latest"
+    "model": "opencode/deepseek-v4.1-flash-free"
   },
   "branchNamePrefix": "",
   "removeAgentCreditsOnMerge": true,
