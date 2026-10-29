@@ -25,6 +25,10 @@ _: {
 
   networking.hostName = "hercules";
 
+  # Services are reached through the tunnel and the tailnet; from the LAN only
+  # Pi-hole's DNS is open (see custom.services.lan).
+  custom.services.lan.interfaces = [ "enp4s0" ];
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. Set once at first install; never change it.

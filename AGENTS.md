@@ -145,7 +145,7 @@ hosts/
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # services/ (Docker services, preconfigured for hercules), hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
   modules/                 # Generic system modules (options/defaults only, no preconfigured values)
-    server/services/       # custom.services.<name>: Docker services (actual, n8n, nextcloud-aio, pihole, vaultwarden) on one shared network (custom.services.network)
+    server/services/       # custom.services.<name>: Docker services (actual, cloudflared, n8n, nextcloud-aio, pihole, vaultwarden) on one shared network (custom.services.network); custom.services.lan closes published ports on LAN interfaces (DOCKER-USER)
 home/
   astroreen/
     common/
@@ -181,9 +181,9 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
-| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000) |
-| Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | toolkit only (CDI: `--device nvidia.com/gpu=all`) |
-| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Same as aktkc (LAN 192.168.50.192) |
+| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), cloudflared |
+| Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | `enableNvidia = true` + toolkit (AIO needs the legacy `--gpus` path) |
+| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Tailnet + Cloudflare Tunnel (cloudflared on `cloudflare_network`); from the LAN (`enp4s0`, 192.168.50.192) only SSH and Pi-hole DNS (53) |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
 
 Server accounts: `astroreen` (wheel, passwordless sudo, docker, lingering for the T3 user service) and `agent` (no wheel/docker, lingering,
@@ -321,7 +321,10 @@ New server/VPS: add `hosts/astroreen/<host>/configuration.nix`, `home/astroreen/
 `hosts/astroreen/profiles/server/services/` (imported by hercules), secrets in `/var/lib/secrets/<name>.env` on the host (by hand,
 not in the repo). State lives in `/var/lib/<name>` (root-only, 0700); Nextcloud AIO keeps its own `nextcloud_aio_*` Docker volumes.
 The AIO mastercontainer is started by a oneshot unit with `docker run -d` (not oci-containers) so its watchtower can update it.
-Docker-published ports bypass the NixOS firewall, so these services are reachable from the LAN.
+Docker-published ports bypass the NixOS firewall; `custom.services.lan.interfaces` drops LAN traffic to them in the
+`nixos-docker-lan` chain (jumped to from DOCKER-USER), except `lan.allowed{TCP,UDP}Ports` (Pi-hole adds 53).
+cloudflared runs a remotely managed tunnel: ingress rules are edited in the Cloudflare dashboard and target container
+names on `cloudflare_network` (`http://n8n:5678`, `http://nextcloud-aio-apache:11000`, ...).
 
 **Home Manager:**
 ```

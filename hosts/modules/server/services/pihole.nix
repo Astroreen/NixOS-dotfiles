@@ -48,5 +48,11 @@ in
     };
 
     systemd.services = serviceLib.afterNetwork "docker-pihole";
+
+    # DNS is the one service the LAN talks to directly.
+    custom.services.lan = {
+      allowedTCPPorts = [ 53 ];
+      allowedUDPPorts = [ 53 ];
+    };
   };
 }

@@ -6,6 +6,7 @@ _: {
     ../../../../modules/server/services
 
     ./actual.nix
+    ./cloudflared.nix
     ./n8n.nix
     ./nextcloud-aio.nix
     ./pihole.nix
