@@ -41,6 +41,18 @@ _: {
   # Pi-hole's DNS is open (see custom.services.lan).
   custom.services.lan.interfaces = [ "enp4s0" ];
 
+  # Tailscale exit node (approve it once in the admin console). Clients using
+  # it hand their DNS to this host, which resolves with its own resolv.conf:
+  # Pi-hole first, the router only if Pi-hole is down.
+  services.tailscale = {
+    useRoutingFeatures = "server";
+    extraSetFlags = [ "--advertise-exit-node" ];
+  };
+  networking.nameservers = [
+    "127.0.0.1" # Pi-hole (published port 53)
+    "192.168.50.1"
+  ];
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. Set once at first install; never change it.
