@@ -3,12 +3,13 @@
   networking.networkmanager.enable = true;
 
   services = {
-    # Enable systemd-resolved for DNS resolution
+    # Enable systemd-resolved for DNS resolution. Its stub listener stays on, so
+    # every program (also those reading /etc/resolv.conf themselves) gets
+    # Tailscale MagicDNS names; hosts running Pi-hole turn it off
+    # (hosts/modules/server/services/pihole.nix).
     resolved = {
       enable = true;
-      # Disable systemd-resolved DNS stub listener to free port 53 for Pi-hole
       settings.Resolve = {
-        DNSStubListener = "no";
         FallbackDNS = [
           "192.168.50.1"
           "8.8.8.8"

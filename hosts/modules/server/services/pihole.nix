@@ -18,6 +18,14 @@ in
     }
     // {
       enable = lib.mkEnableOption "Pi-hole in Docker";
+      forwardZones = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = { };
+        example = {
+          "example.ts.net" = "100.100.100.100";
+        };
+        description = "DNS zones answered by another server instead of the upstreams (zone -> server).";
+      };
     };
 
   config = lib.mkIf cfg.enable {
@@ -42,12 +50,20 @@ in
         # Answer queries from the LAN, not only from the local subnet.
         FTLCONF_dns_listeningMode = "all";
       }
+      // lib.optionalAttrs (cfg.forwardZones != { }) {
+        FTLCONF_misc_dnsmasq_lines = lib.concatStringsSep ";" (
+          lib.mapAttrsToList (zone: server: "server=/${zone}/${server}") cfg.forwardZones
+        );
+      }
       // cfg.environment;
       # FTLCONF_webserver_api_password=... for the web UI.
       environmentFiles = lib.optional (cfg.environmentFile != null) cfg.environmentFile;
     };
 
     systemd.services = serviceLib.afterNetwork "docker-pihole";
+
+    # The published port 53 needs the host's own DNS stub out of the way.
+    services.resolved.settings.Resolve.DNSStubListener = "no";
 
     # DNS is the one service the LAN talks to directly.
     custom.services.lan = {
