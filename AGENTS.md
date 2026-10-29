@@ -78,6 +78,7 @@ devenv shell -- stop-work                   # OpenVPN + DNS teardown
 devenv shell -- add-work-dns                # DNS only (no VPN start)
 devenv shell -- delete-work-dns             # DNS only (no VPN stop)
 devenv shell -- sync-caelestia-config       # Merge official caelestia example config into host JSONs (scripts/sync-caelestia-config.py)
+devenv shell -- sync-dux-config [host]      # Copy live ~/.config/dms/settings.json into home/astroreen/<host>/assets/dux-settings.json (default: hostname -s)
 devenv shell -- list-generations            # nixos-rebuild list-generations
 devenv shell -- delete-generations [N]      # Delete old NixOS generations, keep last N (default 5)
 devenv shell -- find-large-files [N] [dir]  # Top-N largest files on disk (default 30, /)
@@ -147,16 +148,18 @@ home/
   astroreen/
     common/
       base.nix             # Headless HM for every host (shell, devenv, ranger, opencode, claude, python, js)
-      desktop.nix          # Workstation HM (hyprland/caelestia, GUI apps, kitty, dictation, java/csharp/flutter)
+      desktop.nix          # Workstation HM (hyprland, caelestia or dux shell, GUI apps, kitty, dictation, java/csharp/flutter)
       server.nix           # Server HM: base.nix + T3 Code with `t3 serve` user service (0.0.0.0:3773)
       agent.nix            # HM for the `agent` account on server hosts, applied via the NixOS home-manager module
-    laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia)
+    laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia; dux settings ready for the switch)
     pc/home.nix            # PC HM overrides
     aktkc/home.nix         # aktkc HM (common/server.nix only)
     profiles/              # HM profiles, preconfigured for astroreen
-      apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/hyprland/
+      apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/{hyprland,keybinds,shell}/
   modules/
     terminal/ai/           # AI tooling, see terminal/ai/AGENTS.md
+    wm/keybinds/           # custom.keybinds: WM-agnostic named binds + Hyprland backend
+    wm/shell/              # custom.caelestia / custom.dux shell modules (at most one enabled)
     terminal/dictation/    # Push-to-talk dictation (faster-whisper server + socket daemon + Quickshell overlay)
   package/                 # Packages missing from nixpkgs, built with pkgs.callPackage (unmined.nix, apps/swappy-shim.nix, apps/t3code/)
   .opencode/                 # Local opencode plugin dev dir (package.json: @opencode-ai/plugin), not the config
@@ -320,14 +323,16 @@ flake.nix (homeConfigurations."astroreen@<host>")
         → ../profiles/terminal/{shell,devenv.nix,ranger.nix}, ../profiles/terminal/ai/{opencode,claude}
         → ../profiles/lang/{javascript,python}.nix
     → ../common/desktop.nix                        (laptop/pc only)
-        → ./hyprland/caelestia/default.nix
         → ../profiles/style/{cursor/breeze, theme/dark/adwaita}
-        → ../profiles/apps/*  (apps, clipboard, screenshot, vesktop, vscode, obs, lutris,
+        → ../profiles/apps/*  (apps, localsend, qview, postman, clipboard, emoji-picker, screenshot, vesktop, vscode, obs, lutris,
           nautilus, gnome-text-editor, kdeconnect, vnc, tailscale, browser, music, minecraft, hyprmod, t3code)
         → ../profiles/terminal/{shell/kitty,wine,htop}.nix, ../profiles/terminal/ai/fabric
         → ../../modules/terminal/dictation           (faster-whisper server + socket PTT daemon + Quickshell overlay)
         → ../profiles/lang/{java,csharp,flutter}.nix
-        → ../profiles/wm/hyprland/{default.nix, caelestia}
+        → ../profiles/wm/hyprland                     (Hyprland + compositor-dispatcher binds; portal.nix: portal service fix + GTK portal dialog rule)
+        → ../profiles/wm/keybinds                     (plain-command binds: media, volume, suspend, dictation)
+        → ../profiles/wm/shell                        (→ ../../modules/wm/shell + caelestia/ dux/, each with binds.nix)
+        → ./hyprland/settings.nix                     (personal Hyprland input, generic window rules, layout binds)
     → ./hyprland/settings.nix                      (host-specific Hyprland binds/monitors)
 ```
 In `home/astroreen/pc/home.nix` only, also imports `../profiles/apps/arduino.nix` and
@@ -338,8 +343,8 @@ Reusable HM modules (not profiles), under `home/modules/`:
 - `home/modules/terminal/dictation/` has push-to-talk dictation: `server.py` (faster-whisper HTTP, port 7777,
   CUDA, model `faster-whisper-large-v3`), `daemon.py` (unix-socket PTT controller; also its own client via
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
-  WM-agnostic; imported from `home/astroreen/common/desktop.nix`. The Hyprland hold-to-talk binds live in
-  `home/astroreen/common/hyprland/caelestia/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
+  WM-agnostic; imported from `home/astroreen/common/desktop.nix`. The hold-to-talk bind is `custom.keybinds.binds.dictation`
+  in `home/astroreen/profiles/wm/keybinds/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
   PC sets `custom.dictation.host = "0.0.0.0"` to expose the transcription server on the LAN/tailnet.
 
 **Dormant / unimported** (exist but not referenced in `home/astroreen/common/{base,desktop}.nix` or any host `home.nix`):
@@ -354,10 +359,16 @@ Reusable HM modules (not profiles), under `home/modules/`:
 
 - `nixpkgs.config.allowUnfree = true` and `android_sdk.accept_license = true` are set in the flake, not per-host
 - Hyprland comes from the upstream flake input (`inputs.hyprland`), not nixpkgs; the cachix cache depends on that
-- Hyprland uses Lua config (`configType = "lua"`), not `hyprland.conf`. Settings are attrsets with `_args` + `lib.generators.mkLuaInline` dispatchers. Base binds live in `home/astroreen/profiles/wm/hyprland/settings/binds.nix`; host overrides in `home/astroreen/{laptop,pc}/hyprland/settings.nix`
+- Hyprland uses Lua config (`configType = "lua"`), not `hyprland.conf`. Settings are attrsets with `_args` + `lib.generators.mkLuaInline` dispatchers. Compositor-dispatcher binds live in `home/astroreen/profiles/wm/hyprland/binds.nix` (as `custom.keybinds` with `hyprland.dispatch`); host overrides in `home/astroreen/{laptop,pc}/hyprland/settings.nix`
 - `nix-ld` is enabled on both hosts so prebuilt ELF binaries run without patching
 - No automated test suite; validate with `dry-build` / `dry-activate`
-- The `caelestia-shell` config is written via `home.activation` (not symlinked); the shell mutates it at runtime
+- Desktop shell is per host: `custom.caelestia.enable` or `custom.dux.enable` (Dux Shell, ex-DankMaterialShell, `inputs.dux-shell` pinned to a release tag); enabling both fails an assertion. Generic modules in `home/modules/wm/shell/`, preconfigured profiles (packages, overrides, `binds.nix`) in `home/astroreen/profiles/wm/shell/`
+- App-specific Hyprland window rules live with the app's profile (`profiles/apps/{qview,postman,localsend,clipboard}.nix`), not in `common/desktop/hyprland/settings.nix`, which keeps only generic rules (modal, classless, content, gcr-prompter)
+- Keybinds: `custom.keybinds.binds.<name> = { key; exec | global | hyprland.dispatch; locked; repeating; description; }` (`description` defaults to the name in words; rendered as a one-line opts table because dux's keybind parser reads `hl.bind` line by line) (`home/modules/wm/keybinds`), translated per WM (Hyprland backend only so far). Profile values are `mkDefault`, so a host overrides a field or sets `.enable = false` directly. Both shells use the same names (`launcher`, `lock`, `screenshot`, ...), so an override follows the active shell. Plain commands go in `profiles/wm/keybinds`, shell actions in `profiles/wm/shell/<shell>/binds.nix`, Hyprland dispatchers in `profiles/wm/hyprland/binds.nix`, app launchers next to their app (`terminal` in kitty.nix, `fileManager` in nautilus, `emoji`, `clipboard`, `vncCycleOutput`), layout switching in `common/desktop/default.nix`. Never add raw `wayland.windowManager.hyprland.settings.bind` entries
+- The `caelestia-shell` config (`~/.config/caelestia/shell.json`) and dux's (`~/.config/dms/settings.json`) are real files merged via `home.activation` (`home/modules/wm/shell/lib.nix`, jq), never symlinked: `settings` only fills keys the file lacks (what the shell's settings UI saved wins; `overrideSettings = true` makes `settings` win instead), `settingsOverrides` always wins. Per-host defaults: `home/astroreen/<host>/assets/{caelestia-shell-config,dux-settings}.json`; refresh the dux one from the live host with `sync-dux-config`
+- Dux on Hyprland: `custom.dux.hyprlandIncludes` appends `require("dms.<name>")` for the fragments dux writes under `~/.config/hypr/dms/` (outputs, binds-user, layout, ...) so its Displays/Keybinds pages work despite the read-only `hyprland.lua`; activation `touch`es missing fragments. The dms package carries `home/modules/wm/shell/dux/mpris-display-name.patch` (QML: player names from desktop entries; Pear is renamed in `profiles/apps/music.nix`) and `screencopy-transform.patch` (Go: Hyprland 0.57 hands out already-rotated screencopy frames, so `dms screenshot` must not rotate 90/270 degree outputs again). Under dux, Print opens the QuickCapture plugin, SUPER+Print is grim + slurp into satty. Under dux, SUPER+V is dux's clipboard and copyq is off (`profiles/apps/clipboard.nix`), SUPER+Period the emojiPicker plugin instead of the rofi picker
+- Dux plugins: `custom.dux.plugins.<plugin id>.src` (+ default `settings`) links the plugin into `~/.config/dms/plugins/` and enables it in the writable `plugin_settings.json`. The preconfigured set lives in `home/astroreen/profiles/wm/shell/dux/plugins/`: every source pinned by rev + hash after a security review, with `*.patch` fixes for injections found; runtime tools they call are in its `home.packages`. Never bump a plugin rev or add one without reviewing its code (plugins run with full user privileges)
+- HyprMod reads `hyprland.lua` with hyprland-config's Lua reader, which runs every `hl.on` callback; `profiles/apps/hyprmod.nix` loads `hyprmod-guard.lua` first to disable `os.execute` there, otherwise HM's shutdown hook stops `hyprland-session.target` (and the shell) on every HyprMod launch
 - Opencode alias: `oc = "opencode"`
 - Opencode theme: `gruvbox`; plugins: md-table-formatter, notifier, dcp (context compression), vibeguard, anthropic-auth, claude-auth
 - `inputs.caveman` (flake=false) is a plain source tree for the caveman opencode skill

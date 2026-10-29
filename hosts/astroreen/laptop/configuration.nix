@@ -26,8 +26,6 @@
     ];
 
     initrd = {
-      systemd.enable = true;
-      verbose = false;
       kernelModules = [ "i915" ]; # Intel KMS early for framebuffer handoff
     };
 

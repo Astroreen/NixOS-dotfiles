@@ -1,10 +1,8 @@
 { config, lib, ... }:
 {
-  # Workstation layer on top of ./base.nix: Hyprland, Caelestia, GUI apps.
+  # Workstation layer on top of ./base.nix: Hyprland, desktop shell, GUI apps.
   imports = [
     ../base # Headless base shared by every host (desktop and server)
-
-    ../hyprland/caelestia # Custom Caelestia shell module
 
     # Style
     ../../profiles/style/cursor/breeze # Breeze cursor style
@@ -13,6 +11,8 @@
     # Apps (gui)
     ../../profiles/apps/apps.nix # Standard apps to install
     ../../profiles/apps/localsend.nix # LocalSend always-on file transfer server
+    ../../profiles/apps/qview.nix # qView image viewer
+    ../../profiles/apps/postman.nix # Postman API client
     ../../profiles/apps/clipboard.nix # Clipboard ui
     ../../profiles/apps/emoji-picker # Emoji picker (SUPER + Period)
     ../../profiles/apps/screenshot.nix # Screenshot tooling (satty + swappy shim)
@@ -48,8 +48,19 @@
 
     # Windows manager (wm)
     ../../profiles/wm/hyprland # Hyprland window manager
-    ../../profiles/wm/hyprland/caelestia # Caelestia shell
+    ../../profiles/wm/keybinds # WM-agnostic keybinds (custom.keybinds)
+    ../../profiles/wm/shell # Desktop shell: host enables custom.caelestia or custom.dux
   ];
+
+  # Apps (Vesktop, browsers, `xdg-mime default`) rewrite mimeapps.list in place,
+  # turning the home-manager symlink into a regular file that blocks the next
+  # switch. Every association is declared in the app profiles, so overwrite it.
+  xdg.configFile."mimeapps.list".force = true;
+
+  # Rebuild the user fontconfig cache on switch. Without it, removing a font
+  # package (material-symbols left with caelestia) left stale cache entries
+  # pointing at deleted files, and dux showed "…" for its filled icons.
+  fonts.fontconfig.enable = true;
 
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = config.home.sessionVariables;
@@ -60,23 +71,24 @@
     host = lib.mkDefault "127.0.0.1";
   };
 
-  wayland.windowManager.hyprland = {
-    # Hyprland settings
-    settings = lib.mkMerge [
-      (import ../hyprland/settings.nix { inherit lib; })
-      {
-        # Why is it not in binds.nix? Because these are my personal keybinds, and not general Hyprland ones
-        bind =
-          let
-            dsp = lua: lib.generators.mkLuaInline lua;
-          in
-          [
-            # Switch keyboard layout directly via hyprctl IPC
-            { _args = [ "SHIFT + ALT + E" (dsp "hl.dsp.exec_cmd(\"hyprctl switchxkblayout all 0\")") ]; } # English (us)
-            { _args = [ "SHIFT + ALT + R" (dsp "hl.dsp.exec_cmd(\"hyprctl switchxkblayout all 1\")") ]; } # Russian (ru)
-            { _args = [ "SHIFT + ALT + L" (dsp "hl.dsp.exec_cmd(\"hyprctl switchxkblayout all 2\")") ]; } # Lithuanian (lt)
-          ];
-      }
-    ];
+  wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix { inherit lib; };
+
+  # Personal keyboard layout switching (not general Hyprland binds)
+  custom.keybinds.binds = lib.mapAttrs (_: lib.mapAttrs (_: lib.mkDefault)) {
+    layoutEnglish = {
+      description = "Keyboard layout: English";
+      key = "SHIFT + ALT + E";
+      exec = "hyprctl switchxkblayout all 0"; # us
+    };
+    layoutRussian = {
+      description = "Keyboard layout: Russian";
+      key = "SHIFT + ALT + R";
+      exec = "hyprctl switchxkblayout all 1"; # ru
+    };
+    layoutLithuanian = {
+      description = "Keyboard layout: Lithuanian";
+      key = "SHIFT + ALT + L";
+      exec = "hyprctl switchxkblayout all 2"; # lt
+    };
   };
 }

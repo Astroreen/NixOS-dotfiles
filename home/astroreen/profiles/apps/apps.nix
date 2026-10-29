@@ -12,13 +12,11 @@
     # Media
     mpv # Media player
     celluloid # MPV's frontend
-    kdePackages.kdenlive
 
     # Graphics & Design
     # gimp                          # GNU Image Manipulation Program
     # inkscape                      # Vector graphics editor
-    qview # Image viewer
-    furmark # GPU stress test
+    # furmark # GPU stress test
     freecad # 3D CAD modeler
 
     # Productivity
@@ -27,8 +25,7 @@
 
     # Development
     # github-desktop                # GitHub desktop client
-    postman # API development environment
-    thonny # Python IDE
+    # thonny # Python IDE
     orca-slicer # 3D printing slicer
 
     # Internet

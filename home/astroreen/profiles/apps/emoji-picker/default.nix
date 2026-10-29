@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
   # Emoji data comes from rofimoji's bundled CSVs; rofimoji itself is not used
   # because its rofi script mode types while rofi still holds the keyboard.
@@ -18,14 +23,17 @@ in
 {
   # Emoji picker on SUPER + Period: rofi grid, category tabs (Shift + Left/Right),
   # most used emojis first in the 🕘 tab. Replaces `caelestia emoji -p`.
+  imports = [
+    ../../../../modules/wm/keybinds # custom.keybinds
+  ];
+
   home.packages = [ emoji-picker ];
 
-  wayland.windowManager.hyprland.settings.bind = [
-    {
-      _args = [
-        "SUPER + Period"
-        (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"pkill -x rofi || emoji-picker\")")
-      ];
-    } # Emoji picker
-  ];
+  # Dux uses its emojiPicker plugin on the same key instead
+  # (profiles/wm/shell/dux/binds.nix)
+  custom.keybinds.binds.emoji = lib.mkIf (!(config.custom.dux.enable or false)) {
+    description = lib.mkDefault "Emoji picker";
+    key = lib.mkDefault "SUPER + Period";
+    exec = lib.mkDefault "pkill -x rofi || emoji-picker";
+  };
 }

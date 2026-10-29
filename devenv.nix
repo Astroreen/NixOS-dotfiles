@@ -12,6 +12,7 @@
 
   packages = with pkgs; [
     deadnix
+    jq
     nixos-anywhere
     python3
     statix

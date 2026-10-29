@@ -47,7 +47,7 @@ in
   # doesn't control where independently-spawned agent windows land, so pin
   # the one recurring offender (gnome-keyring's prompt) explicitly instead
   # of writing rules for every app. The float+center part of this rule now
-  # lives in home/astroreen/common/hyprland/settings.nix (every host has
+  # lives in home/astroreen/common/desktop/hyprland/settings.nix (every host has
   # this window); this is just the server-specific multi-monitor pin on
   # top of it - Hyprland applies all matching window_rule entries for a
   # class cumulatively, so this ADDS to the common rule, not replaces it.

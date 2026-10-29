@@ -1,5 +1,9 @@
 { lib, ... }:
 {
+  imports = [
+    ../../../../modules/wm/keybinds # custom.keybinds
+  ];
+
   programs.kitty = {
     enable = true;
     enableGitIntegration = true;
@@ -23,6 +27,11 @@
 
       # Window
       window_padding_width = "10 20 10 20";
+      # kitty saves the last window size *and state* (~/.cache/kitty/main.json)
+      # and asks for it on the next start. Once one window was closed
+      # maximized, every new kitty requested maximize, which overrides the
+      # Hyprland float/size/center rule below.
+      remember_window_size = "no";
     };
 
     keybindings = {
@@ -42,6 +51,13 @@
     };
   };
 
+  # Floats centered at 1300x800 through the window rule below
+  custom.keybinds.binds.terminal = {
+    description = lib.mkDefault "Terminal";
+    key = lib.mkDefault "SUPER + T";
+    exec = lib.mkDefault "kitty";
+  };
+
   wayland.windowManager.hyprland = {
     settings.window_rule = [
       {
@@ -50,15 +66,6 @@
         float = true;
         center = true;
       }
-    ];
-
-    settings.bind = [
-      {
-        _args = [
-          "SUPER + T"
-          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"[float; size 1300 800] kitty\")")
-        ];
-      } # Terminal
     ];
   };
 }

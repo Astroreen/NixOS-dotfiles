@@ -30,11 +30,14 @@ let
 
   unmined-unwrapped = stdenv.mkDerivation {
     pname = "unmined-gui";
-    version = "0.19.60-dev";
+    version = "0.20.11-dev";
 
+    # The URL always serves the latest dev build (no versioned download), so
+    # the hash breaks on every upstream release: bump version + hash then
+    # (`nix store prefetch-file` it; the version is in its file name).
     src = fetchurl {
       url = "https://unmined.net/download/unmined-gui-linux-x64-dev/";
-      hash = "sha256-1MKC2vaYSFB2cGRa3S5OJEp1mxU2MyW3Foym2z60tg0=";
+      hash = "sha256-JhnLjTvdUJnjcf2B01dOgUpUeWAoSWLXRTLsfQW2IFI=";
       name = "unmined-gui.tar.gz";
     };
 

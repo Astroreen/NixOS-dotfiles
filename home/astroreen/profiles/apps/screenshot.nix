@@ -6,10 +6,11 @@ in
   # Satty - screenshot annotation tool + fake `swappy` shim (the shim
   # itself lives in home/package/apps/swappy-shim.nix). The caelestia
   # package overrides that feed the shim live in
-  # home/astroreen/profiles/wm/hyprland/caelestia/default.nix (that is
+  # home/astroreen/profiles/wm/shell/caelestia/default.nix (that is
   # where further caelestia shell/package overrides belong too).
   home.packages = with pkgs; [
     satty # Screenshot annotation tool (text, arrows, palette, blur)
+    slurp # Region selection (shell-agnostic grim + slurp screenshots)
     swappyShim # Fake `swappy` -> satty
   ];
 

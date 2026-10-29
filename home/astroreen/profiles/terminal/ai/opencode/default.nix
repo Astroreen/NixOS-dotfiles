@@ -189,9 +189,9 @@ in
       ];
     };
 
-    tui = {
-      theme = "gruvbox";
-    };
+    # No `tui`: OpenCode 2 ignores tui.json. Theme (gruvbox) and other client
+    # settings live in the app-owned ~/.config/opencode/cli.json, which
+    # OpenCode rewrites from the TUI; declaring `cli` here would collide with it.
 
     # Headless server, started with the user systemd session (default.target).
     # Loopback only. Note: v2 `serve` dropped --mdns (was LAN discovery).

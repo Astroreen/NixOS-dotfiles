@@ -1,0 +1,52 @@
+--- a/Modules/DDash/Media/MediaPanel.qml
++++ b/Modules/DDash/Media/MediaPanel.qml
+@@ -83,7 +83,7 @@
+ 
+             StyledText {
+                 width: parent.width
+-                text: root.player.usePlayerVolume ? root.player.activePlayer?.identity ?? "" : AudioService.displayName(AudioService.sink)
++                text: root.player.usePlayerVolume ? MprisController.displayName(root.player.activePlayer) : AudioService.displayName(AudioService.sink)
+                 color: Theme.onSurfaceVariant
+                 font.pixelSize: Theme.fontSizeMedium
+                 elide: Text.ElideRight
+@@ -147,7 +147,7 @@
+                     width: parent.width
+                     accent: root.player.accent
+                     iconName: "music_note"
+-                    title: modelData?.identity ?? ""
++                    title: MprisController.displayName(modelData)
+                     subtitle: [modelData?.trackTitle, modelData?.trackArtist].filter(Boolean).join(" · ")
+                     selected: modelData === root.player.activePlayer
+                     onActivated: {
+--- a/Modules/DDash/Media/MediaPresentation.qml
++++ b/Modules/DDash/Media/MediaPresentation.qml
+@@ -15,7 +15,7 @@
+             return null;
+         return {
+             key: source.dbusName,
+-            identity: source.identity,
++            identity: MprisController.displayName(source),
+             title: MprisController.stableTitle,
+             artist: MprisController.stableArtist,
+             album: MprisController.stableAlbum,
+--- a/Services/MprisController.qml
++++ b/Services/MprisController.qml
+@@ -35,6 +35,18 @@
+     property int _mprisConnectionEpoch: 0
+     property int positionConsumers: 0
+ 
++    // Name shown for a player: the desktop entry matching its MPRIS desktop
++    // entry or identity (Electron apps such as Pear report their reverse-DNS
++    // app id as identity), falling back to the raw identity.
++    function displayName(p) {
++        if (!p)
++            return "";
++        const identity = p.identity || "";
++        const id = (("desktopEntry" in p) && p.desktopEntry) ? String(p.desktopEntry) : identity;
++        const entry = id ? DesktopEntries.byId(id) : null;
++        return entry?.name || identity;
++    }
++
+     function addPositionRef() {
+         positionConsumers++;
+     }

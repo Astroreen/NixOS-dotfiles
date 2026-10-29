@@ -23,6 +23,14 @@ in
     package = vesktop-gpu;
   };
 
+  # Vesktop registers itself for discord:// links on every start (xdg-mime),
+  # which replaced the home-manager mimeapps.list symlink with a regular file
+  # and broke the next `home switch`. Declared here, it is already the default.
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications."x-scheme-handler/discord" = "vesktop.desktop";
+  };
+
   wayland.windowManager.hyprland.settings = {
     on = [
       {

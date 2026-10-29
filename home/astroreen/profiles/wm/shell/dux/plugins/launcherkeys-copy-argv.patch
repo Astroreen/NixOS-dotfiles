@@ -1,0 +1,11 @@
+--- a/DankLauncherKeys.qml
++++ b/DankLauncherKeys.qml
+@@ -149,7 +149,7 @@
+         const actionData = actionParts.slice(1).join(":");
+ 
+         if (actionType === "copy") {
+-            Quickshell.execDetached(["sh", "-c", "echo -n '" + actionData + "' | dms cl copy"]);
++            Quickshell.execDetached(["dms", "cl", "copy", actionData]);
+             if (typeof ToastService !== "undefined")
+                 ToastService.showInfo(I18n.trFor("dankLauncherKeys", "Copied to clipboard"), actionData);
+         }

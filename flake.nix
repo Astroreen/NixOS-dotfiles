@@ -34,6 +34,17 @@
       inputs.quickshell.follows = "quickshell";
     };
 
+    # Dux Shell (formerly DankMaterialShell): alternative Quickshell desktop shell.
+    # Switched against caelestia per host via custom.{caelestia,dux}.enable.
+    # Pinned to a release tag: the package is built with our nixpkgs Go, and
+    # master's core/go.mod can require a newer Go patch than nixpkgs ships yet
+    # (master needed go 1.27.3 while nixpkgs had 1.27.1). Bump the tag together
+    # with `update-flake`.
+    dux-shell = {
+      url = "github:duxlabs-dev/dux-shell/v2.0.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Caveman: opencode skill for terse, token-efficient responses.
     # Not a flake — consumed as a plain source tree.
     caveman = {

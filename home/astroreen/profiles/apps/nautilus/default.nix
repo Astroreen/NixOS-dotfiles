@@ -1,5 +1,9 @@
 { lib, ... }:
 {
+  imports = [
+    ../../../../modules/wm/keybinds # custom.keybinds
+  ];
+
   xdg = {
     desktopEntries."org.gnome.Nautilus" = {
       name = "Files";
@@ -31,6 +35,16 @@
         "inode/directory" = "org.gnome.Nautilus.desktop";
         "application/x-gnome-saved-search" = "org.gnome.Nautilus.desktop";
       };
+      # "Open With" Files on archives extracts them in place
+      associations.added = lib.genAttrs [
+        "application/gzip"
+        "application/x-7z-compressed"
+        "application/x-bzip2"
+        "application/x-rar"
+        "application/x-tar"
+        "application/x-xz"
+        "application/zip"
+      ] (_: "org.gnome.Nautilus.desktop");
     };
   };
 
@@ -56,15 +70,13 @@
         float = true;
       }
     ];
+  };
 
-    settings.bind = [
-      {
-        _args = [
-          "SUPER + E"
-          (lib.generators.mkLuaInline "hl.dsp.exec_cmd(\"[float; size 1400 800] nautilus\")")
-        ];
-      } # File manager
-    ];
+  # File manager; floats centered at 1400x800 through the window rule above
+  custom.keybinds.binds.fileManager = {
+    description = lib.mkDefault "File manager";
+    key = lib.mkDefault "SUPER + E";
+    exec = lib.mkDefault "nautilus";
   };
 
   # "New File…" background context-menu entry (nautilus-python extension).
