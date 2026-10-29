@@ -197,6 +197,37 @@
 
     xserver.videoDrivers = [ "nvidia" ];
 
+    # SDDM's greeter runs in Weston (kiosk shell), which knows nothing about
+    # the Hyprland monitor layout: the portrait heads came up unrotated and
+    # the login form landed on the first output instead of the center one.
+    # Only light the main monitor for the greeter; the session sets the rest.
+    # Same weston.ini as the NixOS default otherwise (keyboard, libinput).
+    displayManager.sddm.wayland.compositorCommand =
+      let
+        xkb = config.services.xserver.xkb;
+        mouse = config.services.libinput.mouse;
+        westonIni = pkgs.writeText "weston.ini" ''
+          [keyboard]
+          keymap_model=${xkb.model}
+          keymap_layout=${xkb.layout}
+          keymap_variant=${xkb.variant}
+          keymap_options=${xkb.options}
+
+          [libinput]
+          enable-tap=${lib.boolToString mouse.tapping}
+          left-handed=${lib.boolToString mouse.leftHanded}
+
+          [output]
+          name=HDMI-A-1
+          mode=off
+
+          [output]
+          name=DP-2
+          mode=off
+        '';
+      in
+      "${lib.getExe pkgs.weston} --shell=kiosk -c ${westonIni}";
+
     # Power management settings
     power-profiles-daemon.enable = false; # Enable power profiles
     upower.enable = false; # Enable upower for battery management
