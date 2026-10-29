@@ -1,24 +1,36 @@
-{ lib, ... }: {
+{ pkgs, ... }:
+let
+  # https://github.com/Keyitdev/sddm-astronaut-theme
+  # embeddedTheme picks one of its Themes/*.conf (astronaut, black_hole, cyberpunk, ...)
+  sddm-astronaut = pkgs.sddm-astronaut.override { embeddedTheme = "astronaut"; };
+in
+{
+  # The theme has to be in systemPackages too, so its fonts and QML are found
+  environment.systemPackages = [ sddm-astronaut ];
+
   services = {
     # Display managers
     displayManager = {
       # CAUTION: ENABLE ONLY ONE DISPLAY MANAGER AT A TIME
       sddm = {
-        enable = false;
+        enable = true;
+        package = pkgs.kdePackages.sddm; # Qt6 build, required by the astronaut theme
         wayland.enable = true;
         autoNumlock = true;
+        theme = "sddm-astronaut-theme";
+        extraPackages = [ sddm-astronaut ];
       };
       gdm = {
-        enable = true;
+        enable = false;
       };
 
-      # Enable automatic login for the user.
+      # Automatic login for the user.
       autoLogin = {
-        enable = true;
+        enable = false;
         user = "astroreen";
       };
 
-      # Defaul session to log in to. Perfect with auto login :)
+      # Default session preselected in the display manager.
       defaultSession = "hyprland";
     };
 
