@@ -1,6 +1,6 @@
 # AGENTS.md: NixOS configuration repository
 
-NixOS flake-based dotfiles. Three hosts (`laptop`, `pc`, headless server `aktkc`), user `astroreen`. Home-manager embedded in NixOS via `home-manager.nixosModules.home-manager` (not standalone).
+NixOS flake-based dotfiles. Four hosts (`laptop`, `pc`, headless servers `aktkc` and `hercules`), user `astroreen`. Home-manager embedded in NixOS via `home-manager.nixosModules.home-manager` (not standalone).
 
 ---
 
@@ -8,8 +8,8 @@ NixOS flake-based dotfiles. Three hosts (`laptop`, `pc`, headless server `aktkc`
 
 Two rules agents get wrong constantly. Read both before running anything:
 
-1. **Host**: never hardcode `laptop`, `pc` or `aktkc`. The machine you are on RIGHT NOW is the deploy
-   target. Determine it with `hostname -s`; its output is exactly the flake host name (`laptop`, `pc` or `aktkc`).
+1. **Host**: never hardcode `laptop`, `pc`, `aktkc` or `hercules`. The machine you are on RIGHT NOW is the deploy
+   target. Determine it with `hostname -s`; its output is exactly the flake host name (`laptop`, `pc`, `aktkc` or `hercules`).
 2. **devenv**: scripts (`nixos`, `home`, `nx`, `hm`, `update-flake`, ...) exist ONLY inside the
    `devenv` shell. Interactive `.envrc`/direnv auto-activation does NOT apply to agent/SSH bash
    sessions. Wrap every call as `devenv shell -- <command>`. Run from the repo root.
@@ -17,11 +17,11 @@ Two rules agents get wrong constantly. Read both before running anything:
 ### Host selection
 
 ```bash
-hostname -s    # "laptop", "pc" or "aktkc"; use this as <host> in every command below
+hostname -s    # "laptop", "pc", "aktkc" or "hercules"; use this as <host> in every command below
 ```
 
 Use `"$(hostname -s)"` substitution, never a literal host name copied from examples. If the output
-is not `laptop`, `pc` or `aktkc`, stop and ask the user which flake host to target.
+is not `laptop`, `pc`, `aktkc` or `hercules`, stop and ask the user which flake host to target.
 
 - `switch` / `test` / `rollback` / `dry-activate` ALWAYS target the current machine (`"$(hostname -s)"`).
 - `build` / `dry-build` for the OTHER host only when the user explicitly names that host.
@@ -56,7 +56,7 @@ devenv shell -- home rollback "$(hostname -s)"        # Roll back HM generation
 
 HM configs are `homeConfigurations."astroreen@<host>"` in the flake, managed independently from the NixOS system.
 
-### Remote server hosts (`aktkc`)
+### Remote server hosts (`aktkc`, `hercules`)
 
 ```bash
 devenv shell -- deploy <action> <host>                      # nixos-rebuild --target-host (switch/test/boot/dry-activate); on switch also copies + activates astroreen's HM
@@ -140,6 +140,7 @@ hosts/
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
     aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk, extra services), github-runners.nix (Caspian ERP CI), hardware config
+    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver + container toolkit), hardware config
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
@@ -154,6 +155,7 @@ home/
     laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia; dux settings ready for the switch)
     pc/home.nix            # PC HM overrides
     aktkc/home.nix         # aktkc HM (common/server.nix only)
+    hercules/home.nix      # hercules HM (common/server.nix only)
     profiles/              # HM profiles, preconfigured for astroreen
       apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/{hyprland,keybinds,shell}/
   modules/
@@ -170,18 +172,18 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 
 ## Host differences
 
-| | laptop | pc | aktkc |
-|---|---|---|---|
-| Layers | base + desktop | base + desktop | base + server (headless) |
-| GPU | Intel (primary) + NVIDIA PRIME offload | NVIDIA only (nvidiaPersistenced=true for Ollama) | None |
-| NVIDIA mode | Finegrained power mgmt, offload on demand | Always-on, full power | N/A |
-| `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A |
-| Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled |
-| Wake-on-LAN | No | Yes (enp5s0, magic packet) | No |
-| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP |
-| Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A |
-| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces |
-| Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` |
+| | laptop | pc | aktkc | hercules |
+|---|---|---|---|---|
+| Layers | base + desktop | base + desktop | base + server (headless) | base + server (headless) |
+| GPU | Intel (primary) + NVIDIA PRIME offload | NVIDIA only (nvidiaPersistenced=true for Ollama) | None | RTX 4080 SUPER, open kernel modules, headless (`nvidia.nix`) |
+| NVIDIA mode | Finegrained power mgmt, offload on demand | Always-on, full power | N/A | Compute only, nvidiaPersistenced |
+| `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A | N/A |
+| Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
+| Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
+| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773); services from `pc` move here gradually |
+| Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | toolkit only (CDI: `--device nvidia.com/gpu=all`) |
+| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Same as aktkc (LAN 192.168.50.192) |
+| Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
 
 Server accounts: `astroreen` (wheel, passwordless sudo, docker, lingering for the T3 user service) and `agent` (no wheel/docker, lingering,
 rootless podman) for autonomous agents. Restic backups (`profiles/server/backup.nix`) are disabled until a
@@ -276,7 +278,7 @@ Some names exist in both with different semantics (e.g. `programs.zsh`).
 
 ## Do not touch
 
-- `system.stateVersion` is `"25.11"` on laptop/pc and `"26.11"` on aktkc (`hosts/astroreen/<host>/configuration.nix`); never change it
+- `system.stateVersion` is `"25.11"` on laptop/pc and `"26.11"` on aktkc and hercules (`hosts/astroreen/<host>/configuration.nix`); never change it
 - `home.stateVersion` is `"26.05"` (set once in `flake.nix` `createHost`, applies to all hosts); never change it. It intentionally differs from `system.stateVersion`; not a typo.
 - `hardware-configuration.nix` is auto-generated; edit only if hardware changed
 - `.devenv/`, `.direnv/` are build artifacts, gitignored
@@ -305,9 +307,9 @@ flake.nix (createHost)
 Anything a headless host also needs goes in `common/base`; anything graphical goes in `common/desktop`;
 anything every server/VPS needs goes in `common/server`.
 
-Server hosts (`aktkc`) import `./hardware-configuration.nix`, `../common/base`, `../common/server`
+Server hosts (`aktkc`, `hercules`) import `./hardware-configuration.nix`, `../common/base`, `../common/server`
 (→ `./disko.nix`, `../../profiles/server/{hardening,agent,containers}.nix`) plus per-host
-profiles (`../profiles/server/monitoring.nix`) and own files (`./github-runners.nix` on aktkc). Each sets `networking.hostName`,
+profiles (`../profiles/server/monitoring.nix`) and own files (`./github-runners.nix` on aktkc, `./nvidia.nix` on hercules). Each sets `networking.hostName`,
 `disko.devices.disk.main.device` and `system.stateVersion`. Their flake entry uses
 `extraModules = serverModules` (`inputs.disko.nixosModules.disko` + `home-manager.nixosModules.home-manager` for `agent`).
 New server/VPS: add `hosts/astroreen/<host>/configuration.nix`, `home/astroreen/<host>/home.nix`

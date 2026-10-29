@@ -228,6 +228,11 @@
           username = "astroreen";
           extraModules = serverModules;
         }
+        {
+          host = "hercules";
+          username = "astroreen";
+          extraModules = serverModules;
+        }
       ];
 
       hostConfigs = map createHost hosts;
