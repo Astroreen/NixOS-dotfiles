@@ -44,6 +44,14 @@
       # this param since it's still correct/harmless for the pre-nvidia
       # stage; investigating the post-nvidia-drm mode separately below.
       "video=DP-3:3440x1440@165"
+      # Portrait side monitors (Hyprland transform 3 / 1). Plymouth rotates
+      # a head only from the connector's "panel orientation" DRM property
+      # (renderers/drm/plugin.c, connector_orientation_prop_to_rotation);
+      # the kernel attaches it for any driver from the video= option
+      # (drm_connector.c, drm_connector_get_cmdline_mode). Left Side Up ->
+      # Plymouth rotates counter-clockwise, Right Side Up -> clockwise.
+      "video=DP-2:panel_orientation=left_side_up"
+      "video=HDMI-A-1:panel_orientation=right_side_up"
     ];
 
     loader = {
@@ -84,35 +92,29 @@
     plymouth = {
       enable = true;
       theme = "loader_2";
-      # Root cause confirmed by isolation test (swapping to the stock
-      # "bgrt" theme rendered correctly, proving this is theme-specific,
-      # not a system-wide DRM/resolution issue) plus reading the actual
-      # theme script: loader_2.script centers the question/password/message
-      # sprites via `screen.half.w/h = Window.GetWidth(0)/GetHeight(0) / 2`
-      # (no offset - correct), but the flyingman logo-animation sprite is
-      # the ONE place in the whole script that instead does
-      # `Window.GetX() + (Window.GetWidth(0)/2 - ...)`. Window.GetX()/GetY()
-      # return THIS screen's absolute offset in Plymouth's own multi-head
-      # layout (detected independently of Hyprland, since Plymouth runs
-      # before Wayland starts) while GetWidth(0)/GetHeight(0) hard-codes
-      # screen index 0's size - if DP-3 isn't screen 0 in Plymouth's own
-      # enumeration order, position offset and size come from two
-      # different screens, producing exactly the observed small/offset
-      # render. Patch the upstream theme to drop the stray GetX()/GetY()
-      # offsets, matching the same centering convention used everywhere
-      # else in this same script.
+      # Every adi1090x theme (all 80 share one script template) centers its
+      # sprites with Window.GetWidth(0)/GetHeight(0), i.e. the size of
+      # Plymouth's display index 0. The script plugin
+      # (src/plugins/splash/script/script-lib-sprite.c, update_displays)
+      # puts all heads on ONE virtual canvas of max_width x max_height
+      # (3440x1440 here) and centers each head inside it, so only the
+      # canvas center maps to the center of every monitor. Display 0 is
+      # the lowest DRM connector id, HDMI-A-1 (1920x1080, id 128 < DP-3's
+      # 139), so the animation landed at (960,540) of the canvas: upper
+      # left on DP-3 and shifted on the 1080p screens too. The argument-less
+      # Window.GetWidth()/GetHeight() return the canvas size instead. (The
+      # old fix dropped Window.GetX()/GetY(), but without an index those
+      # return MIN(0, offsets) = 0, so it changed nothing.)
       themePackages = [
         (pkgs.runCommand "adi1090x-plymouth-themes-patched" { } ''
           mkdir -p "$out"
           cp -r ${pkgs.adi1090x-plymouth-themes}/* "$out"/
           chmod -R u+w "$out"
-          substituteInPlace "$out/share/plymouth/themes/loader_2/loader_2.script" \
-            --replace-fail \
-              'flyingman_sprite.SetX(Window.GetX() + (Window.GetWidth(0) / 2 - flyingman_image[0].GetWidth() / 2));' \
-              'flyingman_sprite.SetX((Window.GetWidth(0) / 2 - flyingman_image[0].GetWidth() / 2));' \
-            --replace-fail \
-              'flyingman_sprite.SetY(Window.GetY() + (Window.GetHeight(0) / 2 - flyingman_image[0].GetHeight() / 2));' \
-              'flyingman_sprite.SetY((Window.GetHeight(0) / 2 - flyingman_image[0].GetHeight() / 2));'
+          for f in "$out"/share/plymouth/themes/*/*.script; do
+            substituteInPlace "$f" \
+              --replace-fail 'Window.GetWidth(0)' 'Window.GetWidth()' \
+              --replace-fail 'Window.GetHeight(0)' 'Window.GetHeight()'
+          done
           # loader_2.plymouth's ImageDir=/ScriptFile= are ABSOLUTE paths baked
           # in at the ORIGINAL package's build time, still pointing at
           # ${pkgs.adi1090x-plymouth-themes} (the unpatched store path) even
