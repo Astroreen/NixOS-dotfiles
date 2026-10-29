@@ -5,6 +5,8 @@ let
     "--enable-features=VaapiVideoDecoder,VaapiIgnoreDriverChecks,VaapiOnNvidiaGPUs,AcceleratedVideoDecodeLinuxGL,WaylandLinuxDrmSyncobj,TouchpadOverscrollHistoryNavigation"
     "--ignore-gpu-blocklist"
     "--enable-gpu-rasterization"
+    # Restored tabs (YouTube) stay paused until the page is clicked
+    "--autoplay-policy=document-user-activation-required"
   ];
 
   vivaldi-gpu = pkgs.vivaldi.override {
