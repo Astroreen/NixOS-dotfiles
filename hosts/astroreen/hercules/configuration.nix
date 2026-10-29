@@ -18,6 +18,18 @@ _: {
     ];
   };
 
+  # nofail mounts are not ordered before local-fs.target, so without this
+  # Docker (and the Nextcloud container's bind mount) can come up before the
+  # USB disk and see the empty mount point. `wants`, not `requires`: Docker
+  # still starts when the disk is missing. A disk plugged in later is not
+  # mounted automatically: `systemctl start mnt-nextcloud_storage.mount`,
+  # then restart nextcloud-aio-nextcloud. The empty mount point itself is
+  # `chattr +i`, so nothing can be written there while the disk is absent.
+  systemd.services.docker = {
+    wants = [ "mnt-nextcloud_storage.mount" ];
+    after = [ "mnt-nextcloud_storage.mount" ];
+  };
+
   # Bare-metal home server (Gigabyte Z790 AORUS ELITE X, i7-14700KF).
   # NixOS takes the whole NVMe; the SATA Samsung 860 EVO
   # (ata-Samsung_SSD_860_EVO_1TB_S3Z9NB0M620230V) is not managed by disko.

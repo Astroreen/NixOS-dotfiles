@@ -157,14 +157,12 @@
 
     firewall = {
       allowedTCPPorts = [
-        8573 # Pi-hole web interface
         11434 # Ollama API port
         7777 # faster-whisper server port
         25565 # Minecraft server port
       ];
 
       allowedUDPPorts = [
-        53 # DNS queries
         7777 # faster-whisper server port
         9 # Wake-on-LAN
       ];
@@ -247,7 +245,7 @@
       libvdpau-va-gl # VDPAU driver with OpenGL/VAAPI backend
       nvidia-vaapi-driver # VAAPI via NVDEC (required by LIBVA_DRIVER_NAME="nvidia" / NVD_BACKEND="direct")
     ];
-    
+
     nvidia = {
       modesetting.enable = true; # Wayland requires kernel mode setting (KMS) to be enabled
       powerManagement.enable = false; # Disable for Desktop stability
@@ -270,12 +268,8 @@
   };
 
   # Mount configuration
+  # The 4TB Nextcloud disk moved to hercules (hosts/astroreen/hercules).
   fileSystems = {
-    "/mnt/nextcloud_storage" = {
-      device = "/dev/disk/by-uuid/be83c981-ab7e-40fb-b0fc-836eaaf07324";
-      fsType = "ext4";
-      options = [ "defaults" ];
-    };
     "/mnt/windows" = {
       device = "/dev/disk/by-uuid/0E8696038695EC09";
       fsType = "ntfs";

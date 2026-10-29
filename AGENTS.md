@@ -138,7 +138,7 @@ hosts/
       desktop/             # Workstation layer (xserver, DM, audio, graphics, GUI nix-ld libs, steam, kitty)
       server/              # Server/VPS layer (disko, hybrid BIOS+UEFI GRUB, disk auto-grow, firewall, authorized_keys, agent HM, no sleep)
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
-    pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Pi-hole, Ollama, Minecraft
+    pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Ollama, Minecraft
     aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk, extra services), github-runners.nix (Caspian ERP CI), hardware config
     hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
     profiles/              # System-level profiles, preconfigured for astroreen
@@ -181,7 +181,7 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
-| Extra services |  | Pi-hole (8573), Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), cloudflared |
+| Extra services |  | Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), cloudflared |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | `enableNvidia = true` + toolkit (AIO needs the legacy `--gpus` path) |
 | Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Tailnet + Cloudflare Tunnel (cloudflared on `cloudflare_network`); from the LAN (`enp4s0`, 192.168.50.192) only SSH and Pi-hole DNS (53) |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
