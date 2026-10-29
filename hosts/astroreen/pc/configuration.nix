@@ -158,12 +158,10 @@
     firewall = {
       allowedTCPPorts = [
         11434 # Ollama API port
-        7777 # faster-whisper server port
         25565 # Minecraft server port
       ];
 
       allowedUDPPorts = [
-        7777 # faster-whisper server port
         9 # Wake-on-LAN
       ];
 

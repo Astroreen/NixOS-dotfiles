@@ -10,6 +10,7 @@ _: {
     ./n8n.nix
     ./nextcloud-aio.nix
     ./pihole.nix
+    ./portainer.nix
     ./vaultwarden.nix
   ];
 }

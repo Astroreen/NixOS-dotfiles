@@ -38,8 +38,14 @@ let
     exec ${pythonEnv}/bin/python ${./server.py}
   '';
 
+  serverUrl =
+    if cfg.mode == "local" then
+      "http://127.0.0.1:${toString cfg.port}/inference"
+    else
+      "http://${cfg.remote.host}:${toString cfg.remote.port}/inference";
+
   daemonBin = pkgs.writeShellScript "dictation-daemon" ''
-    export FW_SERVER_URL=http://127.0.0.1:${toString cfg.port}/inference
+    export FW_SERVER_URL=${lib.escapeShellArg serverUrl}
     export FW_LANGUAGE=${lib.escapeShellArg cfg.language}
     export FW_CAPTURE_SOURCE=${lib.escapeShellArg cfg.captureSource}
     export FW_STATE_FILE=/run/user/$(id -u)/dictation.state
@@ -82,6 +88,43 @@ in
 {
   options.custom.dictation = {
     enable = lib.mkEnableOption "push-to-talk voice dictation (faster-whisper)";
+
+    mode = lib.mkOption {
+      type = lib.types.enum [
+        "local"
+        "remote"
+      ];
+      default = "local";
+      description = ''
+        Where recordings are transcribed: `local` runs the server on this
+        machine, `remote` sends them to `remote.host:remote.port` (another
+        machine's server, e.g. one with a bigger GPU).
+      '';
+    };
+
+    remote = {
+      host = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "gpu-box.example.ts.net";
+        description = "Host of the transcription server used in `remote` mode.";
+      };
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 7777;
+        description = "Port of the transcription server used in `remote` mode.";
+      };
+    };
+
+    server.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = cfg.enable && cfg.mode == "local";
+      defaultText = lib.literalExpression ''config.custom.dictation.enable && config.custom.dictation.mode == "local"'';
+      description = ''
+        Run the transcription server (`whisper-server` user service). Can be
+        enabled alone to serve other machines without the dictation client.
+      '';
+    };
 
     host = lib.mkOption {
       type = lib.types.str;
@@ -144,19 +187,29 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    home.packages = with pkgs; [
-      wtype
-      wl-clipboard
-      cava
-      material-symbols # overlay icons ("Material Symbols Outlined")
-      daemonCli # control client: dictation-daemon start|stop|toggle|status
+  config = lib.mkIf (cfg.enable || cfg.server.enable) {
+    assertions = [
+      {
+        assertion = !cfg.enable || cfg.mode != "remote" || cfg.remote.host != null;
+        message = "custom.dictation.mode = \"remote\" needs custom.dictation.remote.host.";
+      }
     ];
+
+    home.packages = lib.mkIf cfg.enable (
+      with pkgs;
+      [
+        wtype
+        wl-clipboard
+        cava
+        material-symbols # overlay icons ("Material Symbols Outlined")
+        daemonCli # control client: dictation-daemon start|stop|toggle|status
+      ]
+    );
 
     custom.dictation.daemonBin = daemonBin;
 
     systemd.user.services = {
-      whisper-server = {
+      whisper-server = lib.mkIf cfg.server.enable {
         Unit = {
           Description = "faster-whisper transcription server (whisper.cpp drop-in)";
         };
@@ -168,7 +221,7 @@ in
         Install.WantedBy = [ "default.target" ];
       };
 
-      dictation = {
+      dictation = lib.mkIf cfg.enable {
         Unit = {
           Description = "Push-to-talk dictation daemon";
           After = [
@@ -185,7 +238,7 @@ in
         Install.WantedBy = [ "graphical-session.target" ];
       };
 
-      dictation-overlay = lib.mkIf cfg.enableOverlay {
+      dictation-overlay = lib.mkIf (cfg.enable && cfg.enableOverlay) {
         Unit = {
           Description = "Dictation Quickshell overlay";
           After = [ "graphical-session.target" ];
@@ -200,9 +253,11 @@ in
       };
     };
 
-    home.activation.dictationOverlay = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      install -Dm644 ${./overlay/shell.qml} ${config.home.homeDirectory}/.config/quickshell/dictation-overlay/shell.qml
-      install -Dm644 ${cavaConf} ${config.home.homeDirectory}/.config/quickshell/dictation-overlay/cava.conf
-    '';
+    home.activation.dictationOverlay = lib.mkIf cfg.enable (
+      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        install -Dm644 ${./overlay/shell.qml} ${config.home.homeDirectory}/.config/quickshell/dictation-overlay/shell.qml
+        install -Dm644 ${cavaConf} ${config.home.homeDirectory}/.config/quickshell/dictation-overlay/cava.conf
+      ''
+    );
   };
 }

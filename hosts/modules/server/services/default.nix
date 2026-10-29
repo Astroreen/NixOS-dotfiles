@@ -20,6 +20,7 @@ let
     cfg.n8n
     cfg.nextcloud-aio
     cfg.pihole
+    cfg.portainer
     cfg.vaultwarden
   ];
 in
@@ -30,6 +31,7 @@ in
     ./n8n.nix
     ./nextcloud-aio.nix
     ./pihole.nix
+    ./portainer.nix
     ./vaultwarden.nix
   ];
 

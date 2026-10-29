@@ -145,7 +145,7 @@ hosts/
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # services/ (Docker services, preconfigured for hercules), hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
   modules/                 # Generic system modules (options/defaults only, no preconfigured values)
-    server/services/       # custom.services.<name>: Docker services (actual, cloudflared, n8n, nextcloud-aio, pihole, vaultwarden) on one shared network (custom.services.network); custom.services.lan closes published ports on LAN interfaces (DOCKER-USER)
+    server/services/       # custom.services.<name>: Docker services (actual, cloudflared, n8n, nextcloud-aio, pihole, portainer, vaultwarden) on one shared network (custom.services.network); custom.services.lan closes published ports on LAN interfaces (DOCKER-USER)
 home/
   astroreen/
     common/
@@ -156,7 +156,7 @@ home/
     laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia; dux settings ready for the switch)
     pc/home.nix            # PC HM overrides
     aktkc/home.nix         # aktkc HM (common/server.nix only)
-    hercules/home.nix      # hercules HM (common/server.nix + astro-dashboard.nix, moved from aktkc)
+    hercules/home.nix      # hercules HM (common/server.nix + astro-dashboard.nix, moved from aktkc; dictation module as server only, large-v3-turbo)
     profiles/              # HM profiles, preconfigured for astroreen
       apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/{hyprland,keybinds,shell}/
   modules/
@@ -181,7 +181,7 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
-| Extra services |  | Ollama (11434), faster-whisper (7777), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), cloudflared |
+| Extra services |  | Ollama (11434), faster-whisper (7777, localhost only), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), Portainer (9443), cloudflared; faster-whisper large-v3-turbo (7777, HM `whisper-server`, server-only dictation module) |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | `enableNvidia = true` + toolkit (AIO needs the legacy `--gpus` path) |
 | Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Tailnet + Cloudflare Tunnel (cloudflared on `cloudflare_network`); from the LAN (`enp4s0`, 192.168.50.192) only SSH and Pi-hole DNS (53); Tailscale exit node, host DNS = Pi-hole (127.0.0.1) so exit-node clients are filtered too |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
@@ -356,7 +356,10 @@ Reusable HM modules (not profiles), under `home/modules/`:
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
   WM-agnostic; imported from `home/astroreen/common/desktop.nix`. The hold-to-talk bind is `custom.keybinds.binds.dictation`
   in `home/astroreen/profiles/wm/keybinds/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
-  PC sets `custom.dictation.host = "0.0.0.0"` to expose the transcription server on the LAN/tailnet.
+  `custom.dictation.mode` is `local` (default: own `whisper-server`) or `remote` (send to `remote.host:remote.port`;
+  the desktops point `remote.host` at hercules). `custom.dictation.server.enable` (default: enabled and local) runs
+  the server alone, which is how hercules serves large-v3-turbo on 0.0.0.0:7777 (tailnet-only via the host firewall)
+  to the desktops and the Astro dashboard.
 
 **Dormant / unimported** (exist but not referenced in `home/astroreen/common/{base,desktop}.nix` or any host `home.nix`):
 - `home/astroreen/profiles/apps/blender.nix`

@@ -6,9 +6,9 @@ Triggered by a Hyprland keybind which runs this same file in client mode:
     dictation-daemon toggle   # press to start listening, press again to stop
 
 While "recording" it captures 16 kHz mono s16 audio with ``pw-record``,
-transcribes on stop through the local faster-whisper HTTP server, and injects
-the text into the focused window via clipboard + synthetic Ctrl+V (robust for
-Cyrillic/Lithuanian input).
+transcribes on stop through a faster-whisper HTTP server (``FW_SERVER_URL``,
+local or remote), and injects the text into the focused window via clipboard +
+synthetic Ctrl+V (robust for Cyrillic/Lithuanian input).
 
 Transcription runs in a worker thread so a new utterance can start while the
 previous one is still being decoded.

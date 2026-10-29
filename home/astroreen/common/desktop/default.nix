@@ -79,10 +79,14 @@
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = config.home.sessionVariables;
 
-  # Push-to-talk voice dictation (local faster-whisper server + socket daemon + overlay)
+  # Push-to-talk voice dictation (faster-whisper server + socket daemon + overlay).
+  # Transcribed locally by default; mode = "remote" sends recordings to the
+  # large-v3-turbo server on hercules instead (over the tailnet).
   custom.dictation = {
     enable = lib.mkDefault true;
     host = lib.mkDefault "127.0.0.1";
+    mode = lib.mkDefault "local";
+    remote.host = lib.mkDefault "hercules.tail15a705.ts.net";
   };
 
   wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix { inherit lib; };

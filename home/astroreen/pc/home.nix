@@ -12,9 +12,6 @@
   # Host specific settings - properly merged
   wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix { inherit lib; };
 
-  # Expose the transcription server on the LAN/tailnet for the Astro dashboard.
-  custom.dictation.host = "0.0.0.0";
-
   custom = {
     dux = {
       enable = true;
