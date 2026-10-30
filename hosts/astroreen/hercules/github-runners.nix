@@ -1,11 +1,9 @@
 # Self-hosted GitHub Actions runners for Astroreen/Caspian-Logistics-ERP
 # (.github/workflows/{ci,claude-review,pipeline}.yml):
 #   - caspian-ci (5): backend, frontend, changesets and the Claude review;
-#   - caspian-e2e (1): Playwright e2e on main's fixed ports, one at a time;
-#   - caspian-e2e-proof (2): numbered runners whose jobs take their ports,
-#     container name and storage from the runner name (Caspian #190), to
-#     prove they overlap. Once #192 merges: e2eLabel = "caspian-e2e",
-#     e2eRunners = 3, and the unsuffixed caspian-e2e goes;
+#   - caspian-e2e (3): Playwright e2e (4 workers); each job takes its ports,
+#     container name and storage from the runner name (Caspian #190, #192),
+#     so they run side by side;
 #   - caspian-pipeline (1): merge queue, merges with astroreen's own gh login.
 #
 # Registration (once, and again after a change to url/labels/name/workDir,
@@ -39,10 +37,7 @@ let
   # ~15 builder agents. One e2e job: ~1.5 GB backend JVM plus the Chromium
   # workers (~2 GB each), its PostgreSQL container runs outside the slices.
   ciRunners = 5;
-  e2eRunners = 2;
-  # Not caspian-e2e yet: PRs still run main's fixed-port ci.yml, and two such
-  # jobs on two runners would collide.
-  e2eLabel = "caspian-e2e-proof";
+  e2eRunners = 3;
 
   numbered = prefix: n: map (i: "${prefix}-${toString i}") (lib.range 1 n);
 
@@ -51,12 +46,10 @@ let
       labels = [ "caspian-ci" ];
     })
     // lib.genAttrs (numbered "caspian-e2e" e2eRunners) (_: {
-      labels = [ e2eLabel ];
+      labels = [ "caspian-e2e" ];
       slice = "caspian-ci-e2e.slice";
     })
     // {
-      # Fixed-port layout; stays in caspian-ci.slice so its unit is unchanged.
-      caspian-e2e.labels = [ "caspian-e2e" ];
       caspian-pipeline = {
         labels = [ "caspian-pipeline" ];
         ghLogin = true;
@@ -132,14 +125,14 @@ in
   # crowd out the gradle tests (and the other way round).
   systemd.slices = {
     caspian-ci.sliceConfig = {
-      MemoryHigh = "20G";
-      MemoryMax = "24G";
+      MemoryHigh = "22G";
+      MemoryMax = "26G";
       CPUWeight = 50;
       IOWeight = 50;
     };
     caspian-ci-e2e.sliceConfig = {
-      MemoryHigh = "13G";
-      MemoryMax = "15G";
+      MemoryHigh = "18G"; # 3 jobs x ~6 GB at 4 workers (overlap proof, 2026-10-31)
+      MemoryMax = "20G";
     };
   };
 

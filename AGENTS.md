@@ -193,9 +193,9 @@ backup target exists; when enabled, they read the repository URL and password fr
 `/etc/restic/{repository,password}`, created by hand on the host (not in the repo).
 
 hercules runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/hercules/github-runners.nix`: `caspian-ci` ×5,
-`caspian-e2e` (fixed ports) plus `caspian-e2e-1..2` labelled `caspian-e2e-proof` until Caspian #192 merges, `caspian-pipeline`; counts are `ciRunners`/`e2eRunners`) as `astroreen`, with HOME and work dirs under
-`/var/lib/caspian-ci`, all in `caspian-ci.slice` (MemoryHigh 20G, MemoryMax 24G, CPU/IO weight 50) so CI cannot starve the
-builder agents; the e2e runners in its child `caspian-ci-e2e.slice` (MemoryHigh 13G, MemoryMax 15G). hercules has zram at
+`caspian-e2e-1..3`, `caspian-pipeline`; counts are `ciRunners`/`e2eRunners`) as `astroreen`, with HOME and work dirs under
+`/var/lib/caspian-ci`, all in `caspian-ci.slice` (MemoryHigh 22G, MemoryMax 26G, CPU/IO weight 50) so CI cannot starve the
+builder agents; the e2e runners in its child `caspian-ci-e2e.slice` (MemoryHigh 18G, MemoryMax 20G). hercules has zram at
 100% of RAM, `vm.swappiness = 150` and `system.slice` MemoryLow 3G (services reclaimed last). Server hosts keep minute-level `sar` history (sysstat, 7 days, `/var/log/sa`) from `profiles/server/monitoring.nix`.
 The registration token lives in `/var/lib/secrets/github-runner-caspian` (by hand, not in the repo; the
 command is in the file header). The Playwright Chromium libraries are added to `programs.nix-ld.libraries` there.
