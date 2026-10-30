@@ -140,8 +140,8 @@ hosts/
       server/              # Server/VPS layer (disko, hybrid BIOS+UEFI GRUB, disk auto-grow, firewall, authorized_keys, agent HM, no sleep)
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Ollama, Minecraft
-    aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk, extra services), github-runners.nix (Caspian ERP CI), hardware config
-    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
+    aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk), hardware config; being retired, nothing host-specific left on it
+    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), github-runners.nix (Caspian ERP CI, moved from aktkc), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # services/ (Docker services, preconfigured for hercules), hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
@@ -182,7 +182,7 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
-| Extra services |  | Ollama (11434), faster-whisper (7777, localhost only), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), Portainer (9443), cloudflared; faster-whisper large-v3 Russian fine-tune (7777, HM `whisper-server`, server-only dictation module, unloads after 10 min idle) |
+| Extra services |  | Ollama (11434), faster-whisper (7777, localhost only), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP, astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), Portainer (9443), cloudflared; faster-whisper large-v3 Russian fine-tune (7777, HM `whisper-server`, server-only dictation module, unloads after 10 min idle) |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | `enableNvidia = true` + toolkit (AIO needs the legacy `--gpus` path) |
 | Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Tailnet + Cloudflare Tunnel (cloudflared on `cloudflare_network`); from the LAN (`enp4s0`, 192.168.50.192) only SSH and Pi-hole DNS (53); Tailscale exit node, host DNS = Pi-hole (127.0.0.1) so exit-node clients are filtered too |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
@@ -192,8 +192,9 @@ rootless podman) for autonomous agents. Restic backups (`profiles/server/backup.
 backup target exists; when enabled, they read the repository URL and password from
 `/etc/restic/{repository,password}`, created by hand on the host (not in the repo).
 
-aktkc runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/aktkc/github-runners.nix`: `caspian-ci` ×3,
-`caspian-e2e`, `caspian-pipeline`) as `astroreen`, with HOME and work dirs under `/var/lib/caspian-ci`.
+hercules runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/hercules/github-runners.nix`: `caspian-ci` ×5,
+`caspian-e2e` ×1 (fixed ports), `caspian-pipeline`) as `astroreen`, with HOME and work dirs under `/var/lib/caspian-ci`,
+all in `caspian-ci.slice` (MemoryHigh 14G, MemoryMax 18G, CPU/IO weight 50) so CI cannot starve the builder agents.
 The registration token lives in `/var/lib/secrets/github-runner-caspian` (by hand, not in the repo; the
 command is in the file header). The Playwright Chromium libraries are added to `programs.nix-ld.libraries` there.
 
@@ -312,7 +313,7 @@ anything every server/VPS needs goes in `common/server`.
 
 Server hosts (`aktkc`, `hercules`) import `./hardware-configuration.nix`, `../common/base`, `../common/server`
 (→ `./disko.nix`, `../../profiles/server/{hardening,agent,containers}.nix`) plus per-host
-profiles (`../profiles/server/monitoring.nix`) and own files (`./github-runners.nix` on aktkc, `./nvidia.nix` on hercules). Each sets `networking.hostName`,
+profiles (`../profiles/server/monitoring.nix`) and own files (`./github-runners.nix` and `./nvidia.nix` on hercules). Each sets `networking.hostName`,
 `disko.devices.disk.main.device` and `system.stateVersion`. Their flake entry uses
 `extraModules = serverModules` (`inputs.disko.nixosModules.disko` + `home-manager.nixosModules.home-manager` for `agent`).
 New server/VPS: add `hosts/astroreen/<host>/configuration.nix`, `home/astroreen/<host>/home.nix`

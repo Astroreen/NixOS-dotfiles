@@ -1,6 +1,6 @@
 # Self-hosted GitHub Actions runners for Astroreen/Caspian-Logistics-ERP
 # (.github/workflows/{ci,claude-review,pipeline}.yml):
-#   - caspian-ci (3): backend, frontend, changesets and the Claude review;
+#   - caspian-ci (5): backend, frontend, changesets and the Claude review;
 #   - caspian-e2e (1): Playwright e2e on fixed ports, one run at a time;
 #   - caspian-pipeline (1): merge queue, merges with astroreen's own gh login.
 #
@@ -9,6 +9,9 @@
 #   gh api -X POST repos/Astroreen/Caspian-Logistics-ERP/actions/runners/registration-token \
 #     --jq .token | sudo install -D -m 600 /dev/stdin /var/lib/secrets/github-runner-caspian
 #   sudo systemctl restart 'github-runner-caspian-*'
+#
+# Moved here from aktkc (2026-10-30). All runners share caspian-ci.slice,
+# capped so CI cannot starve the builder agents running on the same host.
 {
   config,
   lib,
@@ -26,16 +29,21 @@ let
   root = "/var/lib/caspian-ci";
   home = "${root}/home";
 
-  runners = {
-    caspian-ci-1.labels = [ "caspian-ci" ];
-    caspian-ci-2.labels = [ "caspian-ci" ];
-    caspian-ci-3.labels = [ "caspian-ci" ];
-    caspian-e2e.labels = [ "caspian-e2e" ];
-    caspian-pipeline = {
-      labels = [ "caspian-pipeline" ];
-      ghLogin = true;
+  # A backend gradle test takes ~3 GB; the host shares its 31 GB with up to
+  # ~15 builder agents. Keep exactly one caspian-e2e: ci.yml uses fixed ports.
+  ciRunners = 5;
+
+  runners =
+    lib.genAttrs (map (i: "caspian-ci-${toString i}") (lib.range 1 ciRunners)) (_: {
+      labels = [ "caspian-ci" ];
+    })
+    // {
+      caspian-e2e.labels = [ "caspian-e2e" ];
+      caspian-pipeline = {
+        labels = [ "caspian-pipeline" ];
+        ghLogin = true;
+      };
     };
-  };
 in
 {
   services.github-runners = lib.mapAttrs (
@@ -82,6 +90,7 @@ in
       };
 
       serviceOverrides = {
+        Slice = "caspian-ci.slice";
         ReadWritePaths = [ home ];
         # Group membership (docker socket) needs the real ids. The docker group
         # gives root anyway, so the user namespace protects nothing here.
@@ -96,6 +105,17 @@ in
       };
     }
   ) runners;
+
+  # Shared limits of all runners and their jobs (docker containers excepted,
+  # they run under dockerd). Over MemoryHigh the jobs are throttled and pushed
+  # to zram; MemoryMax OOM-kills inside the slice, never the builders. Lower
+  # CPU/IO weight: the builders win when the host is busy.
+  systemd.slices.caspian-ci.sliceConfig = {
+    MemoryHigh = "14G";
+    MemoryMax = "18G";
+    CPUWeight = 50;
+    IOWeight = 50;
+  };
 
   systemd.tmpfiles.rules = [
     "d ${root} 0750 astroreen users -"

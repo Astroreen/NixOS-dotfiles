@@ -4,6 +4,7 @@ _: {
     ../common/server # Server layer: disko, GRUB, hardening, agent, containers, backup
 
     ./nvidia.nix # RTX 4080 SUPER for GPU services
+    ./github-runners.nix # Caspian ERP CI runners (moved from aktkc)
     ../profiles/server/services # Vaultwarden, Pi-hole, n8n, Actual, Nextcloud AIO (Docker)
   ];
 

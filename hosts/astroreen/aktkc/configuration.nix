@@ -2,8 +2,6 @@ _: {
   imports = [
     ./hardware-configuration.nix # Replaced by `bootstrap aktkc <target>` on first install
     ../common/server # Server layer: disko, GRUB, hardening, agent, containers, backup
-
-    ./github-runners.nix # Caspian ERP CI runners
   ];
 
   # VMware VM on legacy BIOS; the virtual disk has no /dev/disk/by-id entry.
