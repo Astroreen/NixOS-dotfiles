@@ -38,9 +38,10 @@ let
   claudeFixed = pkgs.writeShellScriptBin "claude" ''
     # Call the upstream launcher (sets required PATH/env).
     # --mcp-config is variadic, so we pass it as a single token with '='.
+    # No --strict-mcp-config: project `.mcp.json` servers must load too
+    # (tracked per repo, so they reach T3 Code worktrees).
     exec -a "$0" ${claudeCode}/bin/claude \
       --mcp-config=${mcpConfigDir}/.mcp.json \
-      --strict-mcp-config \
       "$@"
   '';
 in
