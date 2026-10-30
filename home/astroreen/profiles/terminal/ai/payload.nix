@@ -29,11 +29,11 @@ _: {
     ];
 
     command.local.include = [
-      "goal"
-      "handoff"
-      "hyperplan"
-      "refactor"
-      "remove-ai-slops"
+      # "goal"
+      # "handoff"
+      # "hyperplan"
+      # "refactor"
+      # "remove-ai-slops"
       "start-work"
     ];
 
@@ -45,14 +45,14 @@ _: {
         "docx"
         "frontend-design"
         "spike"
-        "subagent-driven-development"
-        "systematic-debugging"
-        "test-driven-development"
+        # "subagent-driven-development"
+        # "systematic-debugging"
+        # "test-driven-development"
         # user-invoked: its SKILL.md sets disable-model-invocation, so the model
         # never auto-loads it (pick it via /skills or @unslop); from
         # github:cursor/plugins pstack/skills/unslop
         "unslop"
-        "verify-before-done"
+        # "verify-before-done"
       ];
 
       # Caveman — on-demand only (alwaysOn off since 2026-10-12, experiment).
@@ -60,7 +60,7 @@ _: {
       # workflow guards; drop the Caveman Cloud suite (setup, discover,
       # evidence-review, manage, optimize, learn) — no gateway in use.
       caveman = {
-        enable = true;
+        enable = false;
         alwaysOn = false;
         include = [
           # core + local skills
