@@ -44,6 +44,11 @@ _: {
   zramSwap.memoryPercent = 100;
   boot.kernel.sysctl."vm.swappiness" = 150; # Swap to zram is cheap: prefer it to dropping page cache
 
+  # When CI and the builder agents peak together, the services (sshd, Pi-hole
+  # DNS for the LAN and exit-node clients, tailscaled, Docker services: ~2 GB
+  # at rest) are reclaimed last. Protection only: nothing is throttled or killed.
+  systemd.slices.system.sliceConfig.MemoryLow = "3G";
+
   # Services are reached through the tunnel and the tailnet; from the LAN only
   # Pi-hole's DNS is open (see custom.services.lan).
   custom.services.lan.interfaces = [ "enp4s0" ];
