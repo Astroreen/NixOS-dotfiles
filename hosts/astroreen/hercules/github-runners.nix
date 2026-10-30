@@ -1,7 +1,8 @@
 # Self-hosted GitHub Actions runners for Astroreen/Caspian-Logistics-ERP
 # (.github/workflows/{ci,claude-review,pipeline}.yml):
 #   - caspian-ci (5): backend, frontend, changesets and the Claude review;
-#   - caspian-e2e (1): Playwright e2e on fixed ports, one run at a time;
+#   - caspian-e2e (3): Playwright e2e; each job takes its ports, container
+#     name and storage from the runner name (Caspian #190), so they overlap;
 #   - caspian-pipeline (1): merge queue, merges with astroreen's own gh login.
 #
 # Registration (once, and again after a change to url/labels/name/workDir,
@@ -9,6 +10,8 @@
 #   gh api -X POST repos/Astroreen/Caspian-Logistics-ERP/actions/runners/registration-token \
 #     --jq .token | sudo install -D -m 600 /dev/stdin /var/lib/secrets/github-runner-caspian
 #   sudo systemctl restart 'github-runner-caspian-*'
+# A renamed or removed runner stays on GitHub as offline: delete it with
+#   gh api -X DELETE repos/Astroreen/Caspian-Logistics-ERP/actions/runners/<id>
 #
 # Moved here from aktkc (2026-10-30). All runners share caspian-ci.slice,
 # capped so CI cannot starve the builder agents running on the same host.
@@ -30,15 +33,22 @@ let
   home = "${root}/home";
 
   # A backend gradle test takes ~3 GB; the host shares its 31 GB with up to
-  # ~15 builder agents. Keep exactly one caspian-e2e: ci.yml uses fixed ports.
+  # ~15 builder agents. One e2e job: ~1.5 GB backend JVM plus the Chromium
+  # workers (~2 GB each), its PostgreSQL container runs outside the slices.
   ciRunners = 5;
+  e2eRunners = 3;
+
+  numbered = prefix: n: map (i: "${prefix}-${toString i}") (lib.range 1 n);
 
   runners =
-    lib.genAttrs (map (i: "caspian-ci-${toString i}") (lib.range 1 ciRunners)) (_: {
+    lib.genAttrs (numbered "caspian-ci" ciRunners) (_: {
       labels = [ "caspian-ci" ];
     })
+    // lib.genAttrs (numbered "caspian-e2e" e2eRunners) (_: {
+      labels = [ "caspian-e2e" ];
+      slice = "caspian-ci-e2e.slice";
+    })
     // {
-      caspian-e2e.labels = [ "caspian-e2e" ];
       caspian-pipeline = {
         labels = [ "caspian-pipeline" ];
         ghLogin = true;
@@ -90,7 +100,7 @@ in
       };
 
       serviceOverrides = {
-        Slice = "caspian-ci.slice";
+        Slice = runner.slice or "caspian-ci.slice";
         ReadWritePaths = [ home ];
         # Group membership (docker socket) needs the real ids. The docker group
         # gives root anyway, so the user namespace protects nothing here.
@@ -109,12 +119,20 @@ in
   # Shared limits of all runners and their jobs (docker containers excepted,
   # they run under dockerd). Over MemoryHigh the jobs are throttled and pushed
   # to zram; MemoryMax OOM-kills inside the slice, never the builders. Lower
-  # CPU/IO weight: the builders win when the host is busy.
-  systemd.slices.caspian-ci.sliceConfig = {
-    MemoryHigh = "14G";
-    MemoryMax = "18G";
-    CPUWeight = 50;
-    IOWeight = 50;
+  # CPU/IO weight: the builders win when the host is busy. The e2e runners sit
+  # in the child caspian-ci-e2e.slice: within the shared cap, Chromium cannot
+  # crowd out the gradle tests (and the other way round).
+  systemd.slices = {
+    caspian-ci.sliceConfig = {
+      MemoryHigh = "20G";
+      MemoryMax = "24G";
+      CPUWeight = 50;
+      IOWeight = 50;
+    };
+    caspian-ci-e2e.sliceConfig = {
+      MemoryHigh = "13G";
+      MemoryMax = "15G";
+    };
   };
 
   systemd.tmpfiles.rules = [

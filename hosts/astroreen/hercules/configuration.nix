@@ -38,6 +38,12 @@ _: {
 
   networking.hostName = "hercules";
 
+  # CI (up to 24G in caspian-ci.slice) and the builder agents together can
+  # outgrow the 31 GB of RAM; zram (zstd, ~3-4x) takes the overflow. The
+  # zram device size is a cap on uncompressed data, not reserved memory.
+  zramSwap.memoryPercent = 100;
+  boot.kernel.sysctl."vm.swappiness" = 150; # Swap to zram is cheap: prefer it to dropping page cache
+
   # Services are reached through the tunnel and the tailnet; from the LAN only
   # Pi-hole's DNS is open (see custom.services.lan).
   custom.services.lan.interfaces = [ "enp4s0" ];
