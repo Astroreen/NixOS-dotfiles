@@ -26,6 +26,14 @@ let
     done
     exec ${vivaldi-gpu}/bin/vivaldi
   '';
+
+  # mailto: links open Gmail's compose window. The whole mailto URL is
+  # percent-encoded, or its own ?subject=...&body=... would split Gmail's query.
+  gmailCompose = pkgs.writeShellScript "gmail-compose" ''
+    url="''${1:-mailto:}"
+    encoded=$(${pkgs.jq}/bin/jq -rn --arg u "$url" '$u | @uri')
+    exec ${vivaldi-gpu}/bin/vivaldi "https://mail.google.com/mail/?extsrc=mailto&url=$encoded"
+  '';
 in
 {
   home = {
@@ -49,7 +57,17 @@ in
       "x-scheme-handler/http" = "vivaldi-stable.desktop";
       "x-scheme-handler/https" = "vivaldi-stable.desktop";
       "application/pdf" = "vivaldi-stable.desktop";
+      "x-scheme-handler/mailto" = "gmail-compose.desktop";
     };
+  };
+
+  xdg.desktopEntries.gmail-compose = {
+    name = "Gmail";
+    comment = "Compose an email in Gmail";
+    exec = "${gmailCompose} %u";
+    icon = "mail-message-new";
+    mimeType = [ "x-scheme-handler/mailto" ];
+    noDisplay = true;
   };
 
   wayland.windowManager.hyprland.settings = {
