@@ -54,14 +54,16 @@ _: {
   # share CPUs 0-22: 23 of 28 threads, ~82%. E-cores 23-27 stay for the
   # services in system.slice. The cpuset is shared, so either side may take
   # all 23 threads while the other is idle. Memory: work gets at most
-  # 13G + 15G of the 31 GB; over MemoryHigh it is throttled, over MemoryMax
-  # the OOM killer picks inside that slice, never a service.
+  # 15G + 15G of the 31 GB (zram takes the overlap); over MemoryHigh it is
+  # throttled, over MemoryMax the OOM killer picks inside that slice, never a
+  # service. user.slice keeps 3G between High and Max: a kill there can take
+  # out the T3 server or an agent mid-work, so the brake comes first.
   systemd.slices = {
     system.sliceConfig.MemoryLow = "3G";
     user.sliceConfig = {
       AllowedCPUs = "0-22";
       MemoryHigh = "12G";
-      MemoryMax = "13G";
+      MemoryMax = "15G";
     };
     caspian.sliceConfig = {
       AllowedCPUs = "0-22";
