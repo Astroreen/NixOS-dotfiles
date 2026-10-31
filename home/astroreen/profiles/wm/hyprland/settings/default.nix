@@ -55,6 +55,10 @@ in
       focus_on_activate = true;
     };
 
+    # Fullscreen video (Chromium tags it with a color description) switched an
+    # HDR-capable monitor into HDR mode: a modeset with a ~1 s black screen
+    render.cm_auto_hdr = 0;
+
     animations.enabled = true;
 
     plugin = {
