@@ -1,12 +1,9 @@
 { lib, ... }:
 {
-  # Key-only SSH (keys come from the host's authorized_keys).
+  # Key-only SSH (keys come from the host's authorized_keys). Passwordless
+  # sudo for wheel (astroreen; `agent` is not in wheel) is in common/base/user.nix.
   services.openssh.settings = {
     PasswordAuthentication = lib.mkForce false;
     KbdInteractiveAuthentication = false;
   };
-
-  # Accounts have no password on a fresh install, and remote deploys need
-  # non-interactive sudo. Only wheel (astroreen) gets it; `agent` is not in wheel.
-  security.sudo.wheelNeedsPassword = false;
 }

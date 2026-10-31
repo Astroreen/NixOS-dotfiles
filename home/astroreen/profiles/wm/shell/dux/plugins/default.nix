@@ -61,11 +61,27 @@ in
 
       # Live Wallpaper Engine scenes via linux-wallpaperengine. Needs Wallpaper
       # Engine (Steam app 431960) installed for its assets + workshop items.
-      linuxWallpaperEngine.src = pkgs.fetchFromGitHub {
-        owner = "sgtaziz";
-        repo = "dms-wallpaperengine";
-        rev = "e96718f5038f54546311a239ef0f6622f15c515a";
-        hash = "sha256-SSNXZl7DFA7cKaSt4FaXcQ58IjcHxvyi/zVKMwvHXdQ=";
+      # Patch: linux-wallpaperengine's own fullscreen pause counts fullscreen
+      # windows on every monitor and workspace (hidden ones too) and stops all
+      # wallpapers. `pauseOnFullscreen` freezes only the monitor whose visible
+      # workspace has a fullscreen or maximized window, so keep the per-output
+      # `noFullscreenPause = true` (the engine's own check) alongside it.
+      linuxWallpaperEngine = {
+        src = pkgs.applyPatches {
+          name = "dux-plugin-linuxWallpaperEngine";
+          src = pkgs.fetchFromGitHub {
+            owner = "sgtaziz";
+            repo = "dms-wallpaperengine";
+            rev = "e96718f5038f54546311a239ef0f6622f15c515a";
+            hash = "sha256-SSNXZl7DFA7cKaSt4FaXcQ58IjcHxvyi/zVKMwvHXdQ=";
+          };
+          patches = [ ./wallpaperengine-fullscreen-per-output.patch ];
+        };
+        settings = {
+          pauseOnFullscreen = true;
+          pauseOnBattery = true; # only does something on the laptop
+
+        };
       };
 
       # Launcher "=": calculator. Keep the default JavaScript engine: the qalc

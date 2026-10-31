@@ -163,6 +163,7 @@
       "widgetTransparency": 1
     }
   ],
+  "batteryCriticalAnimation": false,
   "batteryLockTimeout": 300,
   "batteryMonitorTimeout": 180,
   "batteryProfileName": "0",
@@ -319,5 +320,6 @@
       "w": 2
     }
   ],
-  "lockBeforeSuspend": true
+  "lockBeforeSuspend": true,
+  "lowerDisplayRefreshRateOnBattery": true
 }

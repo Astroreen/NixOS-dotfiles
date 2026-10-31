@@ -11,7 +11,29 @@
     ../profiles/style/theme/dark/adwaita # Adwaita dark theme
     ../profiles/wm/hyprland # Window manager Hyprland
     ../profiles/apps/vm.nix # QEMU/KVM + libvirt + virt-manager (Windows 11 VM)
+    ../../modules/power # custom.power.{hybridGpu,chargeLimit,tunables}
   ];
+
+  custom.power = {
+    # The RTX 3060 idled in P0 at ~23 W because apps kept it open. Apps now
+    # get the Intel iGPU; `nvidia-offload <cmd>` for the dGPU. Steam (and so
+    # every game) runs offloaded, see steamOnDgpu. Check that it sleeps:
+    # cat /sys/bus/pci/devices/0000:01:00.0/power/runtime_status  -> suspended
+    hybridGpu.enable = true;
+
+    # Mostly on AC: Lenovo conservation mode (`Long_Life`) at every boot keeps
+    # the battery off 100 %, the state that ages it fastest (with heat). Before
+    # a trip: `battery-charge-limit off` charges to 100 % until the next boot.
+    chargeLimit = {
+      enable = true;
+      battery = "BAT1";
+    };
+
+    # From powertop's "in need of tuning" list: PCI runtime PM (the idle
+    # Ethernet port, NVMe, host bridge), no NMI watchdog, 15 s writeback.
+    # The ITE 8176 USB device (Fn keys, radio switch) keeps autosuspend off.
+    tunables.enable = true;
+  };
 
   # Bootloader + Plymouth splash.
   boot = {
@@ -23,7 +45,18 @@
       "udev.log_level=3"
       "vt.global_cursor_default=0"
       "fbcon=nodefer"
+      # Deepest PCIe link power states (L1 substates) for the dGPU, NVMe and
+      # Wi-Fi links. Firmware may still refuse; revert if a device misbehaves.
+      "pcie_aspm.policy=powersupersave"
     ];
+
+    # Suspend stays s2idle (the firmware default); let the NVIDIA driver enter
+    # S0ix there instead of keeping the dGPU powered while asleep.
+    # To try S3 for one suspend: echo deep | sudo tee /sys/power/mem_sleep
+    # (keep it with the `mem_sleep_default=deep` kernel param if it resumes).
+    extraModprobeConfig = ''
+      options nvidia NVreg_EnableS0ixPowerManagement=1
+    '';
 
     initrd = {
       kernelModules = [ "i915" ]; # Intel KMS early for framebuffer handoff
@@ -108,7 +141,7 @@
       package = config.boot.kernelPackages.nvidiaPackages.stable;
       nvidiaPersistenced = false;
 
-      # PRIME is a technology developed to facilitate the cooperation between the two GPUs and is critical for the laptop's graphical performance. 
+      # PRIME is a technology developed to facilitate the cooperation between the two GPUs and is critical for the laptop's graphical performance.
       # Depending on your needs, you can configure PRIME in one of three modes, which have different tradeoffs in terms of performance and battery life.
       prime = {
         offload.enable = true;
@@ -121,7 +154,8 @@
 
     bluetooth = {
       enable = true;
-      powerOnBoot = true;
+      # Off until turned on from the dux Bluetooth toggle
+      powerOnBoot = false;
     };
   };
 
@@ -139,7 +173,9 @@
   # Docker settings
   virtualisation.docker = {
     enable = true;
-    enableOnBoot = true;
+    # Socket-activated: dockerd starts on the first `docker` call, not at boot
+    # (containers with a restart policy then start only after that call)
+    enableOnBoot = false;
     # enableNvidia = true; # Enable NVIDIA support, deprecated
     rootless = {
       enable = false;

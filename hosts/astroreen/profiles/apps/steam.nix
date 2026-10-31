@@ -2,7 +2,6 @@
 {
   programs.steam = {
     enable = true;
-    package = pkgs.steam; # Use the default Steam package
     remotePlay.openFirewall = true;
     protontricks.enable = true;
     extraCompatPackages = with pkgs; [

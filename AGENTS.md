@@ -138,7 +138,7 @@ hosts/
       base/                # Headless settings for every host (nix, user, locale, network, ssh, tailscale, shell)
       desktop/             # Workstation layer (xserver, DM, audio, graphics, GUI nix-ld libs, steam, kitty)
       server/              # Server/VPS layer (disko, hybrid BIOS+UEFI GRUB, disk auto-grow, firewall, authorized_keys, agent HM, no sleep)
-    laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload, Docker, Plymouth
+    laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload (custom.power.hybridGpu), conservation mode at boot (custom.power.chargeLimit, BAT1), PCIe ASPM powersupersave, NVIDIA S0ix, socket-activated Docker, Bluetooth off at boot, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Ollama, Minecraft
     aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk), hardware config; being retired, nothing host-specific left on it
     hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), github-runners.nix (Caspian ERP CI, moved from aktkc), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
@@ -146,6 +146,7 @@ hosts/
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # services/ (Docker services, preconfigured for hercules), hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
   modules/                 # Generic system modules (options/defaults only, no preconfigured values)
+    power/                 # hybrid-gpu.nix: custom.power.hybridGpu, session vars that keep EGL (Mesa first), Vulkan (iGPU ICDs only) and CUDA (-1) apps off the dGPU; own `nvidia-offload` unsets them. charge-limit.nix: custom.power.chargeLimit, kernel `charge_types` limit at boot + `battery-charge-limit on|off|status` (no sudo). tunables.nix: custom.power.tunables, powertop's safe subset (PCI runtime PM, nmi_watchdog off, writeback interval)
     server/services/       # custom.services.<name>: Docker services (actual, cloudflared, n8n, nextcloud-aio, pihole, portainer, vaultwarden) on one shared network (custom.services.network); custom.services.lan closes published ports on LAN interfaces (DOCKER-USER)
 home/
   astroreen/
@@ -154,17 +155,18 @@ home/
       desktop.nix          # Workstation HM (hyprland, caelestia or dux shell, GUI apps, kitty, dictation, java/csharp/flutter)
       server.nix           # Server HM: base.nix + T3 Code with `t3 serve` user service (0.0.0.0:3773)
       agent.nix            # HM for the `agent` account on server hosts, applied via the NixOS home-manager module
-    laptop/home.nix        # Laptop HM overrides (monitor layout, caelestia; dux settings ready for the switch)
+    laptop/home.nix        # Laptop HM overrides (monitor layout, dux, profiles/power, `auto` dictation, LocalSend not autostarted)
     pc/home.nix            # PC HM overrides
     aktkc/home.nix         # aktkc HM (common/server.nix only)
     hercules/home.nix      # hercules HM (common/server.nix + astro-dashboard.nix, moved from aktkc; dictation module as server only, large-v3 Russian fine-tune)
     profiles/              # HM profiles, preconfigured for astroreen
-      apps/ lang/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/{hyprland,keybinds,shell}/
+      apps/ lang/ power/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/{hyprland,keybinds,shell}/
   modules/
     terminal/ai/           # AI tooling, see terminal/ai/AGENTS.md
     wm/keybinds/           # custom.keybinds: WM-agnostic named binds + Hyprland backend
     wm/shell/              # custom.caelestia / custom.dux shell modules (at most one enabled)
     terminal/dictation/    # Push-to-talk dictation (faster-whisper server + socket daemon + Quickshell overlay)
+    power/                 # custom.power.battery: `battery-mode` user service (Hyprland effects off, chosen units stopped while unplugged, `hyprland.batteryMonitors` on battery or at low charge)
   package/                 # Packages missing from nixpkgs, built with pkgs.callPackage (unmined.nix, apps/swappy-shim.nix, apps/t3code/)
   .opencode/                 # Local opencode plugin dev dir (package.json: @opencode-ai/plugin), not the config
 scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-caelestia-config`)
@@ -179,7 +181,8 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | Layers | base + desktop | base + desktop | base + server (headless) | base + server (headless) |
 | GPU | Intel (primary) + NVIDIA PRIME offload | NVIDIA only (nvidiaPersistenced=true for Ollama) | None | RTX 4080 SUPER, open kernel modules, headless (`nvidia.nix`) |
 | NVIDIA mode | Finegrained power mgmt, offload on demand | Always-on, full power | N/A | Compute only, nvidiaPersistenced |
-| `nvidia-offload <cmd>` | Available for explicit GPU tasks | N/A | N/A | N/A |
+| `nvidia-offload <cmd>` | The only way onto the dGPU: apps default to the iGPU (`custom.power.hybridGpu`; games: `nvidia-offload %command%`) | N/A | N/A | N/A |
+| Battery | dux: balanced on AC / power saver on battery (its 60 Hz-on-battery needs a native mode at the current resolution; the panel has none at 1080p); `custom.power.battery` (`home/astroreen/profiles/power`, monitors in `laptop/home.nix`): blur/shadow/animations/wobble off, `whisper-server` stopped; eDP-1 to a custom `1920x1080@60` (back to the config's mode on AC); at <= 20 % `wayvnc` stopped; dux critical-battery pulse animation off (it redrew the bar nonstop, a whole core); live wallpaper paused | N/A | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
 | Extra services |  | Ollama (11434), faster-whisper (7777, localhost only), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP, astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), Portainer (9443), cloudflared; faster-whisper large-v3 Russian fine-tune (7777, HM `whisper-server`, server-only dictation module, unloads after 10 min idle) |
@@ -187,7 +190,7 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Tailnet + Cloudflare Tunnel (cloudflared on `cloudflare_network`); from the LAN (`enp4s0`, 192.168.50.192) only SSH and Pi-hole DNS (53); Tailscale exit node, host DNS = Pi-hole (127.0.0.1) so exit-node clients are filtered too |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
 
-Server accounts: `astroreen` (wheel, passwordless sudo, docker, lingering for the T3 user service) and `agent` (no wheel/docker, lingering,
+`astroreen` has passwordless sudo on every host (`common/base/user.nix`, wheel). Server accounts: `astroreen` (wheel, docker, lingering for the T3 user service) and `agent` (no wheel/docker, lingering,
 rootless podman) for autonomous agents. Restic backups (`profiles/server/backup.nix`) are disabled until a
 backup target exists; when enabled, they read the repository URL and password from
 `/etc/restic/{repository,password}`, created by hand on the host (not in the repo).
@@ -360,8 +363,10 @@ Reusable HM modules (not profiles), under `home/modules/`:
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
   WM-agnostic; imported from `home/astroreen/common/desktop.nix`. The hold-to-talk bind is `custom.keybinds.binds.dictation`
   in `home/astroreen/profiles/wm/keybinds/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
-  `custom.dictation.mode` is `local` (default: own `whisper-server`) or `remote` (send to `remote.host:remote.port`;
-  the desktops point `remote.host` at hercules). `custom.dictation.server.enable` (default: enabled and local) runs
+  `custom.dictation.mode` is `local` (default: own `whisper-server`), `remote` (send to `remote.host:remote.port`;
+  the desktops point `remote.host` at hercules) or `auto` (laptop: per utterance, remote when its health check answers and
+  either on battery or within `auto.maxLatencyMs`, else the local server, started on demand; a failed remote request falls
+  back to it). `server.idleExitMinutes` (laptop: 5) stops the server when idle so the CUDA context, and the dGPU, go away. `custom.dictation.server.enable` (default: enabled and local) runs
   the server alone, which is how hercules serves a Russian fine-tune of large-v3 on 0.0.0.0:7777 (tailnet-only via the
   host firewall) to the desktops and the Astro dashboard. `server.idleUnloadMinutes` (hercules: 10) drops the weights from
   VRAM when idle; the next request reloads them (~1 s).
@@ -386,7 +391,7 @@ Reusable HM modules (not profiles), under `home/modules/`:
 - Keybinds: `custom.keybinds.binds.<name> = { key; exec | global | hyprland.dispatch; locked; repeating; description; }` (`description` defaults to the name in words; rendered as a one-line opts table because dux's keybind parser reads `hl.bind` line by line) (`home/modules/wm/keybinds`), translated per WM (Hyprland backend only so far). Profile values are `mkDefault`, so a host overrides a field or sets `.enable = false` directly. Both shells use the same names (`launcher`, `lock`, `screenshot`, ...), so an override follows the active shell. Plain commands go in `profiles/wm/keybinds`, shell actions in `profiles/wm/shell/<shell>/binds.nix`, Hyprland dispatchers in `profiles/wm/hyprland/binds.nix`, app launchers next to their app (`terminal` in kitty.nix, `fileManager` in nautilus, `emoji`, `clipboard`, `vncCycleOutput`), layout switching in `common/desktop/default.nix`. Never add raw `wayland.windowManager.hyprland.settings.bind` entries
 - The `caelestia-shell` config (`~/.config/caelestia/shell.json`) and dux's (`~/.config/dms/settings.json`) are real files merged via `home.activation` (`home/modules/wm/shell/lib.nix`, jq), never symlinked: `settings` only fills keys the file lacks (what the shell's settings UI saved wins; `overrideSettings = true` makes `settings` win instead), `settingsOverrides` always wins. Caelestia per-host defaults: `home/astroreen/<host>/assets/caelestia-shell-config.json`. Dux also merges `custom.dux.session` into `~/.local/state/dms/session.json` and `custom.dux.pluginSettings` into `plugin_settings.json`; portable values live in `home/astroreen/profiles/wm/shell/dux/{settings,session,plugin-settings}.json`, machine-bound ones (monitors, power, devices) in `home/astroreen/<host>/assets/dux-{settings,session,plugin-settings}.json`, both refreshed with `sync-dux-config [host]`. Both desktops set `overrideSettings = true`, so the repo wins on switch: sync before switching after changing something in the dux UI. A changed file is written with `dms` stopped (it may save its in-memory copy on exit)
 - Dux on Hyprland: `custom.dux.hyprlandIncludes` appends `require("dms.<name>")` for the fragments dux writes under `~/.config/hypr/dms/` (outputs, binds-user, layout, ...) so its Displays/Keybinds pages work despite the read-only `hyprland.lua`; activation `touch`es missing fragments. The dms package carries `home/modules/wm/shell/dux/mpris-display-name.patch` (QML: player names from desktop entries; Pear is renamed in `profiles/apps/music.nix`) and `screencopy-transform.patch` (Go: Hyprland 0.57 hands out already-rotated screencopy frames, so `dms screenshot` must not rotate 90/270 degree outputs again). Under dux, Print opens the QuickCapture plugin, SUPER+Print is grim + slurp into satty. Under dux, SUPER+V is dux's clipboard and copyq is off (`profiles/apps/clipboard.nix`), SUPER+Period the emojiPicker plugin instead of the rofi picker
-- Dux plugins: `custom.dux.plugins.<plugin id>.src` (+ default `settings`) links the plugin into `~/.config/dms/plugins/` and enables it in the writable `plugin_settings.json`. The preconfigured set lives in `home/astroreen/profiles/wm/shell/dux/plugins/`: every source pinned by rev + hash after a security review, with `*.patch` fixes for injections found; runtime tools they call are in its `home.packages`. Never bump a plugin rev or add one without reviewing its code (plugins run with full user privileges)
+- Dux plugins: `custom.dux.plugins.<plugin id>.src` (+ default `settings`) links the plugin into `~/.config/dms/plugins/` and enables it in the writable `plugin_settings.json`. The preconfigured set lives in `home/astroreen/profiles/wm/shell/dux/plugins/`: every source pinned by rev + hash after a security review, with `*.patch` fixes for injections found (plus `wallpaperengine-fullscreen-per-output.patch`: `pauseOnFullscreen` SIGSTOPs only the linux-wallpaperengine of a monitor whose visible Hyprland workspace has a fullscreen/maximized window; the engine's own pause stays off via `noFullscreenPause`); runtime tools they call are in its `home.packages`. Never bump a plugin rev or add one without reviewing its code (plugins run with full user privileges)
 - HyprMod reads `hyprland.lua` with hyprland-config's Lua reader, which runs every `hl.on` callback; `profiles/apps/hyprmod.nix` loads `hyprmod-guard.lua` first to disable `os.execute` there, otherwise HM's shutdown hook stops `hyprland-session.target` (and the shell) on every HyprMod launch
 - Opencode alias: `oc = "opencode"`
 - Opencode theme: `gruvbox`; plugins: md-table-formatter, notifier, dcp (context compression), vibeguard, anthropic-auth, claude-auth

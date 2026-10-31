@@ -1,0 +1,245 @@
+--- a/LinuxWallpaperEnginePlugin.qml
++++ b/LinuxWallpaperEnginePlugin.qml
+@@ -1,6 +1,7 @@
+ import QtCore
+ import QtQuick
+ import Quickshell
++import Quickshell.Hyprland
+ import Quickshell.Io
+ import Quickshell.Services.UPower
+ import qs.Common
+@@ -32,6 +33,7 @@
+     property bool prevGenerateStaticWallpaper: false
+     property bool pauseOnPowerSaver: pluginData.pauseOnPowerSaver || false
+     property bool pauseOnBattery: pluginData.pauseOnBattery || false
++    property bool pauseOnFullscreen: pluginData.pauseOnFullscreen || false
+     property string assetsDir: pluginData.assetsDir || ""
+     property string backgroundsDir: pluginData.backgroundsDir || ""
+ 
+@@ -48,6 +50,12 @@
+     property bool haveMagick: false
+     property bool paused: false
+     property bool pickerOpen: false
++    // Monitor name -> true while its visible workspace holds a fullscreen or
++    // maximized window (Hyprland only, see computeCoveredMonitors)
++    property var coveredMonitors: ({})
++    // pid -> true for processes this plugin SIGSTOPped
++    property var frozenPids: ({})
++    readonly property var coverageEvents: ["fullscreen", "workspace", "workspacev2", "focusedmon", "focusedmonv2", "activespecial", "activespecialv2", "openwindow", "closewindow", "movewindow", "movewindowv2", "moveworkspace", "moveworkspacev2", "changefloatingmode", "monitoradded", "monitoraddedv2", "monitorremoved", "monitorremovedv2"]
+ 
+     readonly property var steamPaths: Utils.steamWorkshopCandidates(StandardPaths.writableLocation(StandardPaths.HomeLocation).toString())
+     property string steamWorkshopPath: steamPaths[0]
+@@ -70,6 +78,43 @@
+         }
+     }
+ 
++    onPauseOnFullscreenChanged: coverageTimer.restart()
++
++    // Upstream relies on linux-wallpaperengine's own fullscreen pause, which
++    // counts fullscreen windows on every output and every workspace (hidden
++    // ones too) and stops all wallpapers at once. Instead, freeze only the
++    // process of a monitor whose visible workspace is covered.
++    Connections {
++        target: (root.pauseOnFullscreen && CompositorService.isHyprland) ? Hyprland : null
++        function onRawEvent(event) {
++            if (!root.coverageEvents.includes(event.name)) return
++            Hyprland.refreshMonitors()
++            Hyprland.refreshWorkspaces()
++            Hyprland.refreshToplevels()
++            coverageTimer.restart()
++        }
++    }
++
++    // Lets the refresh requests above land before the state is read
++    Timer {
++        id: coverageTimer
++        interval: 250
++        repeat: false
++        onTriggered: {
++            root.coveredMonitors = root.computeCoveredMonitors()
++            root.applyPauseStates()
++        }
++    }
++
++    // A fresh process gets a few seconds to draw its first frames before it
++    // can be frozen, otherwise its surface stays empty
++    Timer {
++        id: newProcessPauseTimer
++        interval: 3000
++        repeat: false
++        onTriggered: root.applyPauseStates()
++    }
++
+     onPluginDataChanged: {
+         if (ready) syncDebounce.restart()
+     }
+@@ -648,6 +693,8 @@
+         weProc.running = true
+         processStartTimes[key] = Date.now()
+         delete pendingLaunches[key]
++        // freeze it after its first frames if its monitor is already covered
++        if (outputShouldPause(weProc)) newProcessPauseTimer.restart()
+ 
+         if (useScreenshot) {
+             const captureWaitMs = root.screenshotCaptureWaitMs(settings)
+@@ -743,6 +790,7 @@
+         }
+ 
+         if (processes[key]) {
++            thawProcess(processes[key])
+             processes[key].running = false
+             processes[key].destroy()
+             delete processes[key]
+@@ -771,6 +819,8 @@
+         // kill by PID, not pkill: a fresh process can reuse the same --screen-root signature and pkill would kill it too
+         if (processes[key]) {
+             const pid = processes[key].processId
++            // a stopped process would hold the SIGTERM until it is continued
++            thawProcess(processes[key])
+             if (pid !== undefined && pid > 0) {
+                 Quickshell.execDetached(["kill", String(pid)])
+             }
+@@ -790,36 +840,81 @@
+         for (const key in rotationTimers) {
+             rotationTimers[key].running = false
+         }
+-        for (const key in processes) {
+-            const proc = processes[key]
+-            if (proc) {
+-                const pid = proc.processId
+-                if (pid !== undefined && pid > 0) {
+-                    Quickshell.execDetached(["kill", "-STOP", String(pid)])
+-                }
+-            }
+-        }
++        applyPauseStates()
+     }
+ 
+     function resumeOutputs() {
+         paused = false
+-        const frozenKeys = []
+-        for (const key in processes) frozenKeys.push(key)
++        applyPauseStates()
+         syncScenesWithData()
+-        for (const key of frozenKeys) {
++    }
++
++    // Visible workspace of each monitor (the special one when it is open)
++    // holding a fullscreen or maximized window
++    function computeCoveredMonitors() {
++        const covered = {}
++        if (!pauseOnFullscreen || !CompositorService.isHyprland) return covered
++        for (const monitor of Hyprland.monitors.values) {
++            const special = monitor.lastIpcObject?.specialWorkspace?.name
++            const workspace = special ? Hyprland.workspaces.values.find(w => w.name === special) : monitor.activeWorkspace
++            if (!workspace) continue
++            const hasFullscreen = workspace.hasFullscreen || workspace.toplevels.values.some(t => (t.lastIpcObject?.fullscreen ?? 0) > 0)
++            if (hasFullscreen) covered[monitor.name] = true
++        }
++        return covered
++    }
++
++    // Power state pauses everything; fullscreen pauses an output (a span only
++    // when all of its monitors are covered)
++    function outputShouldPause(proc) {
++        if (shouldPauseWallpaper) return true
++        const monitors = proc.wallpaperMonitors || []
++        return monitors.length > 0 && monitors.every(m => coveredMonitors[m])
++    }
++
++    function applyPauseStates() {
++        const live = {}
++        for (const key in processes) {
+             const proc = processes[key]
+-            if (proc) {
+-                const pid = proc.processId
+-                if (pid !== undefined && pid > 0) {
+-                    Quickshell.execDetached(["kill", "-CONT", String(pid)])
++            const pid = proc ? proc.processId : undefined
++            if (pid === undefined || pid <= 0) continue
++            live[pid] = true
++            const started = processStartTimes[key]
++            const settling = started !== undefined && Date.now() - started < newProcessPauseTimer.interval
++            const wanted = outputShouldPause(proc)
++            if (wanted && !frozenPids[pid]) {
++                if (settling) {
++                    newProcessPauseTimer.restart()
++                    continue
+                 }
++                Quickshell.execDetached(["kill", "-STOP", String(pid)])
++                frozenPids[pid] = true
++            } else if (!wanted && frozenPids[pid]) {
++                Quickshell.execDetached(["kill", "-CONT", String(pid)])
++                delete frozenPids[pid]
++            }
++        }
++        // processes replaced or torn down while frozen
++        for (const pid in frozenPids) {
++            if (!live[pid]) {
++                Quickshell.execDetached(["kill", "-CONT", String(pid)])
++                delete frozenPids[pid]
+             }
+         }
+     }
+ 
++    function thawProcess(proc) {
++        const pid = proc ? proc.processId : undefined
++        if (pid !== undefined && pid > 0 && frozenPids[pid]) {
++            Quickshell.execDetached(["kill", "-CONT", String(pid)])
++            delete frozenPids[pid]
++        }
++    }
++
+     function stopAllOutputs() {
+         for (const key in processes) {
+             if (processes[key]) {
++                thawProcess(processes[key])
+                 processes[key].running = false
+                 processes[key].destroy()
+             }
+--- a/LinuxWallpaperEngineSettings.qml
++++ b/LinuxWallpaperEngineSettings.qml
+@@ -704,6 +704,43 @@
+         }
+     }
+ 
++    Column {
++        width: parent.width
++        spacing: 2
++
++        Row {
++            width: parent.width
++            spacing: Theme.spacingM
++            StyledText {
++                text: "Pause on Fullscreen"
++                font.pixelSize: Theme.fontSizeSmall
++                width: 180
++                anchors.verticalCenter: parent.verticalCenter
++            }
++            DankToggle {
++                id: pauseOnFullscreenToggle
++                anchors.verticalCenter: parent.verticalCenter
++
++                Binding {
++                    target: pauseOnFullscreenToggle
++                    property: "checked"
++                    value: loadValue("pauseOnFullscreen", false)
++                }
++
++                onToggled: {
++                    saveValue("pauseOnFullscreen", checked)
++                }
++            }
++        }
++        StyledText {
++            text: "Stop a monitor's wallpaper while its visible workspace has a fullscreen or maximized window (Hyprland)"
++            font.pixelSize: Theme.fontSizeSmall * 0.9
++            opacity: 0.5
++            width: parent.width
++            wrapMode: Text.Wrap
++        }
++    }
++
+     Rectangle {
+         width: parent.width
+         height: 1

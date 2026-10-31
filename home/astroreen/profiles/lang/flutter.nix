@@ -136,6 +136,9 @@ in
         # execute a nonexistent "xcb" command - see the "xcb: command not
         # found" error.)
         export QT_QPA_PLATFORM=xcb
+        # Laptop session vars keep apps off the dGPU (custom.power.hybridGpu);
+        # VK_DRIVER_FILES would also override VK_ICD_FILENAMES below.
+        unset __EGL_VENDOR_LIBRARY_DIRS VK_DRIVER_FILES CUDA_VISIBLE_DEVICES
         export VK_ICD_FILENAMES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json
         export __GLX_VENDOR_LIBRARY_NAME=nvidia
         export __NV_PRIME_RENDER_OFFLOAD=1

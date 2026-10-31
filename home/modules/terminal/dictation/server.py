@@ -8,12 +8,16 @@ dashboard: ``GET /`` (health/liveness) and ``POST /inference`` (multipart
 The model is loaded at startup and kept resident (GPU VRAM). With
 ``FW_IDLE_UNLOAD`` > 0 (seconds) its weights are dropped after that much
 idle time, which frees the VRAM for other services; the next request loads
-them again (about a second, the files stay in the page cache).
+them again (about a second, the files stay in the page cache). With
+``FW_IDLE_EXIT`` > 0 the whole server exits cleanly after that much idle
+time instead: only an exited process lets a laptop dGPU power off, since the
+CUDA context outlives the weights. The client starts it again on demand.
 """
 
 import asyncio
 import io
 import os
+import signal
 import time
 from contextlib import asynccontextmanager, suppress
 
@@ -29,6 +33,7 @@ COMPUTE_TYPE = os.environ.get("FW_COMPUTE_TYPE", "float16")
 HOST = os.environ.get("FW_HOST", "127.0.0.1")
 PORT = int(os.environ.get("FW_PORT", "7777"))
 IDLE_UNLOAD = int(os.environ.get("FW_IDLE_UNLOAD", "0"))
+IDLE_EXIT = int(os.environ.get("FW_IDLE_EXIT", "0"))
 
 _state: dict = {"model": None, "last_used": time.monotonic()}
 
@@ -57,16 +62,30 @@ async def unload_when_idle() -> None:
             print(f"model unloaded after {IDLE_UNLOAD}s idle", flush=True)
 
 
+async def exit_when_idle() -> None:
+    """SIGTERM ourselves once idle long enough, so uvicorn exits with 0."""
+    while True:
+        await asyncio.sleep(min(IDLE_EXIT, 30))
+        if time.monotonic() - _state["last_used"] >= IDLE_EXIT:
+            print(f"exiting after {IDLE_EXIT}s idle", flush=True)
+            os.kill(os.getpid(), signal.SIGTERM)
+            return
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     ensure_model()
     _state["model"] = WhisperModel(MODEL_PATH, device=DEVICE, compute_type=COMPUTE_TYPE)
     _state["last_used"] = time.monotonic()
-    watcher = asyncio.create_task(unload_when_idle()) if IDLE_UNLOAD > 0 else None
+    watchers = []
+    if IDLE_UNLOAD > 0:
+        watchers.append(asyncio.create_task(unload_when_idle()))
+    if IDLE_EXIT > 0:
+        watchers.append(asyncio.create_task(exit_when_idle()))
     try:
         yield
     finally:
-        if watcher is not None:
+        for watcher in watchers:
             watcher.cancel()
             with suppress(asyncio.CancelledError):
                 await watcher

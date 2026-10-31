@@ -36,17 +36,22 @@ let
     export FW_HOST=${lib.escapeShellArg cfg.host}
     export FW_PORT=${toString cfg.port}
     export FW_IDLE_UNLOAD=${toString (cfg.server.idleUnloadMinutes * 60)}
+    export FW_IDLE_EXIT=${toString (cfg.server.idleExitMinutes * 60)}
     exec ${pythonEnv}/bin/python ${./server.py}
   '';
 
-  serverUrl =
-    if cfg.mode == "local" then
-      "http://127.0.0.1:${toString cfg.port}/inference"
-    else
-      "http://${cfg.remote.host}:${toString cfg.remote.port}/inference";
+  localUrl = "http://127.0.0.1:${toString cfg.port}/inference";
+  remoteUrl = "http://${toString cfg.remote.host}:${toString cfg.remote.port}/inference";
+  serverUrl = if cfg.mode == "remote" then remoteUrl else localUrl;
 
   daemonBin = pkgs.writeShellScript "dictation-daemon" ''
     export FW_SERVER_URL=${lib.escapeShellArg serverUrl}
+    ${lib.optionalString (cfg.mode == "auto") ''
+      export FW_MODE=auto
+      export FW_LOCAL_URL=${lib.escapeShellArg localUrl}
+      export FW_REMOTE_URL=${lib.escapeShellArg (lib.optionalString (cfg.remote.host != null) remoteUrl)}
+      export FW_MAX_LATENCY_MS=${toString cfg.auto.maxLatencyMs}
+    ''}
     export FW_LANGUAGE=${lib.escapeShellArg cfg.language}
     export FW_CAPTURE_SOURCE=${lib.escapeShellArg cfg.captureSource}
     export FW_STATE_FILE=/run/user/$(id -u)/dictation.state
@@ -94,12 +99,26 @@ in
       type = lib.types.enum [
         "local"
         "remote"
+        "auto"
       ];
       default = "local";
       description = ''
         Where recordings are transcribed: `local` runs the server on this
         machine, `remote` sends them to `remote.host:remote.port` (another
-        machine's server, e.g. one with a bigger GPU).
+        machine's server, e.g. one with a bigger GPU). `auto` picks per
+        utterance: remote when it is reachable and either on battery or within
+        `auto.maxLatencyMs`, else the local server, started on demand (set
+        `server.idleExitMinutes` so it exits again and frees the GPU).
+      '';
+    };
+
+    auto.maxLatencyMs = lib.mkOption {
+      type = lib.types.ints.positive;
+      default = 150;
+      description = ''
+        `auto` mode on AC power: use the remote server only if its health
+        check answers within this many milliseconds. On battery any answer
+        (up to 1.5 s) wins, to keep the local GPU asleep.
       '';
     };
 
@@ -119,8 +138,8 @@ in
 
     server.enable = lib.mkOption {
       type = lib.types.bool;
-      default = cfg.enable && cfg.mode == "local";
-      defaultText = lib.literalExpression ''config.custom.dictation.enable && config.custom.dictation.mode == "local"'';
+      default = cfg.enable && cfg.mode != "remote";
+      defaultText = lib.literalExpression ''config.custom.dictation.enable && config.custom.dictation.mode != "remote"'';
       description = ''
         Run the transcription server (`whisper-server` user service). Can be
         enabled alone to serve other machines without the dictation client.
@@ -134,6 +153,17 @@ in
       description = ''
         Free the model's VRAM after this many idle minutes (0: keep it loaded).
         The next request reloads it, adding about a second.
+      '';
+    };
+
+    server.idleExitMinutes = lib.mkOption {
+      type = lib.types.ints.unsigned;
+      default = 0;
+      example = 5;
+      description = ''
+        Stop the server after this many idle minutes (0: keep running). Unlike
+        `idleUnloadMinutes` this also drops the CUDA context, which a laptop
+        dGPU needs to power off. `auto` mode starts it again when needed.
       '';
     };
 
@@ -201,8 +231,8 @@ in
   config = lib.mkIf (cfg.enable || cfg.server.enable) {
     assertions = [
       {
-        assertion = !cfg.enable || cfg.mode != "remote" || cfg.remote.host != null;
-        message = "custom.dictation.mode = \"remote\" needs custom.dictation.remote.host.";
+        assertion = !cfg.enable || cfg.mode == "local" || cfg.remote.host != null;
+        message = "custom.dictation.mode = \"${cfg.mode}\" needs custom.dictation.remote.host.";
       }
     ];
 
@@ -228,8 +258,11 @@ in
           ExecStart = serverBin;
           Restart = "on-failure";
           RestartSec = "3s";
+          # Hidden from sessions by custom.power.hybridGpu on the laptop
+          UnsetEnvironment = [ "CUDA_VISIBLE_DEVICES" ];
         };
-        Install.WantedBy = [ "default.target" ];
+        # `auto` starts it on demand
+        Install.WantedBy = lib.mkIf (cfg.mode != "auto") [ "default.target" ];
       };
 
       dictation = lib.mkIf cfg.enable {
