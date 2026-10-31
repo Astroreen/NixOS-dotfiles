@@ -7,11 +7,25 @@ let
     "--enable-gpu-rasterization"
     # Restored tabs (YouTube) stay paused until the page is clicked
     "--autoplay-policy=document-user-activation-required"
+    # YouTube ships in Chromium's preloaded Media Engagement list, and a high
+    # engagement score bypasses the autoplay policy above
+    "--disable-features=MediaEngagementBypassAutoplayPolicies,PreloadMediaEngagementData"
   ];
 
   vivaldi-gpu = pkgs.vivaldi.override {
     commandLineArgs = lib.concatStringsSep " " flags;
   };
+
+  # Chromium checks for a D-Bus notification server once, at startup. Started
+  # before the shell owns org.freedesktop.Notifications, it draws its own
+  # classless popup windows for the whole session instead.
+  startVivaldi = pkgs.writeShellScript "start-vivaldi" ''
+    for _ in {1..100}; do
+      ${pkgs.systemd}/bin/busctl --user status org.freedesktop.Notifications >/dev/null 2>&1 && break
+      sleep 0.1
+    done
+    exec ${vivaldi-gpu}/bin/vivaldi
+  '';
 in
 {
   home = {
@@ -43,7 +57,7 @@ in
       {
         _args = [
           "hyprland.start"
-          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 2 silent] vivaldi\")\nend")
+          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 2 silent] ${startVivaldi}\")\nend")
         ];
       }
     ];
