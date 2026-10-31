@@ -38,16 +38,37 @@ _: {
 
   networking.hostName = "hercules";
 
-  # CI (up to 24G in caspian-ci.slice) and the builder agents together can
-  # outgrow the 31 GB of RAM; zram (zstd, ~3-4x) takes the overflow. The
-  # zram device size is a cap on uncompressed data, not reserved memory.
+  # CI and the builder agents are capped below (28G together); the rest of
+  # the overflow goes to zram (zstd, ~3-4x). The zram device size is a cap on
+  # uncompressed data, not reserved memory.
   zramSwap.memoryPercent = 100;
   boot.kernel.sysctl."vm.swappiness" = 150; # Swap to zram is cheap: prefer it to dropping page cache
 
   # When CI and the builder agents peak together, the services (sshd, Pi-hole
   # DNS for the LAN and exit-node clients, tailscaled, Docker services: ~2 GB
-  # at rest) are reclaimed last. Protection only: nothing is throttled or killed.
-  systemd.slices.system.sliceConfig.MemoryLow = "3G";
+  # at rest) are reclaimed last (system MemoryLow below).
+  #
+  # Hard ceiling of the work load, so the host never runs at 100% and Pi-hole
+  # keeps answering the LAN (load 270 on 28 threads took the LAN down,
+  # 2026-10-31). The builder agents (T3, user.slice) and CI (caspian.slice)
+  # share CPUs 0-22: 23 of 28 threads, ~82%. E-cores 23-27 stay for the
+  # services in system.slice. The cpuset is shared, so either side may take
+  # all 23 threads while the other is idle. Memory: work gets at most
+  # 13G + 15G of the 31 GB; over MemoryHigh it is throttled, over MemoryMax
+  # the OOM killer picks inside that slice, never a service.
+  systemd.slices = {
+    system.sliceConfig.MemoryLow = "3G";
+    user.sliceConfig = {
+      AllowedCPUs = "0-22";
+      MemoryHigh = "12G";
+      MemoryMax = "13G";
+    };
+    caspian.sliceConfig = {
+      AllowedCPUs = "0-22";
+      MemoryHigh = "14G";
+      MemoryMax = "15G";
+    };
+  };
 
   # Services are reached through the tunnel and the tailnet; from the LAN only
   # Pi-hole's DNS is open (see custom.services.lan).

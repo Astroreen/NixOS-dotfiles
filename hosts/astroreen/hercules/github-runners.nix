@@ -1,7 +1,7 @@
 # Self-hosted GitHub Actions runners for Astroreen/Caspian-Logistics-ERP
 # (.github/workflows/{ci,claude-review,pipeline}.yml):
-#   - caspian-ci (5): backend, frontend, changesets and the Claude review;
-#   - caspian-e2e (3): Playwright e2e (4 workers); each job takes its ports,
+#   - caspian-ci (3): backend, frontend, changesets and the Claude review;
+#   - caspian-e2e (3): Playwright e2e (2 workers); each job takes its ports,
 #     container name and storage from the runner name (Caspian #190, #192),
 #     so they run side by side;
 #   - caspian-pipeline (1): merge queue, merges with astroreen's own gh login.
@@ -33,10 +33,11 @@ let
   root = "/var/lib/caspian-ci";
   home = "${root}/home";
 
-  # A backend gradle test takes ~3 GB; the host shares its 31 GB with up to
-  # ~15 builder agents. One e2e job: ~1.5 GB backend JVM plus the Chromium
-  # workers (~2 GB each), its PostgreSQL container runs outside the slices.
-  ciRunners = 5;
+  # A backend gradle test takes ~3 GB; one e2e job ~5 GB at 2 workers (its
+  # PostgreSQL container runs outside the slices). e2e is the slowest step of
+  # a PR, so it keeps 3 runners. The counts fit the 15G cap of caspian.slice (./configuration.nix: CI and the builder agents
+  # stay under ~82% CPU, so the host keeps serving the LAN).
+  ciRunners = 3;
   e2eRunners = 3;
 
   numbered = prefix: n: map (i: "${prefix}-${toString i}") (lib.range 1 n);
@@ -125,14 +126,13 @@ in
   # crowd out the gradle tests (and the other way round).
   systemd.slices = {
     caspian-ci.sliceConfig = {
-      MemoryHigh = "22G";
-      MemoryMax = "26G";
+      # Memory and CPUs: capped by the parent caspian.slice (configuration.nix).
       CPUWeight = 50;
       IOWeight = 50;
     };
     caspian-ci-e2e.sliceConfig = {
-      MemoryHigh = "18G"; # 3 jobs x ~6 GB at 4 workers (overlap proof, 2026-10-31)
-      MemoryMax = "20G";
+      MemoryHigh = "12G"; # 3 jobs x ~5 GB at 2 workers; over it they slow down
+      MemoryMax = "13G";
     };
   };
 
