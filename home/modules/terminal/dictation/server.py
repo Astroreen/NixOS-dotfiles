@@ -117,6 +117,14 @@ async def inference(
         language=lang,
         beam_size=5,
         vad_filter=True,
+        # Without these Whisper sometimes "continues" the dictation over the
+        # trailing silence/noise with fluent text nobody said: conditioning on
+        # the previous window feeds the hallucination forward, and segments
+        # surrounded by more than 2 s of silence are dropped (needs word
+        # timestamps).
+        condition_on_previous_text=False,
+        word_timestamps=True,
+        hallucination_silence_threshold=2.0,
     )
     text = "".join(segment.text for segment in segments).strip()
     _state["last_used"] = time.monotonic()

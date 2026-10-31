@@ -10,16 +10,13 @@ _: {
   # `remote` mode and the Astro dashboard. 0.0.0.0: the host firewall keeps it
   # tailnet-only.
   #
-  # Model: large-v3 fine-tuned on Russian (Common Voice 17; WER 6.39 vs 9.84 for
-  # stock large-v3 per antony66/whisper-large-v3-russian), CTranslate2 float16.
-  # Same size and speed as large-v3; turbo was faster but clearly worse on
-  # Russian. Other languages may suffer; stock large-v3 would be
-  # Systran/faster-whisper-large-v3.
+  # Model: stock large-v3 (the module default, Systran/faster-whisper-large-v3).
+  # The Russian fine-tune bzikst/faster-whisper-large-v3-russian had a lower WER
+  # on paper but kept appending fluent text that was never said, even with the
+  # server's anti-hallucination settings; turbo was clearly worse on Russian.
   custom.dictation = {
     server.enable = true;
     host = "0.0.0.0";
-    modelPath = "/home/astroreen/.local/share/faster-whisper-large-v3-russian";
-    modelRepo = "bzikst/faster-whisper-large-v3-russian";
     # Give the ~3.6 GB of VRAM back to other GPU services between dictations.
     server.idleUnloadMinutes = 10;
   };
