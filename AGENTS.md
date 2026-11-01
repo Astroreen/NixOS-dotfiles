@@ -153,12 +153,12 @@ home/
     common/
       base.nix             # Headless HM for every host (shell, devenv, ranger, opencode, claude, python, js)
       desktop.nix          # Workstation HM (hyprland, caelestia or dux shell, GUI apps, kitty, dictation, java/csharp/flutter)
-      server.nix           # Server HM: base.nix + T3 Code with `t3 serve` user service (0.0.0.0:3773)
+      server.nix           # Server HM: base.nix + T3 Code with `t3 serve` user service (0.0.0.0:3773; `X-SwitchMethod=keep-old`: a switch never restarts it, agents run inside; restart by hand with `systemctl --user restart t3code`)
       agent.nix            # HM for the `agent` account on server hosts, applied via the NixOS home-manager module
     laptop/home.nix        # Laptop HM overrides (monitor layout, dux, profiles/power, `auto` dictation, LocalSend not autostarted)
     pc/home.nix            # PC HM overrides
     aktkc/home.nix         # aktkc HM (common/server.nix only)
-    hercules/home.nix      # hercules HM (common/server.nix + astro-dashboard.nix, moved from aktkc; dictation module as server only, stock large-v3)
+    hercules/home.nix      # hercules HM (common/server.nix + astro-dashboard.nix, moved from aktkc; dictation module as server only, stock large-v3; `custom.t3code.android`: Android SDK + emulator + ffmpeg-headless for T3's device tools, AVD astrotime-36)
     profiles/              # HM profiles, preconfigured for astroreen
       apps/ lang/ power/ style/{cursor,theme}/ terminal/{ai,shell}/ wm/{hyprland,keybinds,shell}/
   modules/
@@ -185,9 +185,9 @@ scripts/sync-caelestia-config.py  # Caelestia config merge helper (devenv `sync-
 | Battery | dux: balanced on AC / power saver on battery (its 60 Hz-on-battery needs a native mode at the current resolution; the panel has none at 1080p); `custom.power.battery` (`home/astroreen/profiles/power`, monitors in `laptop/home.nix`): blur/shadow/animations/wobble off, `whisper-server` stopped; eDP-1 to a custom `1920x1080@60` (back to the config's mode on AC); at <= 20 % `wayvnc` stopped; dux critical-battery pulse animation off (it redrew the bar nonstop, a whole core); live wallpaper paused | N/A | N/A | N/A |
 | Sleep/suspend | Normal | Disabled (systemd targets off) | Disabled | Disabled |
 | Wake-on-LAN | No | Yes (enp5s0, magic packet) | No | No |
-| Extra services |  | Ollama (11434), faster-whisper (7777, localhost only), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773), GitHub runners for Caspian ERP, astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), Portainer (9443), cloudflared; faster-whisper large-v3 (7777, HM `whisper-server`, server-only dictation module, unloads after 10 min idle) |
+| Extra services |  | Ollama (11434), faster-whisper (7777, localhost only), KitchenOwl (9167), Minecraft (25565) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773) | Uptime Kuma (3001), Docker, rootless podman, T3 Code server (3773; Android emulator for its device tools via `custom.t3code.android`, SDK/ffmpeg only on the service: ANDROID_HOME/SERVE_EMU_FFMPEG -> `~/.t3/android/{sdk,ffmpeg}`), GitHub runners for Caspian ERP, astro-dashboard (8889, user service), Docker services from `profiles/server/services`: Vaultwarden (8812), Pi-hole (53, 8573), n8n (5678), Actual (5006), Nextcloud AIO (8080 interface, Apache 11000), Portainer (9443), cloudflared; faster-whisper large-v3 (7777, HM `whisper-server`, server-only dictation module, unloads after 10 min idle) |
 | Docker NVIDIA | `nvidia-container-toolkit` | `enableNvidia = true` + toolkit | N/A | `enableNvidia = true` + toolkit (AIO needs the legacy `--gpus` path) |
-| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Tailnet + Cloudflare Tunnel (cloudflared on `cloudflare_network`); from the LAN (`enp4s0`, 192.168.50.192) only SSH and Pi-hole DNS (53); Tailscale exit node, host DNS = Pi-hole (127.0.0.1) so exit-node clients are filtered too |
+| Network exposure | Normal | LAN ports for its services | Tailnet only (`tailscale0` trusted), plus key-only SSH (22) on all interfaces | Tailnet + Cloudflare Tunnel (cloudflared on `cloudflare_network`); from the LAN (`enp4s0`, 192.168.50.192) only SSH and Pi-hole DNS (53); Tailscale exit node, host DNS = Pi-hole (127.0.0.1) so exit-node clients are filtered too; Tailscale operator `astroreen` (`tailscale serve` without sudo, never `funnel`) |
 | Deploy | Local `nixos`/`home` | Local `nixos`/`home` | Remote `deploy`, first install via `bootstrap` | Remote `deploy`, first install via `bootstrap` |
 
 `astroreen` has passwordless sudo on every host (`common/base/user.nix`, wheel). Server accounts: `astroreen` (wheel, docker, lingering for the T3 user service) and `agent` (no wheel/docker, lingering,

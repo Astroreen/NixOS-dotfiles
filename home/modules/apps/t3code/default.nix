@@ -75,6 +75,8 @@ let
   );
 in
 {
+  imports = [ ./android.nix ];
+
   options.custom.t3code = {
     enable = lib.mkEnableOption "declarative T3 Code theme, settings and keybinding sync";
 
@@ -203,6 +205,24 @@ in
         default = 5;
         description = "systemd RestartSec= delay for the service.";
       };
+
+      switchMethod = lib.mkOption {
+        type = lib.types.nullOr (
+          lib.types.enum [
+            "restart"
+            "stop-start"
+            "keep-old"
+          ]
+        );
+        default = null;
+        example = "keep-old";
+        description = ''
+          What a Home Manager switch does with the running service when its unit
+          changed (sd-switch `X-SwitchMethod`); null keeps the default
+          (restart). "keep-old" leaves the running server, and every agent
+          thread inside it, alone until it is restarted by hand.
+        '';
+      };
     };
   };
 
@@ -239,6 +259,9 @@ in
         Description = "T3 Code server";
         StartLimitIntervalSec = 300;
         StartLimitBurst = 5;
+      }
+      // lib.optionalAttrs (cfg.service.switchMethod != null) {
+        X-SwitchMethod = cfg.service.switchMethod;
       };
       Service = {
         Type = "simple";

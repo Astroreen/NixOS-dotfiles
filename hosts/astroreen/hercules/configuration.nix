@@ -79,9 +79,14 @@ _: {
   # Tailscale exit node (approve it once in the admin console). Clients using
   # it hand their DNS to this host, which resolves with its own resolv.conf:
   # Pi-hole first, the router only if Pi-hole is down.
+  # The operator lets astroreen run `tailscale serve` (tailnet-only HTTPS with
+  # a real certificate, e.g. for the AstroTime dev server) without sudo.
   services.tailscale = {
     useRoutingFeatures = "server";
-    extraSetFlags = [ "--advertise-exit-node" ];
+    extraSetFlags = [
+      "--advertise-exit-node"
+      "--operator=astroreen"
+    ];
   };
   networking.nameservers = [
     "127.0.0.1" # Pi-hole (published port 53)

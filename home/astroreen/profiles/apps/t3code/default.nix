@@ -47,6 +47,10 @@
       extraArgs = [ ];
       restart = "always";
       restartSec = 5;
+      # Agent threads (orchestrators included) run inside the server; a
+      # switch must not kill them. Restart by hand once they are idle:
+      # `systemctl --user restart t3code`.
+      switchMethod = "keep-old";
     };
   };
 }

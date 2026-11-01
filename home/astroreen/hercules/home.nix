@@ -20,4 +20,12 @@ _: {
     # Give the ~3.6 GB of VRAM back to other GPU services between dictations.
     server.idleUnloadMinutes = 10;
   };
+
+  # Android emulator for T3 Code's device tools (Device panel), given to the
+  # T3 service only. astrotime-36 is the AstroTime app's test device (KVM:
+  # astroreen is in `kvm`, hosts/astroreen/common/base/user.nix).
+  custom.t3code.android = {
+    enable = true;
+    avds.astrotime-36.device = "pixel_7";
+  };
 }
