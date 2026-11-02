@@ -75,7 +75,10 @@ let
   );
 in
 {
-  imports = [ ./android.nix ];
+  imports = [
+    ./android.nix
+    ./tailscale-serve.nix
+  ];
 
   options.custom.t3code = {
     enable = lib.mkEnableOption "declarative T3 Code theme, settings and keybinding sync";

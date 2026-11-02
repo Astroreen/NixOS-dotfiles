@@ -24,8 +24,17 @@ _: {
   # Android emulator for T3 Code's device tools (Device panel), given to the
   # T3 service only. astrotime-36 is the AstroTime app's test device (KVM:
   # astroreen is in `kvm`, hosts/astroreen/common/base/user.nix).
-  custom.t3code.android = {
-    enable = true;
-    avds.astrotime-36.device = "pixel_7";
+  custom.t3code = {
+    android = {
+      enable = true;
+      avds.astrotime-36.device = "pixel_7";
+    };
+
+    # https://hercules.<tailnet>.ts.net:8443 for linking this T3 server from
+    # another T3 Code (plain http is refused), and the AstroTime dev server
+    tailscaleServe = {
+      enable = true;
+      extraProxies."5180" = "http://127.0.0.1:5180";
+    };
   };
 }
