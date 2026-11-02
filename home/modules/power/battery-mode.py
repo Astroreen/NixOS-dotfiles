@@ -13,7 +13,10 @@ Power source changes come from ``upower --monitor``. On battery it
 * applies the Hyprland monitor rules in ``BM_BATTERY_MONITORS`` (JSON list
   of ``hl.monitor`` tables, e.g. a 60 Hz mode) on battery, or only at low
   charge with ``BM_MONITORS_AT=low``, and the ones in ``BM_AC_MONITORS`` on
-  AC; after a config reload too.
+  AC; after a config reload too;
+* dims the backlight to ``BM_BRIGHTNESS`` percent (``brightnessctl``, device
+  ``BM_BRIGHTNESS_DEVICE`` or the first backlight) when it is brighter, and
+  puts the previous value back on AC.
 
 Power profiles and idle timeouts are left to the desktop shell.
 """
@@ -36,9 +39,14 @@ LOW_THRESHOLD = int(os.environ.get("BM_LOW_THRESHOLD", "20"))
 BATTERY_MONITORS = json.loads(os.environ.get("BM_BATTERY_MONITORS") or "[]")
 MONITORS_AT = os.environ.get("BM_MONITORS_AT", "battery")  # "battery" or "low"
 AC_MONITORS = json.loads(os.environ.get("BM_AC_MONITORS") or "[]")
+BRIGHTNESS = int(os.environ.get("BM_BRIGHTNESS") or 0)  # percent, 0 = off
+BRIGHTNESS_DEVICE = os.environ.get("BM_BRIGHTNESS_DEVICE", "")
 RECHECK_SECONDS = 60  # also catches a missed upower line
 # Units stopped by an earlier run, so a restart on battery still restores them
-STATE_FILE = os.path.join(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}"), "battery-mode.json")
+RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+STATE_FILE = os.path.join(RUNTIME_DIR, "battery-mode.json")
+# Brightness before dimming, likewise kept for a restarted instance
+BRIGHTNESS_FILE = os.path.join(RUNTIME_DIR, "battery-mode-brightness")
 
 
 def log(message: str) -> None:
@@ -175,10 +183,44 @@ class Units:
         self.save()
 
 
+class Backlight:
+    def brightnessctl(self, *args: str) -> str:
+        device = ["--device", BRIGHTNESS_DEVICE] if BRIGHTNESS_DEVICE else ["--class", "backlight"]
+        result = subprocess.run(["brightnessctl", *device, *args], capture_output=True, text=True, check=False)
+        return result.stdout
+
+    def dim(self) -> None:
+        if not BRIGHTNESS or os.path.exists(BRIGHTNESS_FILE):
+            return  # off, or already dimmed by an earlier run
+        try:
+            # -m: "device,class,current,percent,max"
+            _, _, current, _, maximum = self.brightnessctl("--machine-readable", "info").strip().split(",")
+            current, maximum = int(current), int(maximum)
+        except ValueError:
+            return
+        if current * 100 <= BRIGHTNESS * maximum:
+            return
+        with open(BRIGHTNESS_FILE, "w") as fh:
+            fh.write(str(current))
+        self.brightnessctl("--quiet", "set", f"{BRIGHTNESS}%")
+        log(f"backlight dimmed to {BRIGHTNESS}%")
+
+    def restore(self) -> None:
+        try:
+            with open(BRIGHTNESS_FILE) as fh:
+                saved = int(fh.read().strip())
+        except (OSError, ValueError):
+            return
+        self.brightnessctl("--quiet", "set", str(saved))
+        os.remove(BRIGHTNESS_FILE)
+        log("backlight restored")
+
+
 class BatteryMode:
     def __init__(self) -> None:
         self.hyprland = Hyprland()
         self.units = Units()
+        self.backlight = Backlight()
         self.state = "ac"
         self.selector = selectors.DefaultSelector()
         self.monitor = subprocess.Popen(["upower", "--monitor"], stdout=subprocess.PIPE, text=True, bufsize=1)
@@ -206,9 +248,11 @@ class BatteryMode:
         if new_state == "ac":
             self.hyprland.restore()
             self.units.restore()
+            self.backlight.restore()
         else:
             if self.state == "ac":
                 self.hyprland.reduce()
+                self.backlight.dim()
             self.units.stop(BATTERY_UNITS)
             if MONITORS_AT == "battery" or new_state == "low":
                 self.hyprland.set_monitors(True)
@@ -233,6 +277,10 @@ class BatteryMode:
         return True
 
     def run(self) -> int:
+        if power_state() == "ac":
+            # an earlier instance may have been stopped on battery
+            self.units.restore()
+            self.backlight.restore()
         self.apply(power_state())
         while True:
             for key, _ in self.selector.select(timeout=RECHECK_SECONDS):

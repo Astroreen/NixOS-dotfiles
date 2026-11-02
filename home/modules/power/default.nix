@@ -16,6 +16,7 @@ let
         [
           pkgs.upower
           pkgs.systemd
+          pkgs.brightnessctl
         ]
         ++ lib.optional hyprland.enable hyprland.finalPackage
       )
@@ -32,6 +33,12 @@ let
     export BM_BATTERY_MONITORS=${lib.escapeShellArg (builtins.toJSON cfg.hyprland.batteryMonitors)}
     export BM_MONITORS_AT=${cfg.hyprland.monitorsAt}
     export BM_AC_MONITORS=${lib.escapeShellArg (builtins.toJSON cfg.hyprland.acMonitors)}
+    export BM_BRIGHTNESS=${
+      toString (if cfg.brightness.battery == null then "" else cfg.brightness.battery)
+    }
+    export BM_BRIGHTNESS_DEVICE=${
+      lib.escapeShellArg (if cfg.brightness.device == null then "" else cfg.brightness.device)
+    }
     exec ${pkgs.python3}/bin/python3 ${./battery-mode.py}
   '';
 in
@@ -39,7 +46,8 @@ in
   options.custom.power.battery = {
     enable = lib.mkEnableOption ''
       battery mode: while unplugged, turn Hyprland effects off and stop the
-      chosen user units, optionally apply other monitor rules (power profiles
+      chosen user units, optionally dim the backlight and apply other monitor
+      rules (power profiles
       and idle timeouts are the desktop shell's job)
     '';
 
@@ -74,6 +82,25 @@ in
         "wayvnc.service".when = "low";
       };
       description = "User units (full names) stopped on battery.";
+    };
+
+    brightness = {
+      battery = lib.mkOption {
+        type = lib.types.nullOr (lib.types.ints.between 1 100);
+        default = null;
+        example = 40;
+        description = ''
+          Backlight (%) set on unplugging when it is brighter; the previous
+          value comes back on AC. `null` leaves the brightness alone.
+        '';
+      };
+
+      device = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "intel_backlight";
+        description = "Backlight under /sys/class/backlight (`null`: the first one).";
+      };
     };
 
     hyprland = {

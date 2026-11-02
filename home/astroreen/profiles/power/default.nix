@@ -9,6 +9,9 @@ _: {
     # Same as dux's batteryLowThreshold (its low-battery warning)
     lowThreshold = 20;
 
+    # The panel at 100 % is the largest single draw left on battery
+    brightness.battery = 40;
+
     hyprland.disableOptions = [
       "animations:enabled"
       "decoration:blur:enabled"
