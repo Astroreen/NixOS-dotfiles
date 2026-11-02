@@ -1,8 +1,11 @@
 { pkgs, lib, ... }:
 let
-  # Chromium flags to enable NVIDIA hardware video acceleration
   flags = [
-    "--enable-features=VaapiVideoDecoder,VaapiIgnoreDriverChecks,VaapiOnNvidiaGPUs,AcceleratedVideoDecodeLinuxGL,WaylandLinuxDrmSyncobj,TouchpadOverscrollHistoryNavigation"
+    # VAAPI only where Chromium supports it (the laptop's iGPU). Forced onto
+    # NVIDIA (VaapiOnNvidiaGPUs + VaapiIgnoreDriverChecks), nvidia-vaapi-driver
+    # failed vaCreateSurfaces on YouTube's 720p+ streams: the player retried
+    # three times, then dropped to 480p. NVIDIA-only hosts decode on the CPU.
+    "--enable-features=VaapiVideoDecoder,AcceleratedVideoDecodeLinuxGL,WaylandLinuxDrmSyncobj,TouchpadOverscrollHistoryNavigation"
     "--ignore-gpu-blocklist"
     "--enable-gpu-rasterization"
     # Restored tabs (YouTube) stay paused until the page is clicked
