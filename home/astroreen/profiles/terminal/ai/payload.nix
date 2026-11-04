@@ -95,17 +95,17 @@ _: {
         enable = true;
         include = [
           # engineering
-          "tdd"
-          "diagnosing-bugs"
-          "code-review"
-          "pr"
-          "retro"
-          "codebase-design"
+          # "tdd"
+          # "diagnosing-bugs"
+          # "code-review"
+          # "pr"
+          # "retro"
+          # "codebase-design"
           # productivity
           "grilling"
           "grill-me"
           "handoff"
-          "writing-for-agents"
+          # "writing-for-agents"
           "wait-what"
         ];
       };

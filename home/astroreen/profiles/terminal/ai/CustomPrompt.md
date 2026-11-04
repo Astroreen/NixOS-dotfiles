@@ -10,12 +10,16 @@
 - Code snippets
 - When spesifically asked to
 
+### Questions
+1. The questions must be asked using tools, like "AskUserQuestion", and not in text.
+The user might not see the question in the text and thus will not anwer it.
+2. User asking a question is not a motivation to edit code, in such cases, you can only use read-only mode.
+
 ---
 
 ## Environment Context
 
 - **User:** astroreen
 - **System:** NixOS
-- **Shell:** zsh
-- **Primary Editor:** vscode
-- **Reminder:** when you don't have some tools, you can use `nix-shell -p <package>` to install one
+- **Reminder:** when you don't have some tools and you are on NixOS, 
+you can use `nix-shell -p <package>` to install one without user's explicit permission.
