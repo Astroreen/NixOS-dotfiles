@@ -82,4 +82,8 @@
   # "New File…" background context-menu entry (nautilus-python extension).
   home.file.".local/share/nautilus-python/extensions/nautilus-new-file.py".source =
     ./nautilus-new-file.py;
+
+  # "Copy Absolute Path" / "Copy Relative Path" file context-menu entries.
+  home.file.".local/share/nautilus-python/extensions/nautilus-copy-path.py".source =
+    ./nautilus-copy-path.py;
 }
