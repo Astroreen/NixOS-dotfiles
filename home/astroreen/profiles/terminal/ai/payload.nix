@@ -40,6 +40,12 @@ _: {
     skill = {
       # Bundled local skills (home/modules/terminal/ai/skills/<name>) to deploy.
       local.include = [
+        "annotations"
+        "catch-up"
+        "night-shift"
+        "orchestrate"
+        "timesheet"
+        "tips"
         "commit-message"
         "design-taste-frontend"
         "docx"

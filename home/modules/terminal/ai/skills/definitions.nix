@@ -117,6 +117,27 @@
       author = "Adapted from obra/superpowers (MIT)";
     };
   };
+  orchestrate = {
+    description = "Orchestrator role — split work into groups, run one T3 thread per group, keep every PR moving (no stalls on missing GitHub events), merge what the owner allowed. Use when the owner says \"ты оркестратор\", \"раздай по тредам\", \"сгруппируй задачи\", or the work needs several parallel threads.";
+  };
+  night-shift = {
+    description = "Owner goes offline: standing permission to merge, decide and deploy until done, then one morning report.";
+    disableModelInvocation = true;
+  };
+  annotations = {
+    description = "Triage a batch of T3 preview annotations — classify, answer questions first, group into PRs, verify each fix in the preview. Use when a message carries several `preview-annotation` links.";
+  };
+  catch-up = {
+    description = "Recap of a thread for an owner who forgot it — what was asked, done, decided, how it works now, what waits for them; optional before/after screenshots. Use for \"я забыл\", \"что было сделано\", \"что осталось\", \"покажи картинками\".";
+  };
+  tips = {
+    description = "Cheat sheet of my skills and T3 Code features, with how to ask for each.";
+    disableModelInvocation = true;
+  };
+  timesheet = {
+    description = "Fill the freelance hours .xlsx from PRs, commits and T3 threads without ever changing the hours.";
+    disableModelInvocation = true;
+  };
   unslop = {
     description = "Cut AI tells from any writing.";
     disableModelInvocation = true;
