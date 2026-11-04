@@ -34,6 +34,10 @@ HOST = os.environ.get("FW_HOST", "127.0.0.1")
 PORT = int(os.environ.get("FW_PORT", "7777"))
 IDLE_UNLOAD = int(os.environ.get("FW_IDLE_UNLOAD", "0"))
 IDLE_EXIT = int(os.environ.get("FW_IDLE_EXIT", "0"))
+# Vocabulary bias: the prompt only conditions the first 30 s window (later ones
+# start fresh, see condition_on_previous_text below), the hotwords every one.
+INITIAL_PROMPT = os.environ.get("FW_INITIAL_PROMPT") or None
+HOTWORDS = os.environ.get("FW_HOTWORDS") or None
 
 _state: dict = {"model": None, "last_used": time.monotonic()}
 
@@ -115,6 +119,8 @@ async def inference(
     segments, _info = _state["model"].transcribe(
         io.BytesIO(data),
         language=lang,
+        initial_prompt=INITIAL_PROMPT,
+        hotwords=HOTWORDS,
         beam_size=5,
         vad_filter=True,
         # Without these Whisper sometimes "continues" the dictation over the

@@ -345,7 +345,7 @@ flake.nix (homeConfigurations."astroreen@<host>")
         → ../profiles/apps/*  (apps, localsend, qview, postman, clipboard, emoji-picker, screenshot, vesktop, vscode, obs, lutris,
           nautilus, gnome-text-editor, kdeconnect, vnc, tailscale, browser, music, minecraft, hyprmod, t3code)
         → ../profiles/terminal/{shell/kitty,wine,htop}.nix, ../profiles/terminal/ai/fabric
-        → ../../modules/terminal/dictation           (faster-whisper server + socket PTT daemon + Quickshell overlay)
+        → ../profiles/terminal/dictation             (→ ../../modules/terminal/dictation: faster-whisper server + socket PTT daemon + Quickshell overlay; Whisper prompt/hotwords vocabulary)
         → ../profiles/lang/{java,csharp,flutter}.nix
         → ../profiles/wm/hyprland                     (Hyprland + compositor-dispatcher binds; portal.nix: portal service fix + GTK portal dialog rule)
         → ../profiles/wm/keybinds                     (plain-command binds: media, volume, suspend, dictation)
@@ -361,7 +361,7 @@ Reusable HM modules (not profiles), under `home/modules/`:
 - `home/modules/terminal/dictation/` has push-to-talk dictation: `server.py` (faster-whisper HTTP, port 7777,
   CUDA, model `faster-whisper-large-v3`), `daemon.py` (unix-socket PTT controller; also its own client via
   `dictation-daemon start|stop|toggle|status`), `overlay/` (standalone Quickshell `qs -c dictation-overlay`).
-  WM-agnostic; imported from `home/astroreen/common/desktop.nix`. The hold-to-talk bind is `custom.keybinds.binds.dictation`
+  WM-agnostic; imported via `home/astroreen/profiles/terminal/dictation` (desktops and hercules), which sets `custom.dictation.server.{prompt,hotwords}` (Whisper `initial_prompt`/`hotwords`: mixed RU/EN sample + names, keep under ~220 tokens). The hold-to-talk bind is `custom.keybinds.binds.dictation`
   in `home/astroreen/profiles/wm/keybinds/default.nix` (`SUPER + F9` toggles: press to start, press again to stop/transcribe).
   `custom.dictation.mode` is `local` (default: own `whisper-server`), `remote` (send to `remote.host:remote.port`;
   the desktops point `remote.host` at hercules) or `auto` (laptop: per utterance, remote when its health check answers and

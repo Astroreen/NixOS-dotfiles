@@ -43,7 +43,7 @@
     ../../profiles/terminal/shell/fastfetch.nix # Fastfetch system information tool
     ../../profiles/terminal/wine.nix # Wine configuration
     ../../profiles/terminal/htop.nix # Htop on steroids (NeoHtop GUI)
-    ../../../modules/terminal/dictation # Push-to-talk voice dictation (faster-whisper)
+    ../../profiles/terminal/dictation # Push-to-talk voice dictation (faster-whisper)
     ../../profiles/terminal/ai/fabric # Fabric AI CLI tool
 
     # Languages

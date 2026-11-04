@@ -37,6 +37,8 @@ let
     export FW_PORT=${toString cfg.port}
     export FW_IDLE_UNLOAD=${toString (cfg.server.idleUnloadMinutes * 60)}
     export FW_IDLE_EXIT=${toString (cfg.server.idleExitMinutes * 60)}
+    export FW_INITIAL_PROMPT=${lib.escapeShellArg cfg.server.prompt}
+    export FW_HOTWORDS=${lib.escapeShellArg (lib.concatStringsSep ", " cfg.server.hotwords)}
     exec ${pythonEnv}/bin/python ${./server.py}
   '';
 
@@ -164,6 +166,32 @@ in
         Stop the server after this many idle minutes (0: keep running). Unlike
         `idleUnloadMinutes` this also drops the CUDA context, which a laptop
         dGPU needs to power off. `auto` mode starts it again when needed.
+      '';
+    };
+
+    server.prompt = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "Создай новый трэд в T3 Code и смерджи PR в main.";
+      description = ''
+        Whisper `initial_prompt`: text written the way the speaker writes.
+        Whisper copies its spelling, so a mixed-language sample keeps
+        foreign words in their own script and names spelled right. Applies
+        to the first 30 s of each recording; prompt plus hotwords must stay
+        under ~220 tokens (Cyrillic costs about 2-3 tokens per word).
+      '';
+    };
+
+    server.hotwords = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [
+        "T3 Code"
+        "NixOS"
+      ];
+      description = ''
+        Names and terms Whisper should prefer (faster-whisper `hotwords`),
+        applied to every 30 s window of a recording.
       '';
     };
 
