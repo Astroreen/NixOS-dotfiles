@@ -59,7 +59,7 @@ stdenv.mkDerivation (
     pname = "t3code-unwrapped";
     # Newest upstream nightly tag, pinned ourselves since nixpkgs
     # lags behind (see the update steps at the top of this file).
-    version = "0.1.7-nightly.20261102.4093";
+    version = "0.1.8-nightly.20261105.4234";
     strictDeps = true;
     __structuredAttrs = true;
 
@@ -67,7 +67,7 @@ stdenv.mkDerivation (
       owner = "pingdotgg";
       repo = "t3code";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-MZmLYSg0++7QN97szj1O6V7BDdQV1yxdf31MZvlf834=";
+      hash = "sha256-8rz3/RPLGvUgkVqCF+1p8m/gDmrfsWLcGneTxQt6IQ4=";
     };
 
     postPatch = ''
@@ -125,7 +125,7 @@ stdenv.mkDerivation (
         ;
 
       fetcherVersion = 5;
-      hash = "sha256-p+dwxOZScsmRTN6iXAkCw/pDVSyD+6ytkAD2KhJO6nE=";
+      hash = "sha256-GLP4ca/8DSKG1xSxykjQfDbT2gBO6v5GhYT1wEZ2VNI=";
     };
 
     preBuild = ''
