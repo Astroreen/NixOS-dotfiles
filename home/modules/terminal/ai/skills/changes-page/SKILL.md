@@ -1,23 +1,17 @@
 # Changes page
 
-A document that shows what a branch, a batch of PRs or a thread changed: for every change, what
-the thing is, how it was, how it is now, why, a "before" and an "after" screenshot of the same
-screen, and how to use it. The owner reads it to review the work without reproducing anything:
-reads, takes screenshots, zooms into pictures. Nothing on it is interactive.
-
-**The result is a PDF** (A4 landscape). Its bookmarks are the contents menu: groups, and the
-changes inside each group, clickable in the viewer's side panel. Pictures keep their full
-resolution, so the viewer's zoom replaces click-to-enlarge. The same HTML is published as a
-claude.ai page (contents menu on the left, highlight of the card in view, lightbox) **only when
-the owner asks for a page or a link**.
+A published page (Artifact) that shows what a branch, a batch of PRs or a thread changed: for
+every change, what the thing is, how it was, how it is now, why, a "before" and an "after"
+screenshot of the same screen, and how to use it. A contents menu on the left lists every group
+and change; clicking one jumps to it, and the entry of the card in view is highlighted. The owner
+reads it to review the work without reproducing anything.
 
 Use it when the owner asks to show the changes ("покажи, что изменилось", "до и после",
 "сделай страницу/артефакт с изменениями"), and offer it in one line after a batch of several
 user-visible PRs. For one small change, screenshots in the reply (`catch-up`) are enough.
 
-`template.html`, `build.py` and `pdf.py` sit next to this file (`~/.claude/skills/changes-page/`
-or `~/.config/opencode/skills/changes-page/`). Never hand-write the page: fill `changes.json` and
-build.
+`template.html` and `build.py` sit next to this file (`~/.claude/skills/changes-page/` or
+`~/.config/opencode/skills/changes-page/`). Never hand-write the page: fill `changes.json` and build.
 
 ## 1. List the changes
 
@@ -74,8 +68,7 @@ the owner writes otherwise.
   sees, not how the code decides.
 - Every abbreviation gets its plain name at least once per change: «заказ клиента (SO)». Put the
   domain terms in `glossary`.
-- `title` is the bookmark in the PDF: plain, what the person gains. `short` (3–6 words) is the
-  label in the page menu; it defaults to `title`.
+- `short`: the menu label, 3–6 words. The menu is how the owner navigates a long page.
 - Numbers only in examples ("счёт на 1210 €: 1000 € + 210 € НДС").
 - Bugs or doubts found on the way go to `notes`, same plain style.
 
@@ -111,42 +104,30 @@ Required: `title`, `groups[].title`, `changes[].id` (unique, a valid HTML id), `
 `after`. Everything else is optional and is left out of the page when missing. `path` shows only
 with two or more groups. Before and after pictures are paired in order; extra ones stand alone.
 
-## 5. Build
+## 5. Build and publish
 
 ```bash
-SK=<skill dir>
-python3 -I $SK/build.py <scratch>/changes.json <scratch>/shots <scratch>/page
-nix-shell -p 'python3.withPackages(p: [p.playwright])' chromium \
-  --run "python3 -I $SK/pdf.py <scratch>/page/index.html <dest>/<name>.pdf"
+python3 -I <skill dir>/build.py <scratch>/changes.json <scratch>/shots <scratch>/page
 ```
 
-`build.py` writes `page/index.html`, copies the used pictures to `page/img/`, writes
-`page/files.json` (the `files` map for a publish) and fails on a missing picture or a duplicate
-id. `pdf.py` loads every picture, opens the glossary, prints with bookmarks and fails when a
-picture did not load. Use the system chromium as above (no `playwright install` on NixOS).
+It writes `page/index.html`, copies the used pictures to `page/img/`, writes `page/files.json`
+(the `files` map) and fails on a missing picture or a duplicate id. Then:
 
-- `<dest>`: outside the scratchpad, so the file survives the session: the repo's ignored
-  `tmp/`/`.artifacts/` dir if it has one, else `~/changes/`. Name it after the branch and date:
-  `order-flow-2026-11-05.pdf`. Never commit it.
-- Render 2–3 pages to PNG (`pdftoppm -png -r 50 -f 1 -l 4`) and look at them: no cut picture
-  pairs, no empty cards, the bookmarks list the groups and changes.
-- A redo (new review round, more changes): rebuild from the updated JSON with the same name plus
-  `-v2`, do not patch the HTML by hand.
-
-### Page on claude.ai (only when asked)
-
-When the owner asks for a page, a link or an artifact: follow the Artifact tool's rules (load
-`artifact-design` once; the template already carries the page contract: title, theme tokens,
-dark mode, phone layout). Publish `page/index.html` with `files` = the map in `files.json`,
-`icon: "compare"`, a one-sentence `description`. One publish takes at most 255 files; split
-larger sets over several publishes to the same URL. A redo republishes to the SAME URL.
+- Follow the Artifact tool's rules (load `artifact-design` once; the template already carries the
+  page contract: title, theme tokens, dark mode, phone layout).
+- Publish `page/index.html` with `files` = the map in `files.json`, `icon: "compare"`, a
+  one-sentence `description`. One publish takes at most 255 files; split larger sets over
+  several publishes to the same URL.
+- A redo (new review round, more changes) republishes to the SAME URL, so the owner's link keeps
+  working. Rebuild from the updated JSON; do not patch the HTML by hand.
+- Optionally check the page at desktop and phone width (menu jumps, highlight, no sideways
+  scroll) before sending the link.
 
 ## 6. The reply
 
-The PDF as a link with its absolute path (and the page link, if one was made), then in a few
-lines: how many changes and pictures, how it is organised, what is made up or seeded by hand,
-and what waits for the owner (bugs found, things to compare with the old system). Do not repeat
-the document in the reply.
+The link, then in a few lines: how many changes and pictures, how the page is organised, what is
+made up or seeded by hand, and what waits for the owner (bugs found, things to compare with the
+old system). Do not repeat the page in the reply.
 
 Done means: every user-visible change has an entry with true facts, every picture was looked at,
-the PDF is built and looked at, and the owner has its path (and the page link, when asked).
+the page is published, and the owner has the link.

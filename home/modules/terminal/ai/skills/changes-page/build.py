@@ -74,14 +74,14 @@ def card(c):
     parts = [f'<header><div class="meta">{"".join(meta)}</div><h3>{e(c["title"])}</h3></header>']
     if c.get("what"):
         parts.append(f'<p class="what"><b>Что это.</b> {e(c["what"])}</p>')
-    parts.append(f'<div class="compare"><div class="was"><div class="label">{e(c.get("beforeLabel", "Как было"))}</div>'
-                 f'<p>{e(c["before"])}</p></div><div class="now"><div class="label">Что стало</div><p>{e(c["after"])}</p></div></div>')
+    parts.append(f'<div class="compare"><div class="was"><h4>{e(c.get("beforeLabel", "Как было"))}</h4>'
+                 f'<p>{e(c["before"])}</p></div><div class="now"><h4>Что стало</h4><p>{e(c["after"])}</p></div></div>')
     if c.get("why"):
         parts.append(f'<p class="why"><b>Зачем:</b> {e(c["why"])}</p>')
     parts.append(pairs(c))
     if c.get("howto"):
         steps = "".join(f"<li>{e(h)}</li>" for h in c["howto"])
-        parts.append(f'<div class="howto"><div class="label">Как пользоваться</div><ol>{steps}</ol></div>')
+        parts.append(f'<div class="howto"><h4>Как пользоваться</h4><ol>{steps}</ol></div>')
     cls = "change badged" if badge else "change"
     return f'<article class="{cls}" id="{e(c["id"])}">\n' + "\n".join(p for p in parts if p) + "\n</article>"
 
@@ -100,7 +100,7 @@ for n, g in enumerate(groups, 1):
         for c in g["changes"])
     toc.append(f'<li><a class="grp" href="#{e(gid)}"><span class="n">{n}</span>{e(g["title"])}</a><ol>{sub}</ol></li>')
     steps.append(f'<li><a href="#{e(gid)}">{e(g["title"])}</a><span>{e(g.get("short", ""))}</span></li>')
-    head = f'<h2><span class="step" data-n="{n}" aria-hidden="true"></span>{e(g["title"])}</h2>' + (f'<p>{e(g["intro"])}</p>' if g.get("intro") else "")
+    head = f'<h2><span class="step">{n}</span>{e(g["title"])}</h2>' + (f'<p>{e(g["intro"])}</p>' if g.get("intro") else "")
     body.append(f'<section class="group" id="{e(gid)}"><div class="group-head">{head}</div>'
                 + "".join(card(c) for c in g["changes"]) + "</section>")
 

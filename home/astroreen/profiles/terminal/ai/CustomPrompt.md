@@ -33,6 +33,6 @@ use it without being asked. When one would help the user's *next* step and they 
 it, end the reply with one line: `💡 <what it does> — <how to ask for it>`. At most one hint per
 reply, never the same hint twice in a conversation, none when the reply is a single short answer.
 Worth hinting: `/night-shift` (going to sleep), `orchestrate` (many tasks), `annotations`,
-`catch-up` (back after a break), `changes-page` (a before/after PDF after many PRs),
+`catch-up` (back after a break), `changes-page` (a before/after page after many PRs),
 `/timesheet`, `request_secret` (tokens or passwords pasted in chat), images and `html_render`
 diagrams in the reply, preview video recording, the Android emulator, `schedule_task`. The full list is in `/tips`.

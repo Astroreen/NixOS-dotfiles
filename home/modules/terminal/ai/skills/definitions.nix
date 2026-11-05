@@ -131,7 +131,7 @@
     description = "Recap of a thread for an owner who forgot it — what was asked, done, decided, how it works now, what waits for them; optional before/after screenshots. Use for \"я забыл\", \"что было сделано\", \"что осталось\", \"покажи картинками\".";
   };
   changes-page = {
-    description = "Before/after PDF of a branch or a batch of PRs — per change what it is, was/now, why, paired screenshots with red frames, how to use; bookmarks per change; a claude.ai page on request. Use for \"покажи, что изменилось\", \"до и после\", \"страница/артефакт с изменениями\".";
+    description = "Published before/after page of a branch or a batch of PRs — per change what it is, was/now, why, paired screenshots with red frames, how to use; contents menu on the left. Use for \"покажи, что изменилось\", \"до и после\", \"страница/артефакт с изменениями\".";
   };
   tips = {
     description = "Cheat sheet of my skills and T3 Code features, with how to ask for each.";
