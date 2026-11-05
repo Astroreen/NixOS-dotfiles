@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a contents menu on the left (sticky, highlights the section in view), then a guided tour:
+   intro, the flow strip, one card per change (what it is, was/now, why, paired pictures, steps). */
+:root {
+  --bg: #f5f6f9; --surface: #ffffff; --ink: #1b2030; --muted: #5d6478; --line: #dfe2ea;
+  --accent: #3b3fb6; --accent-soft: #ecedfb; --was: #a2394a; --was-soft: #fbeef0; --now: #1f7a52; --now-soft: #e9f5ef;
+  --warn-soft: #fff6e3; --warn: #8a5a00; --fix: #6a3fb6; --fix-soft: #f1ebfb;
+  --f-body: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12141b; --surface: #1b1e28; --ink: #e7e9f1; --muted: #9aa0b4; --line: #2d3140;
+  --accent: #9ea2ff; --accent-soft: #23264a; --was: #f08a9a; --was-soft: #2c1c22; --now: #6fd3a2; --now-soft: #17271f;
+  --warn-soft: #2a2414; --warn: #f0c46a; --fix: #c6a8ff; --fix-soft: #261d38; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12141b; --surface: #1b1e28; --ink: #e7e9f1; --muted: #9aa0b4; --line: #2d3140;
+  --accent: #9ea2ff; --accent-soft: #23264a; --was: #f08a9a; --was-soft: #2c1c22; --now: #6fd3a2; --now-soft: #17271f;
+  --warn-soft: #2a2414; --warn: #f0c46a; --fix: #c6a8ff; --fix-soft: #261d38; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+a { color: var(--accent) }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+.wrap { max-width: 1480px; margin: 0 auto; padding-block: 36px 72px; display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 40px; align-items: start }
+.content { display: grid; gap: 40px; min-width: 0 }
+/* contents menu */
+.toc { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow: auto; overscroll-behavior: contain;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px 14px 14px; font-size: 14px; line-height: 1.35 }
+.toc summary { cursor: pointer; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center }
+.toc summary::-webkit-details-marker { display: none }
+.toc summary::after { content: "▾"; color: var(--muted) }
+.toc[open] summary::after { content: "▴" }
+.toc-title { font: 500 12px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 2px 0 10px }
+.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px }
+.toc ol ol { margin: 2px 0 8px 12px; padding-left: 10px; border-left: 1px solid var(--line) }
+.toc a { display: block; text-decoration: none; color: var(--muted); padding: 4px 8px; border-radius: 6px }
+.toc a:hover { color: var(--ink); background: var(--bg) }
+.toc a.grp { color: var(--ink); font-weight: 600; display: flex; gap: 8px; align-items: baseline }
+.toc a.grp .n { font: 500 11px var(--f-mono); color: var(--accent); flex: none }
+.toc a[aria-current="true"] { color: var(--accent); background: var(--accent-soft) }
+.toc a.grp.in { color: var(--accent) }
+.toc .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--fix); margin-right: 6px; vertical-align: middle }
+.intro { display: grid; gap: 14px; max-width: 760px }
+.eyebrow { font: 500 12px/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+h1 { font-size: clamp(28px, 3.6vw, 38px); line-height: 1.15; margin: 0; text-wrap: balance; font-weight: 700 }
+.intro p { margin: 0; color: var(--muted) }
+.legend { display: flex; flex-wrap: wrap; gap: 8px }
+.chip { font-size: 13px; padding: 3px 10px; border-radius: 999px; font-weight: 500; white-space: nowrap }
+.chip.was { background: var(--was-soft); color: var(--was) } .chip.now { background: var(--now-soft); color: var(--now) }
+.chip.fix { background: var(--fix-soft); color: var(--fix) }
+/* the flow strip */
+.path { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 18px }
+.path h2 { margin: 0; font-size: 22px }
+.path > p { margin: 0; color: var(--muted); max-width: 70ch }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; counter-reset: s }
+.steps li { counter-increment: s; border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px 12px; display: grid; gap: 4px; align-content: start }
+.steps li::before { content: counter(s); font: 500 12px var(--f-mono); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--surface) }
+.steps a { font-weight: 600; text-decoration: none; color: var(--ink) }
+.steps a:hover { color: var(--accent) }
+.steps span { font-size: 14px; color: var(--muted); line-height: 1.45 }
+details.gloss { border-top: 1px solid var(--line); padding-top: 14px }
+details.gloss summary { cursor: pointer; font-weight: 600 }
+.gloss dl { margin: 12px 0 0; display: grid; grid-template-columns: minmax(150px, max-content) 1fr; gap: 8px 18px }
+.gloss dt { font-weight: 600 } .gloss dd { margin: 0; color: var(--muted) }
+/* groups and cards */
+main { display: grid; gap: 56px; min-width: 0 }
+.group { display: grid; gap: 22px; scroll-margin-top: 16px }
+.group-head { display: grid; gap: 6px }
+.group h2 { margin: 0; font-size: 24px; display: flex; align-items: center; gap: 12px; text-wrap: balance }
+.group-head p { margin: 0; color: var(--muted); max-width: 72ch }
+.step { font: 500 13px var(--f-mono); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--surface); flex: none }
+.change { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 18px; scroll-margin-top: 16px; min-width: 0 }
+.change.badged { border-left: 4px solid var(--fix) }
+.change header { display: grid; gap: 8px }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; font-size: 13px; color: var(--muted) }
+.meta .ref { font-family: var(--f-mono); font-size: 12px }
+.change h3 { margin: 0; font-size: 20px; line-height: 1.3; text-wrap: balance }
+.what { margin: 0; font-size: 16px; max-width: 75ch; background: var(--accent-soft); padding: 12px 16px; border-radius: 10px }
+.what b { font-weight: 600 }
+h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px }
+.compare > div { padding: 14px 16px; border-radius: 10px; min-width: 0 }
+.compare p { margin: 0 }
+.was { background: var(--was-soft) } .was h4 { color: var(--was) }
+.now { background: var(--now-soft) } .now h4 { color: var(--now) }
+.why { margin: 0; color: var(--muted); font-size: 15px } .why b { color: var(--ink) }
+.pairs { display: grid; gap: 16px }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start }
+.pair > .solo { grid-column: 1 / -1; max-width: calc(50% - 7px) }
+.pair > .solo.after { justify-self: end }
+figure { margin: 0; display: grid; gap: 6px; min-width: 0 }
+.tag { font: 500 11px var(--f-mono); letter-spacing: .05em; text-transform: uppercase }
+figure.before .tag { color: var(--was) } figure.after .tag { color: var(--now) }
+.zoom { padding: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg); cursor: zoom-in; display: block; width: 100% }
+.zoom img { display: block; width: 100%; height: auto }
+figcaption { font-size: 14px; color: var(--muted); line-height: 1.45 }
+.howto ol { margin: 0; padding-left: 22px; display: grid; gap: 4px; max-width: 80ch }
+.notes { background: var(--warn-soft); border-radius: 14px; padding: 22px 24px; display: grid; gap: 12px; scroll-margin-top: 16px }
+.notes h2 { margin: 0; font-size: 22px; color: var(--warn) }
+.notes p { margin: 0; max-width: 75ch }
+.notes ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 85ch }
+.lightbox { position: fixed; inset: 0; z-index: 50; background: rgba(10, 12, 20, .88); display: grid; place-items: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) max(20px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 20px) max(20px, env(safe-area-inset-left, 0px)); cursor: zoom-out }
+.lightbox[hidden] { display: none }
+.lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; background: #fff }
+@media (min-width: 1001px) { .toc summary { display: none } }
+@media (max-width: 1000px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-top: 16px }
+  .toc { top: 8px; z-index: 10; max-height: 75vh; box-shadow: 0 6px 18px rgba(0, 0, 0, .08) }
+  .toc .toc-title { display: none }
+  .toc[open] ol:first-of-type { margin-top: 10px }
+  .group, .change, .notes { scroll-margin-top: 72px }
+}
+@media (max-width: 760px) {
+  .compare, .pair { grid-template-columns: minmax(0, 1fr) }
+  .pair > .solo { max-width: none }
+  .change { padding: 16px } .path { padding: 16px }
+  .gloss dl { grid-template-columns: 1fr } .gloss dd { margin-bottom: 6px }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <details class="toc" id="toc" open>
+    <summary>Содержание</summary>
+    <div class="toc-title">Содержание</div>
+    <nav aria-label="Содержание">{{TOC}}</nav>
+  </details>
+  <div class="content">
+    <div class="intro">
+      <div class="eyebrow">{{EYEBROW}}</div>
+      <h1>{{H1}}</h1>
+      {{INTRO}}
+      <div class="legend"><span class="chip was">Было</span><span class="chip now">Стало</span>{{LEGEND}}</div>
+    </div>
+    {{PATH}}
+    <main>
+      {{BODY}}
+      {{NOTES}}
+    </main>
+  </div>
+</div>
+<div class="lightbox" id="lightbox" hidden><img id="lightbox-img" alt=""></div>
+<script>
+const box = document.getElementById('lightbox'), big = document.getElementById('lightbox-img');
+const toc = document.getElementById('toc'), wide = matchMedia('(min-width: 1001px)');
+const syncToc = () => { toc.open = wide.matches };
+wide.addEventListener('change', syncToc); syncToc();
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('.zoom');
+  if (b) { big.src = b.dataset.src; big.alt = b.querySelector('img').alt; box.hidden = false; return }
+  if (!box.hidden && box.contains(ev.target)) { box.hidden = true; return }
+  if (!wide.matches && ev.target.closest('.toc a')) toc.open = false;
+});
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') box.hidden = true });
+// Highlight the menu entry of the card in view, and its group.
+const links = new Map([...toc.querySelectorAll('a[href^="#"]')].map((a) => [a.getAttribute('href').slice(1), a]));
+const targets = [...document.querySelectorAll('.change[id], .notes[id], .group[id]')].filter((el) => links.has(el.id));
+let current = null;
+const mark = (id) => {
+  if (id === current) return; current = id;
+  for (const a of links.values()) { a.removeAttribute('aria-current'); a.classList.remove('in') }
+  const a = links.get(id); if (!a) return;
+  a.setAttribute('aria-current', 'true');
+  const grp = a.closest('ol ol')?.parentElement?.querySelector(':scope > a.grp'); if (grp) grp.classList.add('in');
+  if (wide.matches) {
+    const top = a.getBoundingClientRect().top - toc.getBoundingClientRect().top + toc.scrollTop, bottom = top + a.offsetHeight;
+    if (top < toc.scrollTop + 40 || bottom > toc.scrollTop + toc.clientHeight - 40) toc.scrollTop = top - toc.clientHeight / 3;
+  }
+};
+// A clicked entry stays lit while the jump scrolls (the last cards never reach the line).
+let pinned = null, unpin = 0;
+toc.addEventListener('click', (ev) => {
+  const a = ev.target.closest('a[href^="#"]'); if (!a) return;
+  pinned = a.getAttribute('href').slice(1); mark(pinned);
+  clearTimeout(unpin); unpin = setTimeout(() => { pinned = null }, 1200);
+});
+for (const t of ['wheel', 'touchstart', 'keydown']) addEventListener(t, () => { pinned = null }, { passive: true });
+const onScroll = () => {
+  if (pinned) return mark(pinned);
+  const line = innerHeight * 0.3; let best = null;
+  for (const el of targets) { if (el.getBoundingClientRect().top <= line) best = el.id; else break }
+  if (innerHeight + scrollY >= document.documentElement.scrollHeight - 40)
+    best = targets.findLast((el) => el.getBoundingClientRect().top < innerHeight * 0.7)?.id ?? best;
+  mark(best ?? targets[0]?.id);
+};
+addEventListener('scroll', onScroll, { passive: true }); onScroll();
+</script>
+</body>
+</html>

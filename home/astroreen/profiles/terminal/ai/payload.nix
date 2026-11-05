@@ -42,6 +42,7 @@ _: {
       local.include = [
         "annotations"
         "catch-up"
+        "changes-page"
         "night-shift"
         "orchestrate"
         "timesheet"
