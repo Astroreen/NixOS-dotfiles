@@ -21,7 +21,7 @@ except ValueError:
 
 import os
 
-from gi.repository import Gdk, GObject, Nautilus
+from gi.repository import Gdk, Gio, GObject, Nautilus
 
 
 def _git_root(path):
@@ -57,8 +57,13 @@ class CopyPathExtension(GObject.GObject, Nautilus.MenuProvider):
         if not files or any(file.is_directory() for file in files):
             return []
 
-        paths = [file.get_location().get_path() for file in files]
-        # Remote locations (sftp://, trash://, ...) have no local path.
+        # Virtual views (Recent, Starred) list recent:// etc. locations; the
+        # activation URI points at the real file.
+        paths = [
+            Gio.File.new_for_uri(file.get_activation_uri()).get_path()
+            for file in files
+        ]
+        # Remote locations (sftp://, ...) have no local path.
         if None in paths:
             return []
 
