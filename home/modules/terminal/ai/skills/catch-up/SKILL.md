@@ -26,8 +26,8 @@ code, save both as PNG files, and put them in the reply as Markdown images with 
 the reply with `html_render` when a picture explains the change better than text. Images never go
 into the repository.
 
-Many changes (a whole branch, a batch of PRs) or a page the owner will keep: build it with the
-`changes-page` skill instead of images in the reply.
+Many changes (a whole branch, a batch of PRs) or a document the owner will keep: build it with the
+`changes-page` skill (a PDF) instead of images in the reply.
 
 Done means: every task of the thread has all five points, and the owner's waiting list is at the
 end.
