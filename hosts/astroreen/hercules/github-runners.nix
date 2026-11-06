@@ -1,10 +1,11 @@
 # Self-hosted GitHub Actions runners for Astroreen/Caspian-Logistics-ERP
-# (.github/workflows/{ci,claude-review,pipeline}.yml):
+# (.github/workflows/{ci,claude-review}.yml):
 #   - caspian-ci (3): backend, frontend, changesets and the Claude review;
 #   - caspian-e2e (3): Playwright e2e (2 workers); each job takes its ports,
 #     container name and storage from the runner name (Caspian #190, #192),
-#     so they run side by side;
-#   - caspian-pipeline (1): merge queue, merges with astroreen's own gh login.
+#     so they run side by side.
+# The caspian-pipeline runner (merge queue, pipeline.yml) is gone: the
+# Pipeline workflow was switched off on 2026-11-07.
 #
 # Registration (once, and again after a change to url/labels/name/workDir,
 # since a registration token is only valid for an hour):
@@ -49,74 +50,54 @@ let
     // lib.genAttrs (numbered "caspian-e2e" e2eRunners) (_: {
       labels = [ "caspian-e2e" ];
       slice = "caspian-ci-e2e.slice";
-    })
-    // {
-      caspian-pipeline = {
-        labels = [ "caspian-pipeline" ];
-        ghLogin = true;
-      };
-    };
+    });
 in
 {
-  services.github-runners = lib.mapAttrs (
-    name: runner:
-    let
-      ghLogin = runner.ghLogin or false;
-    in
-    {
-      enable = true;
-      inherit url tokenFile;
-      name = "${config.networking.hostName}-${name}";
-      extraLabels = runner.labels;
-      replace = true; # Re-registering under the same name replaces the old entry
-      workDir = "${root}/work/${name}";
+  services.github-runners = lib.mapAttrs (name: runner: {
+    enable = true;
+    inherit url tokenFile;
+    name = "${config.networking.hostName}-${name}";
+    extraLabels = runner.labels;
+    replace = true; # Re-registering under the same name replaces the old entry
+    workDir = "${root}/work/${name}";
 
-      # In the docker group: the e2e job starts its own PostgreSQL container.
-      user = "astroreen";
+    # In the docker group: the e2e job starts its own PostgreSQL container.
+    user = "astroreen";
 
-      extraPackages = with pkgs; [
-        config.virtualisation.docker.package
-        gh
-        jq
-        curl
-        diffutils
-        gawk
-        iproute2 # ss, used by the e2e job to stop the backend
-        procps
-        which
-        unzip
-        xz
-      ];
+    extraPackages = with pkgs; [
+      config.virtualisation.docker.package
+      gh
+      jq
+      curl
+      diffutils
+      gawk
+      iproute2 # ss, used by the e2e job to stop the backend
+      procps
+      which
+      unzip
+      xz
+    ];
 
-      extraEnvironment = {
-        HOME = home;
-        # Java takes user.home from passwd (/home/astroreen, hidden), not HOME.
-        GRADLE_USER_HOME = "${home}/.gradle";
-        # setup-java, setup-node, bun (Claude review) and Playwright's Chromium
-        # are prebuilt binaries; session variables do not reach systemd units.
-        inherit (config.environment.sessionVariables) NIX_LD NIX_LD_LIBRARY_PATH;
-      }
-      // lib.optionalAttrs ghLogin {
-        # The workflow empties GH_TOKEN, so gh falls back to this login.
-        GH_CONFIG_DIR = "${home}/.config/gh-astroreen";
-      };
+    extraEnvironment = {
+      HOME = home;
+      # Java takes user.home from passwd (/home/astroreen, hidden), not HOME.
+      GRADLE_USER_HOME = "${home}/.gradle";
+      # setup-java, setup-node, bun (Claude review) and Playwright's Chromium
+      # are prebuilt binaries; session variables do not reach systemd units.
+      inherit (config.environment.sessionVariables) NIX_LD NIX_LD_LIBRARY_PATH;
+    };
 
-      serviceOverrides = {
-        Slice = runner.slice or "caspian-ci.slice";
-        ReadWritePaths = [ home ];
-        # Group membership (docker socket) needs the real ids. The docker group
-        # gives root anyway, so the user namespace protects nothing here.
-        PrivateUsers = false;
-        # Removes capset from the module's deny list: Chromium's zygote cannot
-        # fork without it ("GPU process isn't usable") and every e2e page dies.
-        SystemCallFilter = [ "capset" ];
-      }
-      // lib.optionalAttrs ghLogin {
-        # /home stays hidden (ProtectHome); only the gh login is mapped in.
-        BindReadOnlyPaths = [ "/home/astroreen/.config/gh:${home}/.config/gh-astroreen" ];
-      };
-    }
-  ) runners;
+    serviceOverrides = {
+      Slice = runner.slice or "caspian-ci.slice";
+      ReadWritePaths = [ home ];
+      # Group membership (docker socket) needs the real ids. The docker group
+      # gives root anyway, so the user namespace protects nothing here.
+      PrivateUsers = false;
+      # Removes capset from the module's deny list: Chromium's zygote cannot
+      # fork without it ("GPU process isn't usable") and every e2e page dies.
+      SystemCallFilter = [ "capset" ];
+    };
+  }) runners;
 
   # Shared limits of all runners and their jobs (docker containers excepted,
   # they run under dockerd). Over MemoryHigh the jobs are throttled and pushed
