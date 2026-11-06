@@ -141,7 +141,7 @@ hosts/
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload (custom.power.hybridGpu), conservation mode at boot (custom.power.chargeLimit, BAT1), PCIe ASPM powersupersave, NVIDIA S0ix, socket-activated Docker, Bluetooth off at boot, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Ollama, Minecraft
     aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk), hardware config; being retired, nothing host-specific left on it
-    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), github-runners.nix (Caspian ERP CI, moved from aktkc), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
+    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), github-runners.nix (Caspian ERP CI and e2e, moved from aktkc), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # services/ (Docker services, preconfigured for hercules), hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
@@ -195,10 +195,12 @@ rootless podman) for autonomous agents. Restic backups (`profiles/server/backup.
 backup target exists; when enabled, they read the repository URL and password from
 `/etc/restic/{repository,password}`, created by hand on the host (not in the repo).
 
-hercules runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/hercules/github-runners.nix`: `caspian-ci` ×5,
-`caspian-e2e-1..3`, `caspian-pipeline`; counts are `ciRunners`/`e2eRunners`) as `astroreen`, with HOME and work dirs under
-`/var/lib/caspian-ci`, all in `caspian-ci.slice` (MemoryHigh 22G, MemoryMax 26G, CPU/IO weight 50) so CI cannot starve the
-builder agents; the e2e runners in its child `caspian-ci-e2e.slice` (MemoryHigh 18G, MemoryMax 20G). hercules has zram at
+hercules runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/hercules/github-runners.nix`: `caspian-ci-1..3`,
+`caspian-e2e-1..3`; counts are `ciRunners`/`e2eRunners`; the `caspian-pipeline` merge-queue runner was removed when the
+Pipeline workflow was switched off, 2026-11-07) as `astroreen`, with HOME and work dirs under
+`/var/lib/caspian-ci`, all in `caspian-ci.slice` (CPU/IO weight 50; memory and CPUs capped by its parent `caspian.slice`,
+MemoryHigh 14G, MemoryMax 15G, CPUs 0-22, in `configuration.nix`) so CI cannot starve the builder agents (T3, `user.slice`);
+the e2e runners in its child `caspian-ci-e2e.slice` (MemoryHigh 12G, MemoryMax 13G). hercules has zram at
 100% of RAM, `vm.swappiness = 150` and `system.slice` MemoryLow 3G (services reclaimed last). Server hosts keep minute-level `sar` history (sysstat, 7 days, `/var/log/sa`) from `profiles/server/monitoring.nix`.
 The registration token lives in `/var/lib/secrets/github-runner-caspian` (by hand, not in the repo; the
 command is in the file header). The Playwright Chromium libraries are added to `programs.nix-ld.libraries` there.
