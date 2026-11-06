@@ -118,7 +118,7 @@
     };
   };
   orchestrate = {
-    description = "Orchestrator role — split work into groups, run one T3 thread per group, keep every PR moving (no stalls on missing GitHub events), merge what the owner allowed. Use when the owner says \"ты оркестратор\", \"раздай по тредам\", \"сгруппируй задачи\", or the work needs several parallel threads.";
+    description = "Orchestrator role — map dependencies into independent lanes, run one T3 thread per lane (batch PRs into an integration branch the owner reviews once), keep every PR moving (no stalls on missing GitHub events), merge what the owner allowed. Use when the owner says \"ты оркестратор\", \"раздай по тредам\", \"сгруппируй задачи\", or the work needs several parallel threads.";
   };
   night-shift = {
     description = "Owner goes offline: standing permission to merge, decide and deploy until done, then one morning report.";

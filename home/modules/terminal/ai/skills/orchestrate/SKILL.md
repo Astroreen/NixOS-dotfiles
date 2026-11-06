@@ -5,25 +5,47 @@ group, keep every thread moving, and merge what the owner allowed. You write lit
 Project rules (`AGENTS.md`, a `pipeline`/`builder` skill, lane and risk limits) override anything
 here; read them first.
 
+## Plan the lanes before any thread
+
+The danger is not many PRs but PRs reaching `main` faster than the owner understands them. Main
+moves only by a merge the owner reviewed, unless they explicitly allowed self-merge for a small or
+trusted task.
+
+1. **Map dependencies.** List the tasks; mark which depend on which and which touch the same files
+   or modules. Only independent work runs in parallel.
+2. **One thread = one independent lane.** If B needs A, one thread does A then B. Tasks on the same
+   files share a lane. Threads = lanes (usually 3–4), never tasks.
+3. **Handle a dependency**, in this order of preference for a batch:
+   - **Integration branch** `integration/<topic>`: every PR of the batch targets it; agents merge
+     into it on green CI + code review. The owner reviews once: one `changes-page` for the batch
+     and one PR `integration/<topic> → main`. Default for any batch over ~3 PRs.
+   - **Stacked PRs**: the child branch starts from the parent's (`workspaceStrategy` with the parent
+     as `baseRef`, `startFromOrigin: false`), rebased when the parent merges. Chains of 2–3 only;
+     longer ones end in endless rebases.
+   - **Sequential in one thread** when the chain is short and the work small.
+4. **Show the plan, one click**: lanes, order inside each, the integration branch, what the owner
+   reviews at the end. Ask with the question tool, then start.
+
 ## Steps
 
-1. **Group.** Turn the request into groups that touch disjoint files or modules, so threads do not
-   conflict. One group = one thread = one PR. Note dependencies ("B after A") and start dependent
-   groups only after their base merged.
-2. **Settle the merge target before starting anyone**: `main`, or an integration branch the owner
-   reviews later. If the owner did not say, ask once. Write it into every child brief.
+1. **Group** per *Plan the lanes*: one thread per lane; a lane may open several PRs.
+2. **Merge target** comes from the approved plan: the integration branch, or `main` only for a
+   batch of ~3 PRs or fewer. Write it into every child brief.
 3. **Check load, then launch.** Before each wave read `uptime` and `free -g` on the host. Start at
    most the project's limit (default 4) and none while load is above the core count or free memory
    is under ~4 GB. Launch with `t3_thread_launch` in a worktree, title `"<#issue or letter> <short
    topic>"`. Each brief carries: goal, acceptance checks, merge target, merge permission, and the
    **self-merge fallback** below.
 4. **Watch.** Link and watch every PR. Before you end any turn, see *Staying awake*.
-5. **Merge** each PR the moment its required checks and review are green and the owner's
-   permission covers it. Then pull the merge into the other open branches that conflict.
-6. **Report** when every group is merged: one message per group with the PR link, what changed,
+5. **Merge** each PR into its integration (or stack parent) branch the moment its required checks
+   and review are green. Then pull the merge into the other open branches that conflict. A PR into
+   `main` waits for the owner unless they explicitly allowed self-merge for it.
+6. **Report** when every lane is merged: open the `integration/<topic> → main` PR, build one
+   `changes-page` for the batch, and send one message per lane with the PR links, what changed,
    decisions you made for the owner, and what still needs the owner's eyes.
 
-Done means: every group's PR is merged or explicitly parked with a reason, and the report is sent.
+Done means: every lane's PRs are merged into the target or explicitly parked with a reason, the
+PR to `main` (if any) is open for the owner, and the report is sent.
 
 ## Staying awake
 
@@ -46,11 +68,14 @@ A GitHub event can fail to arrive. A PR can merge, close or conflict while you w
 
 > When your PR is green and approved and the merge permission covers it, merge it yourself if the
 > orchestrator has not merged it within 15 minutes. Do not wait on a thread that may be gone.
+> This covers PRs into `integration/*` or a stack parent; never merge into `main` unless the owner
+> explicitly allowed it for this task.
 
 ## Review rounds
 
 Fix every `Blocking` finding. From the third review round on, fix only `Blocking` findings and
-answer the rest in one PR comment; then merge on green.
+answer the rest in one PR comment; then merge on green into the integration branch (a PR into
+`main` goes to the owner instead).
 
 ## Decisions the owner cannot make
 
