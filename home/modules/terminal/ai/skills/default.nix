@@ -16,6 +16,9 @@ let
   # from `custom.ai.skill.definitions.<name>`.
   bundledDir = ./.;
 
+  # Codex reads user skills from ~/.agents/skills (the cross-tool location).
+  skillTargets = ai.targets ++ [ "codex" ];
+
   skillModule =
     { name, ... }:
     {
@@ -45,15 +48,32 @@ let
           disableModelInvocation = mkOption {
             type = types.nullOr types.bool;
             default = null;
-            description = "Only load the skill on explicit invocation (`disable-model-invocation`, both headers).";
+            description = "Only load the skill on explicit invocation (`disable-model-invocation` in the opencode/claude-code headers, `allow_implicit_invocation: false` in Codex's agents/openai.yaml).";
+          };
+
+          codex = mkOption {
+            type = types.attrsOf types.anything;
+            default = { };
+            description = ''
+              Extra Codex SKILL.md frontmatter. Wins over generated fields;
+              `null` removes a generated field.
+            '';
           };
         }
         // ai.commonOptions {
           toolsDescription = ''
             Enabled entries become claude-code `allowed-tools` (used without a
-            permission prompt while the skill is active). opencode skills have no
-            tool setting, so it is claude-code-only.
+            permission prompt while the skill is active). opencode and Codex
+            skills have no tool setting, so it is claude-code-only.
           '';
+        }
+        # Skills also go to Codex, which agents and commands do not.
+        // {
+          targets = mkOption {
+            type = types.listOf (types.enum skillTargets);
+            default = skillTargets;
+            description = "CLIs this skill is deployed to.";
+          };
         };
     };
 
@@ -74,6 +94,8 @@ let
       }
       // d.extra
       // d.claude;
+    # Codex has no `disable-model-invocation`; that goes to agents/openai.yaml.
+    codex = name: d: skillHeader name d // { disable-model-invocation = null; } // d.extra // d.codex;
   };
 
   # Skill catalogs, read from the pinned flake inputs at eval time. Shared by
@@ -121,6 +143,7 @@ let
         skillMd = pkgs.writeText "${name}-SKILL.md" (
           ai.render (headers.${target} name d) (builtins.readFile (d.src + "/SKILL.md"))
         );
+        manualOnly = target == "codex" && d.disableModelInvocation == true;
       }
     ) (lib.filter (name: lib.elem target cfg.definitions.${name}.targets) cfg.local.include)
     ++ map (name: {
@@ -137,7 +160,7 @@ let
           if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include
         );
 
-  # Both CLIs only scan `skills/<name>/SKILL.md`, so the whole set has to land
+  # The CLIs only scan `skills/<name>/SKILL.md`, so the whole set has to land
   # in one directory per CLI. Built as a store path; home-manager lndir's it
   # into ~/.config/opencode/skills/ and ~/.claude/skills/ (real directories,
   # read-only per-file symlinks), which keeps runtime-added skills (astrocode
@@ -150,6 +173,10 @@ let
         rm -rf "$out/${s.name}"
         cp -r --no-preserve=mode ${lib.escapeShellArg "${s.src}"} "$out/${s.name}"
         ${lib.optionalString (s ? skillMd) ''cp --no-preserve=mode ${s.skillMd} "$out/${s.name}/SKILL.md"''}
+        ${lib.optionalString (s.manualOnly or false) ''
+          mkdir -p "$out/${s.name}/agents"
+          printf 'policy:\n  allow_implicit_invocation: false\n' > "$out/${s.name}/agents/openai.yaml"
+        ''}
       '') (skillSources target)}
     '';
 
@@ -260,6 +287,27 @@ in
     })
     (lib.mkIf (skillSources "claude-code" != [ ]) {
       programs.claude-code.skills = "${skillsDir "claude-code"}";
+    })
+    # Codex skips SKILL.md files that resolve into /nix/store (a home.file
+    # link is ignored), so its set is copied in as real files. The names
+    # copied last time are kept in .nix-managed and removed first, so a
+    # dropped skill goes away and runtime-added ones stay.
+    (lib.mkIf (skillSources "codex" != [ ]) {
+      home.activation.codexSkills = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        dir="$HOME/.agents/skills"
+        if [ -f "$dir/.nix-managed" ]; then
+          while IFS= read -r name; do
+            if [ -n "$name" ]; then run rm -rf "$dir/$name"; fi
+          done < "$dir/.nix-managed"
+        fi
+        run mkdir -p "$dir"
+        run cp -r --no-preserve=mode ${skillsDir "codex"}/. "$dir/"
+        run cp --no-preserve=mode ${
+          pkgs.writeText "codex-skills-managed" (
+            lib.concatMapStrings (s: "${s.name}\n") (skillSources "codex")
+          )
+        } "$dir/.nix-managed"
+      '';
     })
   ];
 }

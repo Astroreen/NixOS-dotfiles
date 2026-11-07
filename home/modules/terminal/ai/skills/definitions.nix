@@ -15,6 +15,18 @@
     description = "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.";
     license = "Complete terms in LICENSE.txt";
   };
+  self-review = {
+    description = "Review your own diff in a fresh context before opening a PR or saying done: run the checks and show their output, hunt real bugs with a concrete failure scenario, validate each finding against the code, drop style-only ones, fix or reject each. Use before every PR, after finishing a feature or fix, or when asked to review/check your own work.";
+  };
+  simplify-diff = {
+    description = "Shrink a diff that grew past the task: remove unrequested options, drive-by refactors, duplicate helpers, defensive code and nit-driven changes, then re-run the checks. Use when the diff is much larger than the task, after several review rounds, or when asked to simplify/trim/cut a change.";
+  };
+  security-check = {
+    description = "Security pass on a change that touches permissions, login, tokens/secrets, files, agent/MCP tools, public pages, webhooks, emails or anything leaving the system: side doors, missing permission checks, injection, leaked secrets, each with a concrete attack. Use before a PR in those areas or when asked for a security review.";
+  };
+  review-loop = {
+    description = "Convergence rules for any review-and-fix loop (own review, CI bot, other agent, person): cap 3 rounds then step back and question the approach, name the bug class and fix every instance, never repeat a finding, answer growing nits with \"not in this PR\". Use when answering review comments or running a second review round.";
+  };
   spike = {
     description = "Throwaway experiments to validate an idea before build.";
     license = "MIT";

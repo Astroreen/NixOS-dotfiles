@@ -52,6 +52,12 @@ _: {
         "docx"
         "frontend-design"
         "spike"
+        # review before the PR, for every CLI (built-in /code-review,
+        # /simplify, /security-review are Claude-only)
+        "self-review"
+        "simplify-diff"
+        "security-check"
+        "review-loop"
         # "subagent-driven-development"
         # "systematic-debugging"
         # "test-driven-development"
