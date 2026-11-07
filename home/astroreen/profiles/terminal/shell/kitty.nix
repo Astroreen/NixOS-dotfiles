@@ -51,14 +51,26 @@
     };
   };
 
-  # Floats centered at 1300x800 through the window rule below
+  # Floats centered at 1300x800 through the window rule below. Opens a
+  # window in the hidden kitty started with Hyprland (below), skipping
+  # kitty's own startup (Python, fonts, GPU context) on every press.
   custom.keybinds.binds.terminal = {
     description = lib.mkDefault "Terminal";
     key = lib.mkDefault "SUPER + T";
-    exec = lib.mkDefault "kitty";
+    exec = lib.mkDefault "kitty --single-instance";
   };
 
   wayland.windowManager.hyprland = {
+    # hl.exec_once does not exist in the Lua API, see apps/clipboard.nix
+    settings.on = [
+      {
+        _args = [
+          "hyprland.start"
+          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"kitty --single-instance --start-as=hidden\")\nend")
+        ];
+      }
+    ];
+
     settings.window_rule = [
       {
         match.class = "^(kitty)$";

@@ -156,15 +156,19 @@ in
           key = "    CPU Usage";
           keyColor = "green";
           format = "{1}";
+          # Samples /proc/stat twice this many ms apart (default 200), and
+          # the whole banner waits for it - that was the visible lag.
+          waitTime = 50;
         }
         {
           # fastfetch's built-in `gpu` module misdetects on PRIME
           # offload (NVIDIA sits behind Intel here) - shell out to
-          # nvidia-smi directly instead.
+          # nvidia-smi directly instead. A runtime-suspended dGPU (laptop)
+          # is reported as such: nvidia-smi would wake it up, slowly.
           type = "command";
           key = "  󰺶  GPU Usage";
           keyColor = "yellow";
-          text = ''gpu=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>/dev/null); [ -n "$gpu" ] && echo "''${gpu}%" || echo "N/A"'';
+          text = ''if grep -qs suspended /sys/bus/pci/drivers/nvidia/0000:*/power/runtime_status; then echo "Sleeping"; else gpu=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>/dev/null); [ -n "$gpu" ] && echo "''${gpu}%" || echo "N/A"; fi'';
         }
         {
           type = "memory";
