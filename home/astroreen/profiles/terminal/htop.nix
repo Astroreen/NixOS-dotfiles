@@ -13,6 +13,7 @@
       # hosts/modules/wm/hyprland/default.nix sessionVariables) lets it try
       # native Wayland first instead of hard-requiring X11.
       export WEBKIT_DISABLE_DMABUF_RENDERER=1
+      export WEBKIT_DISABLE_COMPOSITING_MODE=1
       exec ${pkgs.neohtop}/bin/NeoHtop "$@"
     '')
   ];
