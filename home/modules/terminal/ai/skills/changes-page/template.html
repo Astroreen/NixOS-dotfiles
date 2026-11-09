@@ -126,6 +126,33 @@ figcaption { font-size: 14px; color: var(--muted); line-height: 1.45 }
   .change { padding: 16px } .path { padding: 16px }
   .gloss dl { grid-template-columns: 1fr } .gloss dd { margin-bottom: 6px }
 }
+/* review rounds (changes.json with `rounds`): one colour per round, --rc / --rcs inside .rN */
+:root { --r1: #3b3fb6; --r1s: #ecedfb; --r2: #a35f00; --r2s: #fdf1de; --r3: #1f7a52; --r3s: #e6f4ec;
+  --r4: #b0306a; --r4s: #fbe9f1; --r5: #0b6f86; --r5s: #e3f3f7; --r6: #5b6b00; --r6s: #f1f4dc }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --r1: #9ea2ff; --r1s: #23264a; --r2: #f0b45a; --r2s: #2e2414; --r3: #6fd3a2; --r3s: #17271f;
+  --r4: #f28bbb; --r4s: #321a27; --r5: #6fd0e6; --r5s: #12272d; --r6: #c8d86a; --r6s: #23270f } }
+:root[data-theme="dark"] {
+  --r1: #9ea2ff; --r1s: #23264a; --r2: #f0b45a; --r2s: #2e2414; --r3: #6fd3a2; --r3s: #17271f;
+  --r4: #f28bbb; --r4s: #321a27; --r5: #6fd0e6; --r5s: #12272d; --r6: #c8d86a; --r6s: #23270f }
+.r1 { --rc: var(--r1); --rcs: var(--r1s) } .r2 { --rc: var(--r2); --rcs: var(--r2s) } .r3 { --rc: var(--r3); --rcs: var(--r3s) }
+.r4 { --rc: var(--r4); --rcs: var(--r4s) } .r5 { --rc: var(--r5); --rcs: var(--r5s) } .r6 { --rc: var(--r6); --rcs: var(--r6s) }
+.group.rnd { border-top: 6px solid var(--rc); padding-top: 22px }
+.group.rnd .step { background: var(--rc) } .group.rnd h2 { color: var(--rc) }
+.group.rnd .change { border-left: 5px solid var(--rc) }
+.ask { margin: 4px 0 0; background: var(--rcs); border-left: 4px solid var(--rc); padding: 12px 16px; border-radius: 8px; color: var(--ink) !important; max-width: none !important }
+.chip.round { background: var(--rcs); color: var(--rc); font-weight: 600 }
+.chip.q { background: var(--warn); color: var(--surface); font-size: 12px; padding: 1px 8px }
+.lane-h { margin: 10px 0 -8px; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted) }
+.links { display: flex; flex-wrap: wrap; gap: 8px }
+.links a { font-size: 14px; font-weight: 600; text-decoration: none; padding: 4px 10px; border-radius: 8px; background: var(--rcs); color: var(--rc); border: 1px solid var(--rc) }
+.notes .changed { color: var(--rc); font-weight: 600 }
+.proof { margin: 16px 0 4px } .proof video { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 10px; border: 1px solid var(--line); background: #000; display: block }
+.proof figcaption { font-size: 14px; color: var(--muted); margin-top: 6px }
+.toc li.lane { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-top: 6px; padding-left: 4px }
+.toc li.rnd > a.grp .n { background: var(--rc); color: var(--surface); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center }
+.toc li.rnd > ol { border-left: 2px solid var(--rc) }
+.steps.rounds li { border-top: 4px solid var(--rc) } .steps.rounds li::before { background: var(--rc) }
 @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth } }
 </style>
 </head>

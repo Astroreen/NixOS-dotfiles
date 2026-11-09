@@ -131,7 +131,7 @@
     description = "Recap of a thread for an owner who forgot it — what was asked, done, decided, how it works now, what waits for them; optional before/after screenshots. Use for \"я забыл\", \"что было сделано\", \"что осталось\", \"покажи картинками\".";
   };
   changes-page = {
-    description = "Published before/after page of a branch or a batch of PRs — per change what it is, was/now, why, paired screenshots with red frames, how to use; contents menu on the left. Use for \"покажи, что изменилось\", \"до и после\", \"страница/артефакт с изменениями\".";
+    description = "Published before/after page of a branch or a batch of PRs — per change what it is, was/now, why, paired screenshots with red frames, how to use; contents menu on the left; later review rounds as coloured rounds with their own ask, video check and agent decisions. Use for \"покажи, что изменилось\", \"до и после\", \"страница/артефакт с изменениями\", новый круг правок к той же пачке PR.";
   };
   tips = {
     description = "Cheat sheet of my skills and T3 Code features, with how to ask for each.";
