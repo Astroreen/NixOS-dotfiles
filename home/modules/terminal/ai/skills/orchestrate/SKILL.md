@@ -40,7 +40,13 @@ trusted task.
 5. **Merge** each PR into its integration (or stack parent) branch the moment its required checks
    and review are green. Then pull the merge into the other open branches that conflict. A PR into
    `main` waits for the owner unless they explicitly allowed self-merge for it.
-6. **Report** when every lane is merged: open the `integration/<topic> → main` PR, build one
+6. **Cross-page check after a very large change** (many screens): lanes fix their own screens and
+   nobody sees the whole. Collect data once: a script records every actionable element per page
+   (label, region, position) plus screenshots, before = `main`, after = the branch, same seed data.
+   Spawn one analysis subagent per group of pages; each reports (1) the same action placed
+   differently across pages, (2) elements moved, vanished or duplicated against before. Decide one
+   placement per action, fix, re-run until the cross-page list is empty; only then go to step 7.
+7. **Report** when every lane is merged: open the `integration/<topic> → main` PR, build one
    `changes-page` for the batch, and send one message per lane with the PR links, what changed,
    decisions you made for the owner, and what still needs the owner's eyes.
 
