@@ -8,7 +8,8 @@ lane and risk limits) override anything here; read them first.
 
 The danger is not many PRs but PRs reaching `main` faster than the owner understands them.
 
-- Every PR targets `main` and waits for the owner's review and merge.
+- Every PR targets `main` (a stacked one: its parent's branch) and waits for the owner's review
+  and merge.
 - Nobody else merges (not you, not a child) unless the owner says so in this conversation, for
   the PRs they name. Copy their words into the brief of each thread they cover.
 - **At most 5 open PRs per orchestration**, at most 2 of them high-risk (money, permissions,
@@ -24,7 +25,8 @@ The danger is not many PRs but PRs reaching `main` faster than the owner underst
 3. **Handle a dependency**, in this order of preference:
    - **Sequential in one thread**: B's PR opens after the owner merged A's.
    - **Stacked PRs**: the child branch starts from the parent's (`workspaceStrategy` with the parent
-     as `baseRef`, `startFromOrigin: false`), rebased when the parent merges. Chains of 2–3 only.
+     as `baseRef`, `startFromOrigin: false`) and its PR targets the parent's branch until the owner
+     merges the parent, then `main`. Chains of 2–3 only.
    - **Integration branch** `integration/<topic>`: only when the owner asks for one, or when the
      changes cannot work apart. Ask the owner who merges into it.
 4. **Show the plan, one click**: lanes, order inside each, which PRs are high-risk, in what order
@@ -35,15 +37,15 @@ The danger is not many PRs but PRs reaching `main` faster than the owner underst
 1. **Check load, then launch.** Before each wave read `uptime` and `free -g` on the host. Start at
    most the project's limit (default 4) and none while load is above the core count or free memory
    is under ~4 GB. Launch with `t3_thread_launch` in a worktree, title `"<#issue or letter> <short
-   topic>"`. Each brief carries: goal, acceptance checks, base `main`, "open the PR, link and watch
+   topic>"`. Each brief carries: goal, acceptance checks, base (`main` or the stack parent), "open the PR, link and watch
    it, do not merge" (or the owner's exact merge words), and review rounds per `review-loop`.
 2. **Watch.** Link and watch every PR. Before you end any turn, see *Staying awake*.
 3. **After the owner merges a PR**, pull `main` into the open branches that now conflict and open
    the next queued PR.
 4. **Cross-page check after a very large change** (many screens): lanes fix their own screens and
    nobody sees the whole. Collect data once: a script records every actionable element per page
-   (label, region, position) plus screenshots, before = `main`, after = the branches, same seed
-   data. Spawn one analysis subagent per group of pages; each reports (1) the same action placed
+   (label, region, position) plus screenshots, before = `main`, after = a local merge of all the
+   lane branches (never pushed), same seed data. Spawn one analysis subagent per group of pages; each reports (1) the same action placed
    differently across pages, (2) elements moved, vanished or duplicated against before. Decide one
    placement per action, fix, re-run until the cross-page list is empty; only then report.
 5. **Report**: one `changes-page` for the batch, and one message per lane with the PR links, what
