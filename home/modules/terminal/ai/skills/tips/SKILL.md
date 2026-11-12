@@ -7,7 +7,6 @@ rows and say how to ask for them in their current task.
 
 | Когда | Что написать |
 |---|---|
-| Ухожу спать, пусть всё доделает | `/night-shift` (можно добавить ветку: `/night-shift integration/x`) |
 | Много задач, нужно раздать по тредам | «ты оркестратор» — сработает `orchestrate` |
 | Накидал аннотаций в превью | просто отправь их — сработает `annotations` |
 | Вернулся и всё забыл | «что было сделано?» или «покажи картинками до/после» — `catch-up` |
@@ -16,7 +15,6 @@ rows and say how to ask for them in their current task.
 | Caspian: обновить тестовые серверы | «обнови тест сервер и av» — `deploy-test` |
 | Прошлый разговор в новый тред | `/handoff` |
 | Проверить план на прочность | `/grilling` |
-| Хитрый баг | «diagnose» — `diagnosing-bugs` |
 | Код-ревью ветки | `/code-review` |
 
 ## Возможности T3 Code, о которых легко забыть

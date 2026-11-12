@@ -129,7 +129,8 @@ let
   # Ordered source list for the merged skills directory of `target`. Later
   # entries win on a name collision, so the upstream sets shadow the bundled
   # local ones (e.g. local `code-review` loses to matt-pocock's). Local skills
-  # carry a generated SKILL.md; upstream ones are copied untouched.
+  # carry a generated SKILL.md; upstream ones are copied untouched. An upstream
+  # set deploys only while its `enable` is on; `include` alone does nothing.
   skillSources =
     target:
     map (
@@ -146,19 +147,20 @@ let
         manualOnly = target == "codex" && d.disableModelInvocation == true;
       }
     ) (lib.filter (name: lib.elem target cfg.definitions.${name}.targets) cfg.local.include)
-    ++ map (name: {
-      inherit name;
-      src = "${inputs.caveman}/skills/${name}";
-    }) cfg.caveman.include
-    ++
+    ++ lib.optionals cfg.caveman.enable (
+      map (name: {
+        inherit name;
+        src = "${inputs.caveman}/skills/${name}";
+      }) cfg.caveman.include
+    )
+    ++ lib.optionals cfg.matt-pocock.enable (
       map
         (name: {
           inherit name;
           src = mattPocockSkills.${name};
         })
-        (
-          if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include
-        );
+        (if cfg.matt-pocock.include == [ ] then lib.attrNames mattPocockSkills else cfg.matt-pocock.include)
+    );
 
   # The CLIs only scan `skills/<name>/SKILL.md`, so the whole set has to land
   # in one directory per CLI. Built as a store path; home-manager lndir's it

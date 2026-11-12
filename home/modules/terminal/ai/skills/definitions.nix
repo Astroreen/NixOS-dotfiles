@@ -7,13 +7,12 @@
   };
   design-taste-frontend = {
     description = "Anti-slop frontend skill for landing pages, portfolios, and redesigns. The agent reads the brief, infers the right design direction, and ships interfaces that do not look templated. Real design systems when applicable, audit-first on redesigns, strict pre-flight check.";
+    # Its "redesign" trigger also fires on UI work inside an existing app, where
+    # the app's own components win; load it by name only.
+    disableModelInvocation = true;
   };
   docx = {
     description = "Create, read, edit and verify Word documents (.docx) with local CLI tools only — LibreOffice, unzip/zip, no pandoc required. Use when producing or inspecting .docx/.doc files.";
-  };
-  frontend-design = {
-    description = "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.";
-    license = "Complete terms in LICENSE.txt";
   };
   self-review = {
     description = "Review your own diff in a fresh context before opening a PR or saying done: run the checks and show their output, hunt real bugs with a concrete failure scenario, validate each finding against the code, drop style-only ones, fix or reject each. Use before every PR, after finishing a feature or fix, or when asked to review/check your own work.";
@@ -130,11 +129,7 @@
     };
   };
   orchestrate = {
-    description = "Orchestrator role — map dependencies into independent lanes, run one T3 thread per lane (batch PRs into an integration branch the owner reviews once), keep every PR moving (no stalls on missing GitHub events), merge what the owner allowed. Use when the owner says \"ты оркестратор\", \"раздай по тредам\", \"сгруппируй задачи\", or the work needs several parallel threads.";
-  };
-  night-shift = {
-    description = "Owner goes offline: standing permission to merge, decide and deploy until done, then one morning report.";
-    disableModelInvocation = true;
+    description = "Orchestrator role — map dependencies into independent lanes, run one T3 thread per lane, at most 5 open PRs (2 high-risk) into `main`, keep every PR moving (no stalls on missing GitHub events); only the owner merges. Use when the owner says \"ты оркестратор\", \"раздай по тредам\", \"сгруппируй задачи\", or the work needs several parallel threads.";
   };
   annotations = {
     description = "Triage a batch of T3 preview annotations — classify, answer questions first, group into PRs, verify each fix in the preview. Use when a message carries several `preview-annotation` links.";
