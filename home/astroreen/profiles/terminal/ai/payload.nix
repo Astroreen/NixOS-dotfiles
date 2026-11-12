@@ -43,14 +43,12 @@ _: {
         "annotations"
         "catch-up"
         "changes-page"
-        "night-shift"
         "orchestrate"
         "timesheet"
         "tips"
         "commit-message"
         "design-taste-frontend"
         "docx"
-        "frontend-design"
         "spike"
         # review before the PR, for every CLI (built-in /code-review,
         # /simplify, /security-review are Claude-only)
@@ -68,9 +66,10 @@ _: {
         # "verify-before-done"
       ];
 
-      # Caveman — on-demand only (alwaysOn off since 2026-10-12, experiment).
-      # include trims the upstream set: keep core + local tools + native
-      # workflow guards; drop the Caveman Cloud suite (setup, discover,
+      # Caveman — off (2026-11-12): nothing below is deployed while
+      # `enable = false`; the list is kept for turning it back on. include
+      # trims the upstream set: keep core + local tools + native workflow
+      # guards; drop the Caveman Cloud suite (setup, discover,
       # evidence-review, manage, optimize, learn) — no gateway in use.
       caveman = {
         enable = false;

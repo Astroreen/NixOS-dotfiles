@@ -67,7 +67,7 @@ Your response has **FAILED** if:
 
 ## Tool Strategy
 
-If a matching skill exists (e.g. `caveman-explore`), load it via the `skill` tool.
+If a matching skill exists, load it via the `skill` tool.
 
 Use the right tool for the job:
 - **Semantic search** (definitions, references): LSP tools
