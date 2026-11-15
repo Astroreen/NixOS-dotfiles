@@ -129,7 +129,7 @@
     };
   };
   orchestrate = {
-    description = "Orchestrator role — map dependencies into independent lanes, run one T3 thread per lane, at most 5 open PRs (2 high-risk) into `main`, keep every PR moving (no stalls on missing GitHub events); only the owner merges. Use when the owner says \"ты оркестратор\", \"раздай по тредам\", \"сгруппируй задачи\", or the work needs several parallel threads.";
+    description = "Orchestrator role — map dependencies into independent lanes, run one T3 thread per lane on a model picked for the task (Haiku/Sonnet/Opus/Fable), at most 5 open PRs (2 high-risk) into `main`, keep every PR moving (no stalls on missing GitHub events); only the owner merges. Use when the owner says \"ты оркестратор\", \"раздай по тредам\", \"сгруппируй задачи\", or the work needs several parallel threads.";
   };
   annotations = {
     description = "Triage a batch of T3 preview annotations — classify, answer questions first, group into PRs, verify each fix in the preview. Use when a message carries several `preview-annotation` links.";
