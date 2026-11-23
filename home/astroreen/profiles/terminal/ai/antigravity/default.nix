@@ -3,10 +3,13 @@
 # Every host gets it, next to opencode and claude-code in
 # home/astroreen/common/base/default.nix.
 #
-# Skills, slash commands and custom agents come from the shared payload
-# (home/astroreen/profiles/terminal/ai/payload.nix) — the AI module renders an
-# Antigravity header and activation copies them in:
-#   * skills   -> ~/.gemini/config/skills/<name>/SKILL.md
+# Global prompt, skills, slash commands and custom agents come from the shared
+# payload (home/astroreen/profiles/terminal/ai/payload.nix):
+#   * prompt   -> ~/.gemini/GEMINI.md (store symlink; `agy` follows symlinks
+#                 for global rules, both standalone and under T3 Code)
+#   * skills   -> ~/.gemini/config/skills/<name>/SKILL.md (T3 Code also reads
+#                 this directory directly in discoverAntigravitySkills and
+#                 symlinks it into its private GEMINI_HOME)
 #   * commands -> ~/.gemini/config/skills/<name>/SKILL.md (Antigravity has no
 #                 file-based commands; its own importer turns them into skills)
 #   * agents   -> ~/.gemini/config/agents/<name>.md
@@ -41,5 +44,10 @@ let
   agy = (import ../../../../../../overlays/antigravity-cli.nix pkgs).antigravity-cli;
 in
 {
+  imports = [
+    ../../../../../modules/terminal/ai # prompt/agents/commands/skills payload + custom.ai.* options
+    ../payload.nix # shared with opencode and claude-code
+  ];
+
   home.packages = [ agy ];
 }
