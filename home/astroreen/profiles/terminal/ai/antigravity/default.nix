@@ -34,8 +34,12 @@
 # runtime's profile token (<state>/providers/antigravity/<id>/antigravity-acp/
 # acp_token.json) while the CLI keeps its own under ~/.gemini. Sessions and
 # models work regardless.
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 let
+  # Default model for `agy` and T3 Code's Antigravity provider. agy matches the
+  # model by its label (`agy models`, right column), not by the slug.
+  model = "Gemini 4 Neon (High)";
+
   # `nixpkgs.overlays` (overlays/default.nix -> overlays/antigravity-cli.nix)
   # only reaches the NixOS side; Home Manager's pkgs here are instantiated
   # without overlays, so the same bump is applied to this instance directly.
@@ -50,4 +54,13 @@ in
   ];
 
   home.packages = [ agy ];
+
+  # agy writes its own settings.json, so only the `model` key is merged in.
+  home.activation.antigravityDefaultModel = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    cfg="$HOME/.gemini/antigravity-cli/settings.json"
+    mkdir -p "$(dirname "$cfg")"
+    [ -s "$cfg" ] || echo '{}' > "$cfg"
+    ${lib.getExe pkgs.jq} --arg m ${lib.escapeShellArg model} '.model = $m' "$cfg" > "$cfg.tmp"
+    mv "$cfg.tmp" "$cfg"
+  '';
 }

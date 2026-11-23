@@ -1,16 +1,16 @@
 {
   "favorites": [
     {
-      "provider": "opencode",
-      "model": "openrouter/~deepseek/deepseek-flash-latest"
-    },
-    {
       "provider": "claudeAgent",
       "model": "claude-opus-5-5"
     },
     {
-      "provider": "opencode",
-      "model": "openrouter/xiaomi/mimo-v2.6-pro"
+      "provider": "codex",
+      "model": "gpt-6.2-sol"
+    },
+    {
+      "provider": "antigravity",
+      "model": "gemini-4-neon-high"
     }
   ],
   "storageCleanup": {
@@ -41,19 +41,19 @@
   "defaultTheme": "gruvbox",
   "defaultThreadEnvMode": "worktree",
   "textGenerationModelSelection": {
-    "instanceId": "opencode",
-    "model": "opencode/deepseek-v4.1-flash-free"
+    "instanceId": "codex",
+    "model": "gpt-6-luna"
   },
   "branchNamePrefix": "",
   "removeAgentCreditsOnMerge": true,
   "sourceControlWriterModelSelection": {
-    "instanceId": "opencode",
-    "model": "openrouter/~deepseek/deepseek-flash-latest"
+    "instanceId": "codex",
+    "model": "gpt-6-luna"
   },
   "providerInstances": {
     "opencode": {
       "driver": "opencode",
-      "enabled": true,
+      "enabled": false,
       "config": {
         "binaryPath": "opencode",
         "serverUrl": "",
