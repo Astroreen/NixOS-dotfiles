@@ -1,7 +1,7 @@
-# Payload shared by opencode and claude-code: the global prompt plus the
-# agents, commands and skills both CLIs get. The custom.ai.* options are not
-# per-CLI, so this lives in one file that both profiles import (the module
-# system imports it once). Items limited to one CLI use
+# Payload shared by opencode, claude-code and Antigravity: the global prompt
+# plus the agents, commands and skills those CLIs get. The custom.ai.* options
+# are not per-CLI, so this lives in one file the opencode profile imports (the
+# module system imports it once). Items limited to one CLI use
 # `<kind>.definitions.<name>.targets`.
 _: {
   custom.ai = {

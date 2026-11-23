@@ -4,7 +4,6 @@ _: {
 
     ./astro-dashboard.nix # FastAPI dashboard from ~/astro (moved from aktkc)
     ../profiles/terminal/dictation # Only its transcription server, see below
-    ../profiles/terminal/ai/antigravity.nix # `agy`: the T3 Code Antigravity provider
   ];
 
   # faster-whisper server on the RTX 4080 SUPER for the desktops' dictation in

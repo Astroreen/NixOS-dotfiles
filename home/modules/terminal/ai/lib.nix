@@ -3,11 +3,18 @@
 # Markdown frontmatter per CLI, because opencode and claude-code disagree on
 # field names and value formats (and opencode forwards unknown agent fields to
 # the model provider, so one shared header is not an option).
-{ lib }:
+#
+# Google Antigravity (`agy`) is a third target with its own rules: only `name`
+# and `description` in the header, skills under ~/.gemini/config/skills and
+# custom agents under ~/.gemini/config/agents, and no file-based slash commands
+# (its own importer turns command files into skills, so commands ship as skills
+# here too).
+{ lib, pkgs }:
 let
   targets = [
     "opencode"
     "claude-code"
+    "antigravity"
   ];
 
   # `tools` uses opencode tool names as the shared vocabulary. This maps them to
@@ -166,6 +173,67 @@ in
       name: render (header name definitions.${name}) definitions.${name}.body
     );
 
+  # Same selection as `renderIncluded`, but keeping the definitions, for targets
+  # that post-process the body (Antigravity commands become skills).
+  includedFor =
+    definitions: include: target:
+    lib.genAttrs (lib.filter (name: lib.elem target definitions.${name}.targets) include) (
+      name: definitions.${name}
+    );
+
+  # Antigravity has no file-based slash commands: its own importer turns another
+  # tool's command files into skills, swapping `$ARGUMENTS`/`{{args}}` for an
+  # instruction. A command therefore ships as a skill with the command body.
+  antigravityCommandBody =
+    body:
+    lib.replaceStrings
+      [
+        "$ARGUMENTS"
+        "{{args}}"
+      ]
+      [
+        "Apply this to what the user asked for."
+        "Apply this to what the user asked for."
+      ]
+      body;
+
+  # Antigravity keeps its user customizations as real files under
+  # ~/.gemini/config and writes new ones there itself (skills from /learn and
+  # plugin imports, custom agents from /agents), so a read-only store symlink
+  # would block it. Each set is copied in on activation with the names copied
+  # last time tracked in `.nix-managed-<name>`: items dropped from the repo
+  # disappear, agy-created ones stay. Skills and commands share one directory,
+  # so each set keeps its own manifest.
+  antigravitySync =
+    {
+      name,
+      dir,
+      files,
+    }:
+    let
+      manifest = "${dir}/.nix-managed-${name}";
+      src = pkgs.linkFarm "antigravity-${name}" (
+        lib.mapAttrsToList (fileName: path: {
+          name = fileName;
+          inherit path;
+        }) files
+      );
+      managed = pkgs.writeText "antigravity-${name}-managed" (
+        lib.concatMapStrings (fileName: "${fileName}\n") (lib.attrNames files)
+      );
+    in
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      dir="$HOME/${dir}"
+      if [ -f "$HOME/${manifest}" ]; then
+        while IFS= read -r item; do
+          if [ -n "$item" ]; then run rm -rf "$dir/$item"; fi
+        done < "$HOME/${manifest}"
+      fi
+      run mkdir -p "$dir"
+      run cp -rL --no-preserve=mode ${src}/. "$dir/"
+      run cp --no-preserve=mode ${managed} "$HOME/${manifest}"
+    '';
+
   # mkDefault on every leaf instead of whole attrsets, so a profile can override
   # a single field (e.g. `tools.edit = true`) and keep the bundled siblings.
   mkDefaultLeaves =
@@ -233,6 +301,19 @@ in
           Extra claude-code frontmatter (e.g. `model`, `effort`,
           `permissionMode`). Wins over generated fields; `null` removes a
           generated field.
+        '';
+      };
+
+      antigravity = mkOption {
+        type = types.attrsOf types.anything;
+        default = { };
+        example = {
+          triggers = [ "review my diff" ];
+        };
+        description = ''
+          Extra Antigravity frontmatter (skill or custom-agent fields, e.g.
+          `triggers`). Wins over generated fields; `null` removes a generated
+          field.
         '';
       };
     };

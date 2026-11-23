@@ -1,11 +1,12 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
   cfg = config.custom.ai.agent;
-  ai = import ../lib.nix { inherit lib; };
+  ai = import ../lib.nix { inherit lib pkgs; };
 
   # Bundled agents: frontmatter-free `<name>.md` bodies next to this file, with
   # their metadata in definitions.nix. The header of each CLI is generated from
@@ -91,7 +92,25 @@ let
     // d.extra
     // d.claude;
 
+  # Antigravity custom agents (`~/.gemini/config/agents/<name>.md`): frontmatter
+  # `name` + `description`, body is the system prompt. Its own migration guide
+  # names no other field, so mode/temperature/color/tools are dropped here.
+  antigravityHeader =
+    name: d:
+    {
+      inherit name;
+      inherit (d) description;
+    }
+    // d.extra
+    // d.antigravity;
+
   renderFor = ai.renderIncluded cfg.definitions cfg.local.include;
+
+  # Keyed by file name: Antigravity reads `agents/<name>.md`, and the manifest
+  # tracks what to remove by that same name.
+  antigravityAgents = lib.mapAttrs' (
+    name: text: lib.nameValuePair "${name}.md" (pkgs.writeText "${name}.md" text)
+  ) (renderFor "antigravity" antigravityHeader);
 in
 {
   options = with lib; {
@@ -100,7 +119,8 @@ in
         type = types.attrsOf (types.submodule agentModule);
         default = { };
         description = ''
-          Agent definitions, rendered into opencode and claude-code agent files.
+          Agent definitions, rendered into opencode, claude-code and Antigravity agent
+          files.
           The bundled ones (agents/definitions.nix) are set with mkDefault per
           field, so a profile can tweak e.g.
           `custom.ai.agent.definitions.atlas.temperature` or add a new agent
@@ -114,7 +134,7 @@ in
           default = [ ];
           description = ''
             Names of agents in `custom.ai.agent.definitions` to deploy to
-            opencode and claude-code (bundled ones: the `.md` files next to
+            opencode, claude-code and Antigravity (bundled ones: the `.md` files next to
             `agents/default.nix`, without the suffix, e.g. `atlas`).
             Empty = deploy none.
           '';
@@ -137,6 +157,16 @@ in
     (lib.mkIf (cfg.local.include != [ ]) {
       programs.opencode.agents = renderFor "opencode" opencodeHeader;
       programs.claude-code.agents = renderFor "claude-code" claudeHeader;
+    })
+
+    # Antigravity has no HM option for custom agents; they land in
+    # ~/.gemini/config/agents as real files (see ai.antigravitySync).
+    (lib.mkIf (antigravityAgents != { }) {
+      home.activation.antigravityAgents = ai.antigravitySync {
+        name = "agents";
+        dir = ".gemini/config/agents";
+        files = antigravityAgents;
+      };
     })
   ];
 }

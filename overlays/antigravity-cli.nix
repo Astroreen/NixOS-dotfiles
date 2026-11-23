@@ -30,8 +30,7 @@ let
   };
 
   system = prev.stdenvNoCC.hostPlatform.system;
-  source =
-    sources.${system} or (throw "antigravity-cli ${version} is not packaged for ${system}");
+  source = sources.${system} or (throw "antigravity-cli ${version} is not packaged for ${system}");
 in
 {
   antigravity-cli = prev.antigravity-cli.overrideAttrs (old: {
