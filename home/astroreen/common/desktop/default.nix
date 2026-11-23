@@ -27,6 +27,7 @@
     ../../profiles/apps/lutris.nix # Lutris game manager
     ../../profiles/apps/nautilus # Nautilus file manager configuration
     ../../profiles/apps/gnome-text-editor.nix # Default text editor for text-based files
+    ../../profiles/apps/keyring.nix # Use the keyring unlocked by the login password
     ../../profiles/apps/kdeconnect.nix # KDE Connect configuration
     ../../profiles/apps/vnc.nix # VNC server and client configuration
     ../../profiles/apps/tailscale.nix # Tailscale tray and client configuration
