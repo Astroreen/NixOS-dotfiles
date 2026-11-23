@@ -225,7 +225,7 @@ AI tooling lives in two places:
 | Add bundled local skill | drop `home/modules/terminal/ai/skills/<name>/SKILL.md` (no frontmatter), add its metadata to `skills/definitions.nix`, then list `<name>` in `custom.ai.skill.local.include` |
 | Tune an agent/command/skill (temperature, tools, model, ...) | profile: `custom.ai.{agent,command,skill}.definitions.<name>.<field>` (bundled values are per-field `mkDefault`) |
 | Adopt an upstream skill | add its name to `custom.ai.skill.caveman.include` / `custom.ai.skill.matt-pocock.include` |
-| Edit the global prompt | `home/astroreen/profiles/terminal/ai/CustomPrompt.md`, wired via `custom.ai.prompt` → opencode `AGENTS.md` + claude-code `CLAUDE.md` |
+| Edit the global prompt | `home/astroreen/profiles/terminal/ai/CustomPrompt.md`, wired via `custom.ai.prompt` → opencode `AGENTS.md` + claude-code `CLAUDE.md` + Antigravity `~/.gemini/GEMINI.md` |
 | Meridian proxy config | `home/modules/terminal/ai/meridian.nix`, `custom.ai.meridian.*`, port 3456, systemd user service |
 | Google Antigravity agent (T3 Code provider + TUI) | `home/astroreen/profiles/terminal/ai/antigravity/default.nix` (`agy`, sign-in steps in the header), imported by `home/astroreen/common/base/default.nix` like opencode/claude; provider instance in `home/astroreen/profiles/apps/t3code/settings.json`; version bumped by `overlays/antigravity-cli.nix` |
 
@@ -239,7 +239,7 @@ AI tooling lives in two places:
 - Antigravity gets all three kinds (`targets` includes `antigravity`): skills and commands land in `~/.gemini/config/skills/<name>/SKILL.md` (it has no file-based slash commands — its own importer turns command files into skills, so a command ships as a skill with `$ARGUMENTS` swapped for an instruction), agents in `~/.gemini/config/agents/<name>.md`; headers carry `name` + `description` (plus `disable-model-invocation`, which `agy` reads, and the `antigravity` passthrough), copied in by `home.activation.antigravity{Skills,Commands,Agents}` because `agy` writes its own skills/agents there (`.nix-managed-<kind>` tracks the names we own)
 - Review skills for every CLI (the built-in `/code-review`, `/simplify`, `/security-review` are Claude-only): `self-review`, `simplify-diff`, `security-check`, `review-loop`
 - The activation installs Meridian via `npm install` (not a Nix package); nix-ld provides libsql support
-- `custom.ai.prompt` (the `CustomPrompt.md` file) deploys as `~/.config/opencode/AGENTS.md` **and** `~/.claude/CLAUDE.md`, with the caveman always-on snippet appended when `custom.ai.skill.caveman.alwaysOn` is on; the astrocode plugin source is copied from the `inputs.astrocode` flake into `~/.config/opencode/plugins/.astrocode-src`
+- `custom.ai.prompt` (the `CustomPrompt.md` file) deploys as `~/.config/opencode/AGENTS.md`, `~/.claude/CLAUDE.md`, **and** `~/.gemini/GEMINI.md`, with the caveman always-on snippet appended when `custom.ai.skill.caveman.alwaysOn` is on; the astrocode plugin source is copied from the `inputs.astrocode` flake into `~/.config/opencode/plugins/.astrocode-src`
 - A patch to the opencode core (`opencode-task-fallback.patch`) makes an aborted subagent wait for the fallback model instead of reporting "Task cancelled"
 - The opencode web server runs headless on `0.0.0.0:4096` (`--mdns`) via user systemd `default.target`
 

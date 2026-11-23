@@ -30,16 +30,18 @@ in
   ];
 
   options = with lib; {
-    # The prompt is the one piece of config that is not per-CLI: opencode and
-    # claude-code read the same text (AGENTS.md / CLAUDE.md), so it is declared
-    # here instead of in either program's profile.
+    # The prompt is the one piece of config that is not per-CLI: opencode,
+    # claude-code and Antigravity read the same text (AGENTS.md / CLAUDE.md /
+    # ~/.gemini/GEMINI.md), so it is declared here instead of in any one
+    # program's profile.
     custom.ai.prompt = mkOption {
       type = types.either types.lines types.path;
       default = "";
       description = ''
-        Global prompt for the AI CLIs, deployed as the opencode `AGENTS.md` and
-        the claude-code `CLAUDE.md`. Either inline text or a path to a file
-        (e.g. `../CustomPrompt.md`). Empty = deploy nothing.
+        Global prompt for the AI CLIs, deployed as the opencode `AGENTS.md`,
+        the claude-code `CLAUDE.md`, and Antigravity's `~/.gemini/GEMINI.md`.
+        Either inline text or a path to a file (e.g. `../CustomPrompt.md`).
+        Empty = deploy nothing.
 
         When `custom.ai.skill.caveman.alwaysOn` is enabled, its snippet is
         appended to the text.
@@ -50,5 +52,6 @@ in
   config = lib.mkIf (cfg != "") {
     programs.opencode.context = context;
     programs.claude-code.context = context;
+    home.file.".gemini/GEMINI.md".text = context;
   };
 }
