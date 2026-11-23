@@ -25,7 +25,12 @@
 #     `codex login` (browser OAuth; credentials land in ~/.codex/auth.json).
 #   * Headless host: run `codex login --device-auth`, or pass an API key with
 #     `printenv OPENAI_API_KEY | codex login --with-api-key`.
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
+let
+  # Default model for `codex` and T3 Code's Codex provider (its catalog marks
+  # the configured model as the default).
+  model = "gpt-6.2-sol";
+in
 {
   imports = [
     ../../../../../modules/terminal/ai # prompt/agents/commands/skills payload + custom.ai.* options
@@ -33,4 +38,21 @@
   ];
 
   home.packages = [ pkgs.codex ];
+
+  # ~/.codex/config.toml stays a real file: Codex writes to it (trusted
+  # projects, ...). Only the top-level `model` key is set; it must sit before
+  # the first [table], so an existing one is replaced there or it is prepended.
+  home.activation.codexDefaultModel = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    cfg="$HOME/.codex/config.toml"
+    mkdir -p "$HOME/.codex"
+    touch "$cfg"
+    ${lib.getExe pkgs.gawk} -v line='model = "${model}"' '
+      BEGIN { done = 0 }
+      !done && /^[[:space:]]*\[/ { print line; done = 1 }
+      !done && /^[[:space:]]*model[[:space:]]*=/ { print line; done = 1; next }
+      { print }
+      END { if (!done) print line }
+    ' "$cfg" > "$cfg.tmp"
+    mv "$cfg.tmp" "$cfg"
+  '';
 }

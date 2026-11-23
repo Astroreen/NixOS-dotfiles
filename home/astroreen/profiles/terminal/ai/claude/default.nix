@@ -66,4 +66,15 @@ in
       "claudeCode.preferredLocation" = "panel";
     };
   };
+
+  # Default model for `claude` and T3 Code's Claude provider. Claude Code
+  # writes ~/.claude/settings.json itself (theme, MCP approvals), so only the
+  # `model` key is merged in instead of managing the file.
+  home.activation.claudeDefaultModel = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    cfg="$HOME/.claude/settings.json"
+    mkdir -p "$HOME/.claude"
+    [ -s "$cfg" ] || echo '{}' > "$cfg"
+    ${lib.getExe pkgs.jq} '.model = "claude-opus-5-5"' "$cfg" > "$cfg.tmp"
+    mv "$cfg.tmp" "$cfg"
+  '';
 }
