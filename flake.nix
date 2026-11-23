@@ -128,17 +128,10 @@
       # Instantiate pkgs exactly once per system
       pkgsFor = forAllSystems (
         system:
-        let
-          cliPkgs = import inputs.nixpkgs-cli { inherit system; };
-        in
         import nixpkgs {
           inherit system;
           # Keep CLI pins identical in NixOS, standalone HM and T3's PATH.
-          overlays = [
-            (_final: _prev: {
-              inherit (cliPkgs) codex tailscale tailscale-nginx-auth;
-            })
-          ];
+          overlays = [ (import ./overlays/cli-versions.nix inputs.nixpkgs-cli) ];
           config.allowUnfree = true;
           config.android_sdk.accept_license = true;
         }

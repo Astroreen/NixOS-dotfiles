@@ -16,7 +16,7 @@
 #                 symlinked TOML roles directly)
 #
 # Pairing with T3 Code (Settings -> Providers -> Codex; binary path `codex`):
-#   * `pkgs.codex` comes from flake.nix's nixpkgs-cli pin for both HM and NixOS;
+#   * `pkgs.codex` comes from overlays/cli-versions.nix for both HM and NixOS;
 #     it satisfies T3 Code's recommended range, and
 #     home/package/apps/t3code/default.nix wraps the same derivation on `t3`'s
 #     PATH (`enableCodex = true`). Installing it here also puts `codex` on the
