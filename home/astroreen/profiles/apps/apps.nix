@@ -30,8 +30,5 @@
 
     # Internet
     qbittorrent # Torrent client
-
-    # Security
-    anydesk # Remote desktop application
   ];
 }
