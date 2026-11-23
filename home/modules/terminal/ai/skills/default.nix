@@ -16,9 +16,6 @@ let
   # from `custom.ai.skill.definitions.<name>`.
   bundledDir = ./.;
 
-  # Codex reads user skills from ~/.agents/skills (the cross-tool location).
-  skillTargets = ai.targets ++ [ "codex" ];
-
   skillModule =
     { name, ... }:
     {
@@ -50,15 +47,6 @@ let
             default = null;
             description = "Only load the skill on explicit invocation (`disable-model-invocation` in the opencode/claude-code headers, `allow_implicit_invocation: false` in Codex's agents/openai.yaml).";
           };
-
-          codex = mkOption {
-            type = types.attrsOf types.anything;
-            default = { };
-            description = ''
-              Extra Codex SKILL.md frontmatter. Wins over generated fields;
-              `null` removes a generated field.
-            '';
-          };
         }
         // ai.commonOptions {
           toolsDescription = ''
@@ -66,14 +54,6 @@ let
             permission prompt while the skill is active). opencode and Codex
             skills have no tool setting, so it is claude-code-only.
           '';
-        }
-        # Skills also go to Codex, which agents and commands do not.
-        // {
-          targets = mkOption {
-            type = types.listOf (types.enum skillTargets);
-            default = skillTargets;
-            description = "CLIs this skill is deployed to.";
-          };
         };
     };
 
@@ -304,9 +284,10 @@ in
       programs.claude-code.skills = "${skillsDir "claude-code"}";
     })
     (lib.mkIf (skillSources "antigravity" != [ ]) {
-      home.activation.antigravitySkills = ai.antigravitySync {
-        name = "skills";
+      home.activation.antigravitySkills = ai.copySync {
+        name = "antigravity-skills";
         dir = ".gemini/config/skills";
+        manifest = ".nix-managed-skills";
         files = lib.listToAttrs (
           map (s: lib.nameValuePair s.name "${skillsDir "antigravity"}/${s.name}") (
             skillSources "antigravity"

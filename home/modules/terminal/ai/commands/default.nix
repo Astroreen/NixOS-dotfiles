@@ -84,28 +84,32 @@ let
 
   renderFor = ai.renderIncluded cfg.definitions cfg.local.include;
 
-  # Antigravity has no file-based slash commands: its own importer turns command
-  # files into skills, so each command lands as
-  # ~/.gemini/config/skills/<name>/SKILL.md with `$ARGUMENTS` explained in the
-  # body (see ai.antigravityCommandBody). A command whose name matches a skill
-  # would collide in that directory — keep the two lists disjoint.
-  antigravityHeader =
-    name: d:
+  # Antigravity and Codex have no file-based slash commands: each command lands
+  # as `<skillsDir>/<name>/SKILL.md` with `$ARGUMENTS` explained in the body
+  # (see ai.skillCommandBody). A command whose name matches a skill would
+  # collide in that directory — keep the two lists disjoint.
+  skillCommandHeader =
+    extraKey: name: d:
     {
       inherit name;
       inherit (d) description;
     }
     // d.extra
-    // d.antigravity;
+    // d.${extraKey};
 
-  antigravityCommands = lib.mapAttrs (
-    name: d:
-    pkgs.writeTextDir "SKILL.md" (
-      ai.render (antigravityHeader name d) (
-        ai.antigravityCommandBody (if lib.isPath d.body then builtins.readFile d.body else d.body)
+  renderSkillCommands =
+    target: extraKey:
+    lib.mapAttrs (
+      name: d:
+      pkgs.writeTextDir "SKILL.md" (
+        ai.render (skillCommandHeader extraKey name d) (
+          ai.skillCommandBody (if lib.isPath d.body then builtins.readFile d.body else d.body)
+        )
       )
-    )
-  ) (ai.includedFor cfg.definitions cfg.local.include "antigravity");
+    ) (ai.includedFor cfg.definitions cfg.local.include target);
+
+  antigravityCommands = renderSkillCommands "antigravity" "antigravity";
+  codexCommands = renderSkillCommands "codex" "codex";
 in
 {
   options = with lib; {
@@ -115,9 +119,10 @@ in
         default = { };
         description = ''
           Slash command definitions, rendered into opencode and claude-code command
-          files, and as skills for Antigravity (which has no file-based commands). The bundled ones (commands/definitions.nix) are set
-          with mkDefault per field, so a profile can override single fields or
-          add a new command with its own `body`.
+          files, and as skills for Antigravity and Codex (which have no file-based
+          commands). The bundled ones (commands/definitions.nix) are set with
+          mkDefault per field, so a profile can override single fields or add a new
+          command with its own `body`.
         '';
       };
 
@@ -127,9 +132,9 @@ in
           default = [ ];
           description = ''
             Names of commands in `custom.ai.command.definitions` to deploy to
-            opencode, claude-code and Antigravity (bundled ones: the `.md` files next to
-            `commands/default.nix`, without the suffix, e.g. `handoff`).
-            Empty = deploy none.
+            opencode, claude-code, Antigravity and Codex (bundled ones: the `.md`
+            files next to `commands/default.nix`, without the suffix, e.g.
+            `handoff`). Empty = deploy none.
           '';
         };
       };
@@ -152,12 +157,21 @@ in
       programs.claude-code.commands = renderFor "claude-code" claudeHeader;
     })
 
-    # Antigravity slash commands are skills; real files, see ai.antigravitySync.
+    # Antigravity and Codex slash commands are skills; real files, see ai.copySync.
     (lib.mkIf (antigravityCommands != { }) {
-      home.activation.antigravityCommands = ai.antigravitySync {
-        name = "commands";
+      home.activation.antigravityCommands = ai.copySync {
+        name = "antigravity-commands";
         dir = ".gemini/config/skills";
+        manifest = ".nix-managed-commands";
         files = antigravityCommands;
+      };
+    })
+    (lib.mkIf (codexCommands != { }) {
+      home.activation.codexCommands = ai.copySync {
+        name = "codex-commands";
+        dir = ".agents/skills";
+        manifest = ".nix-managed-commands";
+        files = codexCommands;
       };
     })
   ];

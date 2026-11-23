@@ -111,6 +111,32 @@ let
   antigravityAgents = lib.mapAttrs' (
     name: text: lib.nameValuePair "${name}.md" (pkgs.writeText "${name}.md" text)
   ) (renderFor "antigravity" antigravityHeader);
+
+  # Codex custom agents (`~/.codex/agents/<name>.toml`): TOML files with `name`,
+  # `description`, `developer_instructions`, and optional `sandbox_mode`. Codex
+  # silently drops agent TOMLs containing unknown keys, so `d.extra` (Markdown
+  # frontmatter extras) is intentionally omitted here — use `d.codex` for
+  # Codex-specific TOML fields (`model`, `model_reasoning_effort`, etc.).
+  tomlFormat = pkgs.formats.toml { };
+  codexAgentFiles = lib.mapAttrs' (
+    name: d:
+    let
+      bodyText = if lib.isPath d.body then builtins.readFile d.body else d.body;
+      readOnly = (d.tools.edit or true) == false && (d.tools.write or true) == false;
+      tomlAttrs = ai.dropNulls (
+        {
+          inherit name;
+          inherit (d) description;
+          developer_instructions = bodyText;
+          sandbox_mode = if readOnly then "read-only" else null;
+        }
+        // d.codex
+      );
+    in
+    lib.nameValuePair ".codex/agents/${name}.toml" {
+      source = tomlFormat.generate "codex-agent-${name}.toml" tomlAttrs;
+    }
+  ) (ai.includedFor cfg.definitions cfg.local.include "codex");
 in
 {
   options = with lib; {
@@ -119,8 +145,8 @@ in
         type = types.attrsOf (types.submodule agentModule);
         default = { };
         description = ''
-          Agent definitions, rendered into opencode, claude-code and Antigravity agent
-          files.
+          Agent definitions, rendered into opencode, claude-code, Antigravity and
+          Codex agent files.
           The bundled ones (agents/definitions.nix) are set with mkDefault per
           field, so a profile can tweak e.g.
           `custom.ai.agent.definitions.atlas.temperature` or add a new agent
@@ -134,8 +160,8 @@ in
           default = [ ];
           description = ''
             Names of agents in `custom.ai.agent.definitions` to deploy to
-            opencode, claude-code and Antigravity (bundled ones: the `.md` files next to
-            `agents/default.nix`, without the suffix, e.g. `atlas`).
+            opencode, claude-code, Antigravity and Codex (bundled ones: the `.md`
+            files next to `agents/default.nix`, without the suffix, e.g. `atlas`).
             Empty = deploy none.
           '';
         };
@@ -160,13 +186,20 @@ in
     })
 
     # Antigravity has no HM option for custom agents; they land in
-    # ~/.gemini/config/agents as real files (see ai.antigravitySync).
+    # ~/.gemini/config/agents as real files (see ai.copySync).
     (lib.mkIf (antigravityAgents != { }) {
-      home.activation.antigravityAgents = ai.antigravitySync {
-        name = "agents";
+      home.activation.antigravityAgents = ai.copySync {
+        name = "antigravity-agents";
         dir = ".gemini/config/agents";
+        manifest = ".nix-managed-agents";
         files = antigravityAgents;
       };
+    })
+
+    # Codex loads symlinked TOML role files from ~/.codex/agents/<name>.toml;
+    # per-file home.file links keep the directory writable for ad-hoc agents.
+    (lib.mkIf (codexAgentFiles != { }) {
+      home.file = codexAgentFiles;
     })
   ];
 }

@@ -9,6 +9,7 @@ _: {
     ../../profiles/terminal/ai/opencode # Open Code
     ../../profiles/terminal/ai/claude # Claude Code
     ../../profiles/terminal/ai/antigravity # Google Antigravity CLI (agy)
+    ../../profiles/terminal/ai/codex # OpenAI Codex CLI
 
     # Languages
     ../../profiles/lang/javascript.nix

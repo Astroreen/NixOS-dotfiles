@@ -31,15 +31,16 @@ in
 
   options = with lib; {
     # The prompt is the one piece of config that is not per-CLI: opencode,
-    # claude-code and Antigravity read the same text (AGENTS.md / CLAUDE.md /
-    # ~/.gemini/GEMINI.md), so it is declared here instead of in any one
-    # program's profile.
+    # claude-code, Antigravity and Codex read the same text (AGENTS.md /
+    # CLAUDE.md / ~/.gemini/GEMINI.md / ~/.codex/AGENTS.md), so it is declared
+    # here instead of in any one program's profile.
     custom.ai.prompt = mkOption {
       type = types.either types.lines types.path;
       default = "";
       description = ''
         Global prompt for the AI CLIs, deployed as the opencode `AGENTS.md`,
-        the claude-code `CLAUDE.md`, and Antigravity's `~/.gemini/GEMINI.md`.
+        the claude-code `CLAUDE.md`, Antigravity's `~/.gemini/GEMINI.md`, and
+        Codex's `~/.codex/AGENTS.md`.
         Either inline text or a path to a file (e.g. `../CustomPrompt.md`).
         Empty = deploy nothing.
 
@@ -53,5 +54,6 @@ in
     programs.opencode.context = context;
     programs.claude-code.context = context;
     home.file.".gemini/GEMINI.md".text = context;
+    home.file.".codex/AGENTS.md".text = context;
   };
 }
