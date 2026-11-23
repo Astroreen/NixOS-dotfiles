@@ -8,6 +8,7 @@ _: {
     ../../profiles/terminal/nix-gc.nix # Expire old user profile generations
     ../../profiles/terminal/ai/opencode # Open Code
     ../../profiles/terminal/ai/claude # Claude Code
+    ../../profiles/terminal/ai/antigravity # Google Antigravity CLI (agy)
 
     # Languages
     ../../profiles/lang/javascript.nix

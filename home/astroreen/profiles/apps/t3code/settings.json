@@ -82,6 +82,16 @@
         "launchArgs": "",
         "customModels": []
       }
+    },
+    "antigravity": {
+      "driver": "antigravity",
+      "enabled": true,
+      "config": {
+        "enabled": true,
+        "authMethod": "oauth-personal",
+        "binaryPath": "agy",
+        "customModels": []
+      }
     }
   }
 }

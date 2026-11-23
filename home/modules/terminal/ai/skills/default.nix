@@ -7,7 +7,7 @@
 }:
 let
   cfg = config.custom.ai.skill;
-  ai = import ../lib.nix { inherit lib; };
+  ai = import ../lib.nix { inherit lib pkgs; };
 
   # Bundled local skills: every directory next to this file, holding a
   # frontmatter-free SKILL.md plus any resources; their metadata lives in
@@ -96,6 +96,18 @@ let
       // d.claude;
     # Codex has no `disable-model-invocation`; that goes to agents/openai.yaml.
     codex = name: d: skillHeader name d // { disable-model-invocation = null; } // d.extra // d.codex;
+    # Antigravity's importer writes `name` + `description` (the name must match
+    # the folder, which it does here) and, as its own frontmatter key, the
+    # manual-only switch; everything else is dropped.
+    antigravity =
+      name: d:
+      {
+        inherit name;
+        inherit (d) description;
+        disable-model-invocation = d.disableModelInvocation;
+      }
+      // d.extra
+      // d.antigravity;
   };
 
   # Skill catalogs, read from the pinned flake inputs at eval time. Shared by
@@ -283,12 +295,24 @@ in
 
     # Declarative alternative to copying into skills/ at activation. Each CLI's
     # catalog is materialized as one store directory (see skillsDir above);
-    # home-manager lndirs it into place.
+    # home-manager lndirs it into place. Antigravity has no such HM option and
+    # its directory must stay writable, so that one is copied by activation.
     (lib.mkIf (skillSources "opencode" != [ ]) {
       programs.opencode.skills = "${skillsDir "opencode"}";
     })
     (lib.mkIf (skillSources "claude-code" != [ ]) {
       programs.claude-code.skills = "${skillsDir "claude-code"}";
+    })
+    (lib.mkIf (skillSources "antigravity" != [ ]) {
+      home.activation.antigravitySkills = ai.antigravitySync {
+        name = "skills";
+        dir = ".gemini/config/skills";
+        files = lib.listToAttrs (
+          map (s: lib.nameValuePair s.name "${skillsDir "antigravity"}/${s.name}") (
+            skillSources "antigravity"
+          )
+        );
+      };
     })
     # Codex skips SKILL.md files that resolve into /nix/store (a home.file
     # link is ignored), so its set is copied in as real files. The names

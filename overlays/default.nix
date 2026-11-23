@@ -4,6 +4,7 @@ _: {
       spotx = import ./spotx.nix self super;
     })
 
+    (_final: prev: import ./antigravity-cli.nix prev)
     (_final: prev: {
       flutter = prev.flutter.overrideAttrs (oldAttrs: {
         postInstall = (oldAttrs.postInstall or "") + ''
