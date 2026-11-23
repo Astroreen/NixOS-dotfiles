@@ -50,6 +50,7 @@ in
       force_default_wallpaper = 0;
       disable_hyprland_logo = true;
       session_lock_xray = true;
+      allow_session_lock_restore = true;
       # Honor activation requests (xdg-activation): jump to the browser when
       # an app opens a link, to VS Code when a CLI opens a file, etc.
       focus_on_activate = true;
