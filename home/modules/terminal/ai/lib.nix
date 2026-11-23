@@ -236,8 +236,11 @@ in
         done < "$HOME/${manifestPath}"
       fi
       run mkdir -p "$dir"
-      run cp -rL --no-preserve=mode ${src}/. "$dir/"
+      run cp -rL ${src}/. "$dir/"
       run cp --no-preserve=mode ${managed} "$HOME/${manifestPath}"
+      while IFS= read -r item; do
+        if [ -n "$item" ]; then run chmod -R u+w "$dir/$item"; fi
+      done < "$HOME/${manifestPath}"
     '';
 
   # mkDefault on every leaf instead of whole attrsets, so a profile can override

@@ -165,7 +165,8 @@ let
       mkdir -p $out
       ${lib.concatMapStrings (s: ''
         rm -rf "$out/${s.name}"
-        cp -r --no-preserve=mode ${lib.escapeShellArg "${s.src}"} "$out/${s.name}"
+        cp -r ${lib.escapeShellArg "${s.src}"} "$out/${s.name}"
+        chmod -R u+w "$out/${s.name}"
         ${lib.optionalString (s ? skillMd) ''cp --no-preserve=mode ${s.skillMd} "$out/${s.name}/SKILL.md"''}
         ${lib.optionalString (s.manualOnly or false) ''
           mkdir -p "$out/${s.name}/agents"
@@ -308,12 +309,15 @@ in
           done < "$dir/.nix-managed"
         fi
         run mkdir -p "$dir"
-        run cp -r --no-preserve=mode ${skillsDir "codex"}/. "$dir/"
+        run cp -r ${skillsDir "codex"}/. "$dir/"
         run cp --no-preserve=mode ${
           pkgs.writeText "codex-skills-managed" (
             lib.concatMapStrings (s: "${s.name}\n") (skillSources "codex")
           )
         } "$dir/.nix-managed"
+        while IFS= read -r name; do
+          if [ -n "$name" ]; then run chmod -R u+w "$dir/$name"; fi
+        done < "$dir/.nix-managed"
       '';
     })
   ];

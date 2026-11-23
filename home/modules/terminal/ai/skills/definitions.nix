@@ -155,4 +155,42 @@
   verify-before-done = {
     description = "Evidence gate checklist before claiming a task is done. Run tests and typecheck, report observed output faithfully, never claim done without evidence.";
   };
+
+  # From github:t3dotgg/tstack (MIT).
+  babysit-pr = {
+    description = "Monitor a pull request through review and CI. Use when the user asks to monitor, watch, or babysit a PR.";
+    license = "MIT";
+  };
+  council = {
+    description = "Trigger this if the user says 'council'.";
+    license = "MIT";
+  };
+  file-pr = {
+    description = "File a concise pull request. Use when the user asks to file, open, or create a PR.";
+    license = "MIT";
+  };
+  full-send = {
+    description = "Trigger this if the user says 'full send'.";
+    license = "MIT";
+  };
+  prep-pr = {
+    description = "Prepare a PR end-to-end (prove, review, file, babysit) and stop ready to merge without merging. Use when the user says \"prep pr\" or asks to prepare a PR for merge.";
+    license = "MIT";
+  };
+  leaving-pr-comments = {
+    description = "Use whenever leaving comments on GitHub.";
+    license = "MIT";
+  };
+  modernize = {
+    description = "For getting old prs up to date. Use when asked to rebase a pr or \"modernize\".";
+    license = "MIT";
+  };
+  sol-loop = {
+    description = "Use when the user says \"sol loop\".";
+    license = "MIT";
+  };
+  takeover = {
+    description = "Take over existing work. Use when the user asks to take over a PR, branch, or agent thread, or requests a takeover.";
+    license = "MIT";
+  };
 }

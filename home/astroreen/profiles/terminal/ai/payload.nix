@@ -41,30 +41,45 @@ _: {
     skill = {
       # Bundled local skills (home/modules/terminal/ai/skills/<name>) to deploy.
       local.include = [
-        "annotations"
-        "catch-up"
+        # Disabled as unused in T3 Code (2026-11-09..23): annotations, catch-up,
+        # design-taste-frontend, tips, spike, simplify-diff, review-loop.
+        # "annotations"
+        # "catch-up"
         "changes-page"
         "orchestrate"
         "timesheet"
-        "tips"
+        # "tips"
         "commit-message"
-        "design-taste-frontend"
+        # "design-taste-frontend"
         "docx"
-        "spike"
+        # "spike"
+
         # review before the PR, for every CLI (built-in /code-review,
         # /simplify, /security-review are Claude-only)
         "self-review"
-        "simplify-diff"
+        # "simplify-diff"
         "security-check"
-        "review-loop"
+        # "review-loop"
         # "subagent-driven-development"
         # "systematic-debugging"
         # "test-driven-development"
+
         # user-invoked: its SKILL.md sets disable-model-invocation, so the model
         # never auto-loads it (pick it via /skills or @unslop); from
         # github:cursor/plugins pstack/skills/unslop
         "unslop"
         # "verify-before-done"
+
+        # tstack PR/review workflow skills (from github:t3dotgg/tstack, adapted for T3 Code)
+        "babysit-pr"
+        "council"
+        "file-pr"
+        "full-send"
+        "prep-pr"
+        "leaving-pr-comments"
+        "modernize"
+        "sol-loop"
+        "takeover"
       ];
 
       # Caveman — off (2026-11-12): nothing below is deployed while
@@ -117,7 +132,8 @@ _: {
           # productivity
           "grilling"
           "grill-me"
-          "handoff"
+          # Disabled as unused in T3 Code (2026-11-09..23): handoff.
+          # "handoff"
           # "writing-for-agents"
           "wait-what"
         ];
