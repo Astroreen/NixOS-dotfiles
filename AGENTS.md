@@ -227,6 +227,7 @@ AI tooling lives in two places:
 | Adopt an upstream skill | add its name to `custom.ai.skill.caveman.include` / `custom.ai.skill.matt-pocock.include` |
 | Edit the global prompt | `home/astroreen/profiles/terminal/ai/CustomPrompt.md`, wired via `custom.ai.prompt` → opencode `AGENTS.md` + claude-code `CLAUDE.md` |
 | Meridian proxy config | `home/modules/terminal/ai/meridian.nix`, `custom.ai.meridian.*`, port 3456, systemd user service |
+| Google Antigravity agent for T3 Code | `home/astroreen/profiles/terminal/ai/antigravity.nix` (`agy`, sign-in steps in the header), provider instance in `home/astroreen/profiles/apps/t3code/settings.json`, version bumped by `overlays/antigravity-cli.nix` |
 
 - All MCPs are disabled by default (`lib.mkDefault true`); enable them per host
 - opencode and claude-code are never wired directly: the `custom.ai.*` options declared under `home/modules/terminal/ai/` (`prompt` in `default.nix`, `agent`/`command`/`skill` in their own dirs) set `programs.opencode.*` / `programs.claude-code.*` themselves. The prompt and the picked names live in `home/astroreen/profiles/terminal/ai/payload.nix`, imported by both the opencode and claude profiles, so both CLIs always get the same set
