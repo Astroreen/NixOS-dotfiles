@@ -7,6 +7,7 @@
     ../../modules/terminal/ai/lmstudio.nix
 
     ../profiles/apps/arduino.nix
+    ../profiles/apps/anydesk.nix
   ];
 
   # Host specific settings - properly merged

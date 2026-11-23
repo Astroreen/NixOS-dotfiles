@@ -3,6 +3,7 @@
   imports = [
     ../common/desktop # Graphical workstation layer
     ../profiles/power # Battery mode (Hyprland effects, services)
+    ../profiles/apps/anydesk.nix
   ];
 
   # Host specific settings - properly merged
