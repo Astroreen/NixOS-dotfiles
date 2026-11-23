@@ -97,16 +97,19 @@
       description = "Keyboard layout: English";
       key = "SHIFT + ALT + E";
       exec = "hyprctl switchxkblayout all 0"; # us
+      locked = true;
     };
     layoutRussian = {
       description = "Keyboard layout: Russian";
       key = "SHIFT + ALT + R";
       exec = "hyprctl switchxkblayout all 1"; # ru
+      locked = true;
     };
     layoutLithuanian = {
       description = "Keyboard layout: Lithuanian";
       key = "SHIFT + ALT + L";
       exec = "hyprctl switchxkblayout all 2"; # lt
+      locked = true;
     };
   };
 }

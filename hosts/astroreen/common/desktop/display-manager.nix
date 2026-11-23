@@ -19,14 +19,17 @@ in
         autoNumlock = true;
         theme = "sddm-astronaut-theme";
         extraPackages = [ sddm-astronaut ];
+        # Only autologin once at boot; an explicit logout returns to SDDM.
+        autoLogin.relogin = false;
       };
       gdm = {
         enable = false;
       };
 
-      # Automatic login for the user.
+      # Boot straight into Hyprland where hyprlock locks immediately so startup
+      # apps load behind the lockscreen (like Windows ARSO).
       autoLogin = {
-        enable = false;
+        enable = true;
         user = "astroreen";
       };
 

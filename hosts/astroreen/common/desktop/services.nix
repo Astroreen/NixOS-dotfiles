@@ -29,6 +29,9 @@
       sddm.enableGnomeKeyring = true;
       gdm.enableGnomeKeyring = true;
       gdm-password.enableGnomeKeyring = true;
+      # Boot lockscreen (hyprlock) needs its own PAM service and unlocks
+      # login.keyring after SDDM autologin.
+      hyprlock.enableGnomeKeyring = true;
     };
   };
 
