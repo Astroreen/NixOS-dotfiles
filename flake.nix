@@ -5,6 +5,10 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.11"; # Keep stable as fallback or for servers
 
+    # Current CLI packages with their matching toolchains (Tailscale 1.104.7
+    # needs Go 1.27.4). Keep the rest of the system on the main nixpkgs pin.
+    nixpkgs-cli.url = "github:NixOS/nixpkgs/master";
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -126,6 +130,8 @@
         system:
         import nixpkgs {
           inherit system;
+          # Keep CLI pins identical in NixOS, standalone HM and T3's PATH.
+          overlays = [ (import ./overlays/cli-versions.nix inputs.nixpkgs-cli) ];
           config.allowUnfree = true;
           config.android_sdk.accept_license = true;
         }

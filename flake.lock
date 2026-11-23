@@ -677,6 +677,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-cli": {
+      "locked": {
+        "lastModified": 1795455371,
+        "narHash": "sha256-Ht5to2GRARqxC65aijzTse08AtK+GfDRD/ynPowb99k=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "af5ca1155e75dcbc3e1a28815c0f8d7cd241f173",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "master",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs-stable": {
       "locked": {
         "lastModified": 1782847189,
@@ -832,6 +848,7 @@
         "mattpocock-skills": "mattpocock-skills",
         "nixdatifier": "nixdatifier",
         "nixpkgs": "nixpkgs_4",
+        "nixpkgs-cli": "nixpkgs-cli",
         "nixpkgs-stable": "nixpkgs-stable",
         "opencode-v2": "opencode-v2",
         "quickshell": "quickshell"
