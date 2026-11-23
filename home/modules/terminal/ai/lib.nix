@@ -9,12 +9,18 @@
 # custom agents under ~/.gemini/config/agents, and no file-based slash commands
 # (its own importer turns command files into skills, so commands ship as skills
 # here too).
+#
+# OpenAI Codex (`codex`) is a fourth target: skills and slash commands land as
+# real files under ~/.agents/skills (Codex skips SKILL.md symlinks into
+# /nix/store and has no file-based commands), and custom agents land as TOML
+# files under ~/.codex/agents/<name>.toml.
 { lib, pkgs }:
 let
   targets = [
     "opencode"
     "claude-code"
     "antigravity"
+    "codex"
   ];
 
   # `tools` uses opencode tool names as the shared vocabulary. This maps them to
@@ -158,6 +164,7 @@ in
     enabledTools
     disabledTools
     claudeColor
+    dropNulls
     nonEmpty
     ;
 
@@ -174,17 +181,17 @@ in
     );
 
   # Same selection as `renderIncluded`, but keeping the definitions, for targets
-  # that post-process the body (Antigravity commands become skills).
+  # that post-process the body (Antigravity/Codex commands become skills, Codex
+  # agents become TOML).
   includedFor =
     definitions: include: target:
     lib.genAttrs (lib.filter (name: lib.elem target definitions.${name}.targets) include) (
       name: definitions.${name}
     );
 
-  # Antigravity has no file-based slash commands: its own importer turns another
-  # tool's command files into skills, swapping `$ARGUMENTS`/`{{args}}` for an
-  # instruction. A command therefore ships as a skill with the command body.
-  antigravityCommandBody =
+  # Antigravity and Codex have no file-based slash commands: commands ship as
+  # skills, swapping `$ARGUMENTS`/`{{args}}` for an instruction.
+  skillCommandBody =
     body:
     lib.replaceStrings
       [
@@ -197,41 +204,40 @@ in
       ]
       body;
 
-  # Antigravity keeps its user customizations as real files under
-  # ~/.gemini/config and writes new ones there itself (skills from /learn and
-  # plugin imports, custom agents from /agents), so a read-only store symlink
-  # would block it. Each set is copied in on activation with the names copied
-  # last time tracked in `.nix-managed-<name>`: items dropped from the repo
-  # disappear, agy-created ones stay. Skills and commands share one directory,
-  # so each set keeps its own manifest.
-  antigravitySync =
+  # Copy files as real files (dereferencing symlinks) into `~/<dir>` on
+  # activation, tracking the managed names in `~/<dir>/<manifest>`. Items
+  # dropped from the repo disappear while runtime-created ones stay. Used when
+  # a CLI writes to the same dir (Antigravity) or skips /nix/store symlinks
+  # (Codex skills/commands).
+  copySync =
     {
       name,
       dir,
+      manifest ? ".nix-managed-${name}",
       files,
     }:
     let
-      manifest = "${dir}/.nix-managed-${name}";
-      src = pkgs.linkFarm "antigravity-${name}" (
+      manifestPath = "${dir}/${manifest}";
+      src = pkgs.linkFarm "ai-sync-${name}" (
         lib.mapAttrsToList (fileName: path: {
           name = fileName;
           inherit path;
         }) files
       );
-      managed = pkgs.writeText "antigravity-${name}-managed" (
+      managed = pkgs.writeText "ai-sync-${name}-managed" (
         lib.concatMapStrings (fileName: "${fileName}\n") (lib.attrNames files)
       );
     in
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       dir="$HOME/${dir}"
-      if [ -f "$HOME/${manifest}" ]; then
+      if [ -f "$HOME/${manifestPath}" ]; then
         while IFS= read -r item; do
           if [ -n "$item" ]; then run rm -rf "$dir/$item"; fi
-        done < "$HOME/${manifest}"
+        done < "$HOME/${manifestPath}"
       fi
       run mkdir -p "$dir"
       run cp -rL --no-preserve=mode ${src}/. "$dir/"
-      run cp --no-preserve=mode ${managed} "$HOME/${manifest}"
+      run cp --no-preserve=mode ${managed} "$HOME/${manifestPath}"
     '';
 
   # mkDefault on every leaf instead of whole attrsets, so a profile can override
@@ -314,6 +320,20 @@ in
           Extra Antigravity frontmatter (skill or custom-agent fields, e.g.
           `triggers`). Wins over generated fields; `null` removes a generated
           field.
+        '';
+      };
+
+      codex = mkOption {
+        type = types.attrsOf types.anything;
+        default = { };
+        example = {
+          sandbox_mode = "read-only";
+        };
+        description = ''
+          Extra Codex fields (SKILL.md frontmatter for skills/commands, or
+          TOML keys such as `model`, `model_reasoning_effort`, `sandbox_mode`
+          for custom agents). Wins over generated fields; `null` removes a
+          generated field.
         '';
       };
     };

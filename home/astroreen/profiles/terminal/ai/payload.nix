@@ -1,13 +1,13 @@
-# Payload shared by opencode, claude-code and Antigravity: the global prompt
-# plus the agents, commands and skills those CLIs get. The custom.ai.* options
-# are not per-CLI, so this lives in one file imported by each CLI profile (the
-# module system deduplicates the import). Items limited to one CLI use
-# `<kind>.definitions.<name>.targets`.
+# Payload shared by opencode, claude-code, Antigravity and Codex: the global
+# prompt plus the agents, commands and skills those CLIs get. The custom.ai.*
+# options are not per-CLI, so this lives in one file imported by each CLI
+# profile (the module system deduplicates the import). Items limited to one CLI
+# use `<kind>.definitions.<name>.targets`.
 _: {
   custom.ai = {
     # Global prompt (AGENTS.md for opencode, CLAUDE.md for claude-code,
-    # ~/.gemini/GEMINI.md for Antigravity). The module appends the caveman
-    # always-on snippet when it is enabled.
+    # ~/.gemini/GEMINI.md for Antigravity, ~/.codex/AGENTS.md for Codex). The
+    # module appends the caveman always-on snippet when it is enabled.
     prompt = ./CustomPrompt.md;
 
     # Bundled payload (home/modules/terminal/ai/<kind>/<name>.md, metadata in

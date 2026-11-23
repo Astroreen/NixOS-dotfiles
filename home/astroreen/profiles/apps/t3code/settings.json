@@ -74,7 +74,7 @@
     },
     "codex": {
       "driver": "codex",
-      "enabled": false,
+      "enabled": true,
       "config": {
         "binaryPath": "codex",
         "homePath": "",
