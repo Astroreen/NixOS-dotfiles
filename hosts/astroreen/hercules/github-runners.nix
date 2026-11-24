@@ -162,6 +162,9 @@ in
         RestrictNamespaces = false;
         PrivateDevices = false;
         ProtectHostname = "private";
+        # Masked /proc submounts prevent the rootless OCI runtime from mounting procfs.
+        ProtectKernelTunables = false;
+        ProtectKernelLogs = false;
         CapabilityBoundingSet = lib.mkForce [ "CAP_SETUID CAP_SETGID CAP_SETPCAP" ];
         SystemCallFilter = lib.mkForce [ "~@clock @module @raw-io @reboot" ];
       };
