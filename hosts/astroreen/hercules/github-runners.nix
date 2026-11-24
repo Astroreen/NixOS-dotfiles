@@ -27,16 +27,35 @@ let
   url = "https://github.com/Astroreen/Caspian-Logistics-ERP";
   tokenFile = "/var/lib/secrets/github-runner-caspian";
 
-  # Persistent on disk: the runner's own HOME and workDir would be the
-  # runtime dir (tmpfs, wiped on every start). ~/.gradle (with the Gradle
-  # build cache), ~/.npm and ~/.cache/ms-playwright are shared by all runners
-  # and survive restarts; the workflows rely on that instead of cache actions.
-  root = "/var/lib/caspian-ci";
-  home = "${root}/home";
+  # Each class has its own persistent caches and fresh work directories.
+  ciUser = "caspian-ci";
+  e2eUser = "caspian-e2e";
+  reviewUser = "caspian-codex";
+  statePath = user: "/var/lib/${user}-runner";
+  reviewHome = statePath reviewUser;
+  workRoot = "/var/lib/caspian-runner-work";
+  # The existing workflow uses docker rm/run/exec and host networking.
+  # Containers inherit the runner's cgroup. Podman needs no cgroup delegation.
+  podmanDocker = pkgs.writeShellScriptBin "docker" ''
+    export PATH="/run/wrappers/bin:$PATH"
+    if [[ "''${1:-}" == run ]]; then
+      shift
+      exec ${pkgs.podman}/bin/podman --cgroup-manager=cgroupfs run --cgroups=disabled "$@"
+    fi
+    exec ${pkgs.podman}/bin/podman --cgroup-manager=cgroupfs "$@"
+  '';
+  codexReview = pkgs.writeShellScriptBin "caspian-codex-review" ''
+    umask 077
+    unset OPENAI_API_KEY CODEX_API_KEY OPENAI_IDENTITY_TOKEN_FILE OPENAI_TOKEN_AUDIENCE
+    export CODEX_HOME=${reviewHome}/.codex
+    exec ${lib.getExe pkgs.codex} -a never exec --sandbox read-only --skip-git-repo-check \
+      -m gpt-6.2-sol -c model_reasoning_effort=high \
+      -c forced_login_method=chatgpt -c cli_auth_credentials_store=file \
+      --disable shell_tool --disable unified_exec -
+  '';
 
-  # A backend gradle test takes ~3 GB; one e2e job ~5 GB at 2 workers (its
-  # PostgreSQL container runs outside the slices). e2e is the slowest step of
-  # a PR, so it keeps 3 runners. The counts fit the 15G cap of caspian.slice (./configuration.nix: CI and the builder agents
+  # A backend gradle test takes ~3 GB; one e2e job ~5 GB at 2 workers.
+  # e2e is the slowest step of a PR, so it keeps 3 runners. The counts fit the 15G cap of caspian.slice (./configuration.nix: CI and the builder agents
   # stay under ~82% CPU, so the host keeps serving the LAN).
   ciRunners = 3;
   e2eRunners = 3;
@@ -46,61 +65,113 @@ let
   runners =
     lib.genAttrs (numbered "caspian-ci" ciRunners) (_: {
       labels = [ "caspian-ci" ];
+      user = ciUser;
     })
     // lib.genAttrs (numbered "caspian-e2e" e2eRunners) (_: {
       labels = [ "caspian-e2e" ];
+      user = e2eUser;
       slice = "caspian-ci-e2e.slice";
     });
 in
 {
-  services.github-runners = lib.mapAttrs (name: runner: {
-    enable = true;
-    inherit url tokenFile;
-    name = "${config.networking.hostName}-${name}";
-    extraLabels = runner.labels;
-    replace = true; # Re-registering under the same name replaces the old entry
-    workDir = "${root}/work/${name}";
+  users.groups = lib.genAttrs [ ciUser e2eUser reviewUser ] (_: { });
+  users.users = lib.genAttrs [ ciUser e2eUser reviewUser ] (user: {
+    isSystemUser = true;
+    group = user;
+    home = statePath user;
+    autoSubUidGidRange = user == e2eUser;
+  });
 
-    # In the docker group: the e2e job starts its own PostgreSQL container.
-    user = "astroreen";
+  # Device login on the trusted host after isolating and validating CI:
+  #   sudo -u caspian-codex -H env CODEX_HOME=/var/lib/caspian-codex-runner/.codex \
+  #     sh -c 'umask 077; exec codex login --device-auth -c cli_auth_credentials_store=file'
+  # Keep this account off GitHub Actions until only a trusted workflow can
+  # target it. A repository runner label alone is not an access restriction.
+  # Manual review: sudo -u caspian-codex -H caspian-codex-review < review-input.txt
+  environment.systemPackages = [
+    codexReview
+    pkgs.codex
+  ];
 
-    extraPackages = with pkgs; [
-      config.virtualisation.docker.package
-      gh
-      jq
-      curl
-      diffutils
-      gawk
-      iproute2 # ss, used by the e2e job to stop the backend
-      procps
-      which
-      unzip
-      xz
-    ];
+  services.github-runners = lib.mapAttrs (
+    name: runner:
+    let
+      home = statePath runner.user;
+      isE2e = runner.user == e2eUser;
+    in
+    {
+      enable = true;
+      inherit url tokenFile;
+      name = "${config.networking.hostName}-${name}";
+      extraLabels = runner.labels;
+      replace = true; # Re-registering under the same name replaces the old entry
+      # GitHub's module cleans this path as root. Its parent must be root-owned
+      # so a runner cannot replace the workdir with a symlink.
+      workDir = "${workRoot}/${name}";
+      inherit (runner) user;
 
-    extraEnvironment = {
-      HOME = home;
-      # Java takes user.home from passwd (/home/astroreen, hidden), not HOME.
-      GRADLE_USER_HOME = "${home}/.gradle";
-      # setup-java, setup-node, bun (Claude review) and Playwright's Chromium
-      # are prebuilt binaries; session variables do not reach systemd units.
-      inherit (config.environment.sessionVariables) NIX_LD NIX_LD_LIBRARY_PATH;
-    };
+      extraPackages =
+        with pkgs;
+        [
+          gh
+          jq
+          curl
+          diffutils
+          gawk
+          iproute2 # ss, used by the e2e job to stop the backend
+          procps
+          which
+          unzip
+          xz
+        ]
+        ++ lib.optionals isE2e [
+          podmanDocker
+          pkgs.podman
+        ];
 
-    serviceOverrides = {
-      Slice = runner.slice or "caspian-ci.slice";
-      ReadWritePaths = [ home ];
-      # Group membership (docker socket) needs the real ids. The docker group
-      # gives root anyway, so the user namespace protects nothing here.
-      PrivateUsers = false;
-      # Removes capset from the module's deny list: Chromium's zygote cannot
-      # fork without it ("GPU process isn't usable") and every e2e page dies.
-      SystemCallFilter = [ "capset" ];
-    };
-  }) runners;
+      extraEnvironment = {
+        HOME = home;
+        # Keep Gradle on the persistent runner volume.
+        GRADLE_USER_HOME = "${home}/.gradle";
+        # setup-java, setup-node, bun (Claude review) and Playwright's Chromium
+        # are prebuilt binaries; session variables do not reach systemd units.
+        inherit (config.environment.sessionVariables) NIX_LD NIX_LD_LIBRARY_PATH;
+      }
+      // lib.optionalAttrs isE2e {
+        XDG_RUNTIME_DIR = "/run/${name}-podman";
+        XDG_DATA_HOME = "${home}/data/${name}";
+      };
 
-  # Shared limits of all runners and their jobs (docker containers excepted,
-  # they run under dockerd). Over MemoryHigh the jobs are throttled and pushed
+      serviceOverrides = {
+        Slice = runner.slice or "caspian-ci.slice";
+        ReadWritePaths = [ home ] ++ lib.optional isE2e "/run/${name}-podman";
+        InaccessiblePaths = [
+          "-/run/docker.sock"
+          reviewHome
+        ];
+        # Rootless Podman must create a nested namespace and use newuidmap/newgidmap.
+        PrivateUsers = false;
+
+        # Removes capset from the module's deny list: Chromium's zygote cannot
+        # fork without it ("GPU process isn't usable") and every e2e page dies.
+        SystemCallFilter = [ "capset" ];
+      }
+      // lib.optionalAttrs isE2e {
+        NoNewPrivileges = false;
+        RestrictSUIDSGID = false;
+        RestrictNamespaces = false;
+        PrivateDevices = false;
+        ProtectHostname = "private";
+        # Masked /proc submounts prevent the rootless OCI runtime from mounting procfs.
+        ProtectKernelTunables = false;
+        ProtectKernelLogs = false;
+        CapabilityBoundingSet = lib.mkForce [ "CAP_SETUID CAP_SETGID CAP_SETPCAP" ];
+        SystemCallFilter = lib.mkForce [ "~@clock @module @raw-io @reboot" ];
+      };
+    }
+  ) runners;
+
+  # Shared limits of all runners and their jobs. Over MemoryHigh the jobs are throttled and pushed
   # to zram; MemoryMax OOM-kills inside the slice, never the builders. Lower
   # CPU/IO weight: the builders win when the host is busy. The e2e runners sit
   # in the child caspian-ci-e2e.slice: within the shared cap, Chromium cannot
@@ -118,11 +189,20 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "d ${root} 0750 astroreen users -"
-    "d ${home} 0700 astroreen users -"
-    "d ${root}/work 0750 astroreen users -"
+    "d ${workRoot} 0755 root root -"
+    "d ${statePath ciUser} 0700 ${ciUser} ${ciUser} -"
+    "d ${statePath e2eUser} 0700 ${e2eUser} ${e2eUser} -"
+    "d ${reviewHome} 0700 ${reviewUser} ${reviewUser} -"
+    "d ${reviewHome}/.codex 0700 ${reviewUser} ${reviewUser} -"
   ]
-  ++ map (name: "d ${root}/work/${name} 0700 astroreen users -") (lib.attrNames runners);
+  ++ map (name: "d /run/${name}-podman 0700 ${e2eUser} ${e2eUser} -") (
+    numbered "caspian-e2e" e2eRunners
+  )
+  ++ lib.mapAttrsToList (
+    name: runner: "d ${workRoot}/${name} 0700 ${runner.user} ${runner.user} -"
+  ) runners;
+
+  virtualisation.containers.registries.settings.aliases.postgres = "docker.io/library/postgres";
 
   # System libraries of Playwright's Chromium (ubuntu build), as in the repo's
   # frontend/e2e/nix-shell.nix; the rest of the list is in ../common/base/nix-ld.nix.
