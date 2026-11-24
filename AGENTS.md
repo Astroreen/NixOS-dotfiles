@@ -197,8 +197,10 @@ backup target exists; when enabled, they read the repository URL and password fr
 
 hercules runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/hercules/github-runners.nix`: `caspian-ci-1..3`,
 `caspian-e2e-1..3`; counts are `ciRunners`/`e2eRunners`; the `caspian-pipeline` merge-queue runner was removed when the
-Pipeline workflow was switched off, 2026-11-07) as `astroreen`, with HOME and work dirs under
-`/var/lib/caspian-ci`, all in `caspian-ci.slice` (CPU/IO weight 50; memory and CPUs capped by its parent `caspian.slice`,
+Pipeline workflow was switched off, 2026-11-07) under the unprivileged `caspian-ci` and `caspian-e2e` accounts. Their persistent HOME directories are
+`/var/lib/caspian-ci-runner` and `/var/lib/caspian-e2e-runner`; work directories live under the root-owned `/var/lib/caspian-runner-work`. E2E uses
+rootless Podman for PostgreSQL. Ordinary builds and Claude review share the CI account and its caches, so they
+share a trust boundary. All runners are in `caspian-ci.slice` (CPU/IO weight 50; memory and CPUs capped by its parent `caspian.slice`,
 MemoryHigh 14G, MemoryMax 15G, CPUs 0-22, in `configuration.nix`) so CI cannot starve the builder agents (T3, `user.slice`);
 the e2e runners in its child `caspian-ci-e2e.slice` (MemoryHigh 12G, MemoryMax 13G). hercules has zram at
 100% of RAM, `vm.swappiness = 150` and `system.slice` MemoryLow 3G (services reclaimed last). Server hosts keep minute-level `sar` history (sysstat, 7 days, `/var/log/sa`) from `profiles/server/monitoring.nix`.
