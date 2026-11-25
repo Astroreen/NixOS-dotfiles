@@ -39,6 +39,10 @@ let
   '';
 in
 {
+  imports = [
+    ../../../modules/wm/hyprland # custom.hyprland.postUnlockExec
+  ];
+
   home = {
     packages = [
       vivaldi-gpu
@@ -73,16 +77,11 @@ in
     noDisplay = true;
   };
 
-  wayland.windowManager.hyprland.settings = {
-    on = [
-      {
-        _args = [
-          "hyprland.start"
-          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 2 silent] ${startVivaldi}\")\nend")
-        ];
-      }
-    ];
+  # Launch only after boot hyprlock unlocks login.keyring via PAM; starting
+  # Chromium behind the lockscreen triggers a stale gcr-prompter dialog.
+  custom.hyprland.postUnlockExec = [ "[workspace 2 silent] ${startVivaldi}" ];
 
+  wayland.windowManager.hyprland.settings = {
     window_rule = [
       {
         match.class = "^(vivaldi-stable)$";
