@@ -45,6 +45,23 @@ let
     fi
     exec ${pkgs.podman}/bin/podman --cgroup-manager=cgroupfs "$@"
   '';
+  # The backend tests start their own containers (PostgreSQL, S3, SFTP) with
+  # Testcontainers, which speaks the Docker API. Each caspian-ci runner gets a
+  # rootless Podman API of its own (caspian-ci-N-podman.service, below) as the
+  # same unprivileged user: no docker group, so a job never gets root on the host.
+  # No cgroup delegation outside a login session: containers run without
+  # cgroups of their own and stay in the API service's slice.
+  # Logs go to a file, not journald: a system user cannot read its own
+  # containers back from the journal, and Testcontainers waits for a log line
+  # ("database system is ready") before a test starts.
+  ciContainersConf = pkgs.writeText "caspian-ci-containers.conf" ''
+    [containers]
+    cgroups = "disabled"
+    log_driver = "k8s-file"
+    [engine]
+    cgroup_manager = "cgroupfs"
+  '';
+  podmanRun = name: "/run/${name}-podman";
   # Codex gets only the prompt: no shell, browser, apps/connectors of the
   # ChatGPT account, plugins, subagents or web search, so text in a PR cannot
   # make it read anything of the owner's. Only the final answer goes to stdout.
@@ -109,6 +126,31 @@ let
       user = e2eUser;
       slice = "caspian-ci-e2e.slice";
     });
+  ciPodmanServices = lib.listToAttrs (
+    map (
+      name:
+      lib.nameValuePair "${name}-podman" {
+        description = "Rootless Podman API for the ${name} runner (Testcontainers)";
+        wantedBy = [ "multi-user.target" ];
+        before = [ "github-runner-${name}.service" ];
+        path = [ "/run/wrappers" ];
+        environment = {
+          HOME = statePath ciUser;
+          XDG_RUNTIME_DIR = podmanRun name;
+          XDG_DATA_HOME = "${statePath ciUser}/data/${name}";
+          CONTAINERS_CONF = "${ciContainersConf}";
+        };
+        serviceConfig = {
+          User = ciUser;
+          Group = ciUser;
+          Slice = "caspian-ci.slice";
+          ExecStart = "${pkgs.podman}/bin/podman system service --time=0 unix://${podmanRun name}/podman.sock";
+          Restart = "on-failure";
+        };
+      }
+    ) (numbered "caspian-ci" ciRunners)
+  );
+
 in
 {
   users.groups = lib.genAttrs [ ciUser e2eUser reviewUser ] (_: { });
@@ -116,7 +158,8 @@ in
     isSystemUser = true;
     group = user;
     home = statePath user;
-    autoSubUidGidRange = user == e2eUser;
+    # Rootless Podman: the e2e runners, and the caspian-ci API services.
+    autoSubUidGidRange = user == e2eUser || user == ciUser;
   });
 
   # Device login on the trusted host after isolating and validating CI:
@@ -178,6 +221,13 @@ in
         # are prebuilt binaries; session variables do not reach systemd units.
         inherit (config.environment.sessionVariables) NIX_LD NIX_LD_LIBRARY_PATH;
       }
+      // lib.optionalAttrs (!isE2e) {
+        # Testcontainers talks to this runner's own Podman API; Ryuk (the
+        # cleanup container) needs the socket mounted inside, which rootless
+        # Podman does not offer: the tests stop their containers themselves.
+        DOCKER_HOST = "unix://${podmanRun name}/podman.sock";
+        TESTCONTAINERS_RYUK_DISABLED = "true";
+      }
       // lib.optionalAttrs isE2e {
         XDG_RUNTIME_DIR = "/run/${name}-podman";
         XDG_DATA_HOME = "${home}/data/${name}";
@@ -185,7 +235,10 @@ in
 
       serviceOverrides = {
         Slice = runner.slice or "caspian-ci.slice";
-        ReadWritePaths = [ home ] ++ lib.optional isE2e "/run/${name}-podman";
+        ReadWritePaths = [
+          home
+          (podmanRun name)
+        ];
         InaccessiblePaths = [
           "-/run/docker.sock"
           reviewHome
@@ -212,6 +265,8 @@ in
     }
   ) runners;
 
+  # The Podman API of each caspian-ci runner (see ciContainersConf). It runs
+  # beside the runner, not inside it, so the runner keeps its strict sandbox.
   # Shared limits of all runners and their jobs. Over MemoryHigh the jobs are throttled and pushed
   # to zram; MemoryMax OOM-kills inside the slice, never the builders. Lower
   # CPU/IO weight: the builders win when the host is busy. The e2e runners sit
@@ -245,28 +300,30 @@ in
       MaxConnections = 4;
     };
   };
-  systemd.services."caspian-codex-review@" = {
-    description = "Codex PR review for Caspian (one connection)";
-    serviceConfig = {
-      User = reviewUser;
-      Group = reviewUser;
-      Environment = [ "HOME=${reviewHome}" ];
-      WorkingDirectory = reviewHome;
-      ExecStart = lib.getExe codexReview;
-      StandardInput = "socket";
-      StandardOutput = "socket";
-      StandardError = "journal";
-      RuntimeMaxSec = "30min";
-      Slice = "caspian-ci.slice";
-      ReadWritePaths = [ reviewHome ];
-      ProtectSystem = "strict";
-      ProtectHome = true;
-      PrivateTmp = true;
-      NoNewPrivileges = true;
-      InaccessiblePaths = [
-        "-/run/docker.sock"
-        workRoot
-      ];
+  systemd.services = ciPodmanServices // {
+    "caspian-codex-review@" = {
+      description = "Codex PR review for Caspian (one connection)";
+      serviceConfig = {
+        User = reviewUser;
+        Group = reviewUser;
+        Environment = [ "HOME=${reviewHome}" ];
+        WorkingDirectory = reviewHome;
+        ExecStart = lib.getExe codexReview;
+        StandardInput = "socket";
+        StandardOutput = "socket";
+        StandardError = "journal";
+        RuntimeMaxSec = "30min";
+        Slice = "caspian-ci.slice";
+        ReadWritePaths = [ reviewHome ];
+        ProtectSystem = "strict";
+        ProtectHome = true;
+        PrivateTmp = true;
+        NoNewPrivileges = true;
+        InaccessiblePaths = [
+          "-/run/docker.sock"
+          workRoot
+        ];
+      };
     };
   };
 
@@ -280,6 +337,7 @@ in
   ++ map (name: "d /run/${name}-podman 0700 ${e2eUser} ${e2eUser} -") (
     numbered "caspian-e2e" e2eRunners
   )
+  ++ map (name: "d ${podmanRun name} 0700 ${ciUser} ${ciUser} -") (numbered "caspian-ci" ciRunners)
   ++ lib.mapAttrsToList (
     name: runner: "d ${workRoot}/${name} 0700 ${runner.user} ${runner.user} -"
   ) runners;
