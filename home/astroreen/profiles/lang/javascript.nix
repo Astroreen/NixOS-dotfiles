@@ -22,9 +22,14 @@ in
 {
   home.packages = with pkgs; [
     node-package
+    pnpm # default package manager; npm (bundled with node) stays as a fallback
     bun
     jq # JSON processor
   ];
+
+  # Global installs (`pnpm add -g`) put their binaries in $PNPM_HOME/bin (pnpm >= 11)
+  home.sessionVariables.PNPM_HOME = "$HOME/.local/share/pnpm";
+  home.sessionPath = [ "$HOME/.local/share/pnpm/bin" ];
 
   programs.vscode.profiles.default.userSettings = javascriptSettings;
 }

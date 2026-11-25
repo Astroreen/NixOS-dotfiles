@@ -85,18 +85,18 @@ let
     };
 
     drawio = {
-      command = "npx";
+      command = "pnpm";
       args = [
-        "-y"
+        "dlx"
         "@drawio/mcp"
       ];
       description = "Draw.io diagram interactions";
     };
 
     rea = {
-      command = "npx";
+      command = "pnpm";
       args = [
-        "-y"
+        "dlx"
         "rea-agents@6.4.0"
         "mcp"
       ];
