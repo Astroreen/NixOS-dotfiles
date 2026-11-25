@@ -51,9 +51,13 @@ let
   # same unprivileged user: no docker group, so a job never gets root on the host.
   # No cgroup delegation outside a login session: containers run without
   # cgroups of their own and stay in the API service's slice.
+  # Logs go to a file, not journald: a system user cannot read its own
+  # containers back from the journal, and Testcontainers waits for a log line
+  # ("database system is ready") before a test starts.
   ciContainersConf = pkgs.writeText "caspian-ci-containers.conf" ''
     [containers]
     cgroups = "disabled"
+    log_driver = "k8s-file"
     [engine]
     cgroup_manager = "cgroupfs"
   '';
