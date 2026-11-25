@@ -22,12 +22,12 @@
 #   nix hash convert --hash-algo sha256 --to sri <checksum>
 # and refresh both below.
 let
-  version = "2.1.330";
+  version = "2.1.332";
 
   # Same platform key scheme nixpkgs' claude-code/package.nix uses.
   platformKey = "${stdenv.hostPlatform.node.platform}-${stdenv.hostPlatform.node.arch}";
   checksums = {
-    "linux-x64" = "sha256-1To/mquTyHu6CBPREBZ3Z3tFcQCCT1w2BP6pkVrFI3o=";
+    "linux-x64" = "sha256-6fU3KOCT+5vqfpx1CUts/X5qgu43ke+78iI41mlfYiA=";
   };
 
   baseUrl = "https://downloads.claude.ai/claude-code-releases";
