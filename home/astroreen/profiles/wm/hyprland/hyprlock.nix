@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -8,27 +9,52 @@ let
   wallpaper = ../../../common/assets/astronaut.jpg;
   avatar = ../../../common/assets/avatar.jpg;
   font = "JetBrainsMono Nerd Font";
+  hyprctl = "${inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland}/bin/hyprctl";
 
   # Lock once per boot (keyed by kernel boot_id so an explicit logout + manual
   # SDDM login does not prompt twice). Fail closed: if hyprlock exits non-zero
   # before unlocking, terminate the autologin session back to SDDM instead of
   # leaving the desktop unlocked.
+  #
+  # Keyring-dependent apps (custom.hyprland.postUnlockExec) are dispatched only
+  # after unlock so they never hit a locked login keyring and leave a stale
+  # gcr-prompter dialog sitting behind hyprlock.
   bootLock = pkgs.writeShellScript "hyprlock-boot-lock" ''
     boot_id="$(${pkgs.coreutils}/bin/cat /proc/sys/kernel/random/boot_id)"
     stamp="''${XDG_STATE_HOME:-$HOME/.local/state}/hyprlock-boot-id"
     ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$stamp")"
 
-    if [ "$(${pkgs.coreutils}/bin/cat "$stamp" 2>/dev/null || true)" = "$boot_id" ]; then
-      exit 0
-    fi
-    printf '%s' "$boot_id" > "$stamp"
+    if [ "$(${pkgs.coreutils}/bin/cat "$stamp" 2>/dev/null || true)" != "$boot_id" ]; then
+      printf '%s' "$boot_id" > "$stamp"
 
-    if ! ${lib.getExe config.programs.hyprlock.package} --grace 0 --immediate-render --no-fade-in; then
-      if [ -n "''${XDG_SESSION_ID:-}" ]; then
-        ${pkgs.systemd}/bin/loginctl terminate-session "$XDG_SESSION_ID" || true
+      # Wake org.freedesktop.secrets in the background so gnome-keyring-daemon
+      # (--login) loads its PKCS#11 secrets module before the password is
+      # submitted to hyprlock. Without --start having run first, PAM unlock
+      # fails with `lookup_login_keyring: assertion 'GCK_IS_SESSION (session)' failed`.
+      # Running asynchronously keeps hyprlock's first frame instantaneous.
+      ${pkgs.systemd}/bin/busctl --user call org.freedesktop.secrets \
+        /org/freedesktop/secrets org.freedesktop.DBus.Peer Ping >/dev/null 2>&1 &
+
+      if ! ${lib.getExe config.programs.hyprlock.package} --grace 0 --immediate-render --no-fade-in; then
+        if [ -n "''${XDG_SESSION_ID:-}" ]; then
+          ${pkgs.systemd}/bin/loginctl terminate-session "$XDG_SESSION_ID" || true
+        fi
+        ${pkgs.procps}/bin/pkill -TERM -x Hyprland || true
+        exit 1
       fi
-      ${pkgs.procps}/bin/pkill -TERM -x Hyprland || true
+
+      # Ensure login is the default collection even on a fresh home where PAM
+      # created login.keyring during this unlock (after login-keyring-default
+      # was skipped at graphical-session.target).
+      ${pkgs.systemd}/bin/busctl --user call org.freedesktop.secrets \
+        /org/freedesktop/secrets org.freedesktop.Secret.Service SetAlias \
+        so default /org/freedesktop/secrets/collection/login >/dev/null 2>&1 || true
     fi
+
+    ${lib.concatMapStringsSep "\n" (
+      cmd:
+      "${hyprctl} eval ${lib.escapeShellArg "hl.exec_cmd(${lib.generators.toLua { } cmd})"} >/dev/null"
+    ) config.custom.hyprland.postUnlockExec}
   '';
 in
 {

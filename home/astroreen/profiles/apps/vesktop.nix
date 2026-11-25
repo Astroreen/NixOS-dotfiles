@@ -46,6 +46,10 @@ let
   });
 in
 {
+  imports = [
+    ../../../modules/wm/hyprland # custom.hyprland.postUnlockExec
+  ];
+
   programs.vesktop = {
     enable = true;
     package = vesktop-gpu;
@@ -61,16 +65,10 @@ in
     defaultApplications."x-scheme-handler/discord" = "vesktop.desktop";
   };
 
-  wayland.windowManager.hyprland.settings = {
-    on = [
-      {
-        _args = [
-          "hyprland.start"
-          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 3 silent] vesktop\")\nend")
-        ];
-      }
-    ];
+  # Launch only after boot hyprlock unlocks login.keyring via PAM.
+  custom.hyprland.postUnlockExec = [ "[workspace 3 silent] vesktop" ];
 
+  wayland.windowManager.hyprland.settings = {
     window_rule = [
       {
         match.class = "discord|vesktop";

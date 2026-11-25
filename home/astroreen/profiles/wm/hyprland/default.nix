@@ -7,6 +7,7 @@
 }:
 {
   imports = [
+    ../../../../modules/wm/hyprland # custom.hyprland.*
     ./portal.nix # xdg-desktop-portal-hyprland service fix + GTK portal dialogs
     ./binds.nix # Compositor-dispatcher keybinds (custom.keybinds)
     ./hyprlock.nix # Instant boot lockscreen paired with SDDM autologin

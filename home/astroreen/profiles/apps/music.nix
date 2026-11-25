@@ -23,6 +23,10 @@ let
     };
 in
 {
+  imports = [
+    ../../../modules/wm/hyprland # custom.hyprland.postUnlockExec
+  ];
+
   home.packages = [
     pkgs.spotify
     (withGpuAccel "pear-desktop" pkgs.pear-desktop)
@@ -39,16 +43,10 @@ in
     settings.StartupWMClass = "com.github.th-ch.youtube-music";
   };
 
-  wayland.windowManager.hyprland.settings = {
-    on = [
-      {
-        _args = [
-          "hyprland.start"
-          (lib.generators.mkLuaInline "function()\n  hl.exec_cmd(\"[workspace 4 silent] pear-desktop\")\nend")
-        ];
-      }
-    ];
+  # Launch only after boot hyprlock unlocks login.keyring via PAM.
+  custom.hyprland.postUnlockExec = [ "[workspace 4 silent] pear-desktop" ];
 
+  wayland.windowManager.hyprland.settings = {
     window_rule = [
       {
         match.class = "^com.github.th-ch.youtube-music|youtube_music|spotify";
