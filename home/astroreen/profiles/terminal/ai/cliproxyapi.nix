@@ -1,0 +1,38 @@
+# Route astroreen's AI CLIs (Claude Code, Codex, OpenCode) through the
+# CLIProxyAPI server running on hercules (:8317, tailnet-only).
+#
+# Provision the client key once per host (mode 0600, never committed):
+#   On hercules:
+#     sudo install -D -m 600 -o astroreen -g users \
+#       /var/lib/secrets/cliproxyapi-api-key ~/.config/cliproxyapi/api-key
+#   On laptop / pc:
+#     ssh hercules cat ~/.config/cliproxyapi/api-key \
+#       | install -D -m 600 /dev/stdin ~/.config/cliproxyapi/api-key
+#   Then run `home switch "$(hostname -s)"` to patch ~/.claude/settings.json and
+#   ~/.codex/config.toml.
+#
+# T3 Code Usage Hub (Settings -> Providers -> Usage providers -> Add hub):
+#   URL:            http://127.0.0.1:8317 (on hercules)
+#                   http://hercules.tail15a705.ts.net:8317 (on laptop/pc)
+#   Management key: contents of /var/lib/secrets/cliproxyapi-management-key
+{ host, lib, ... }:
+{
+  imports = [
+    ../../../../modules/terminal/ai
+  ];
+
+  custom.ai.cliproxyapi = {
+    enable = lib.mkDefault (
+      builtins.elem host [
+        "hercules"
+        "laptop"
+        "pc"
+      ]
+    );
+    baseUrl =
+      if host == "hercules" then
+        "http://127.0.0.1:8317"
+      else
+        "http://hercules.tail15a705.ts.net:8317";
+  };
+}

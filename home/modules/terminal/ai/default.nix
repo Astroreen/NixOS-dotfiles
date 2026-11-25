@@ -27,6 +27,7 @@ in
     ./commands
     ./skills
     ./meridian.nix
+    ./cliproxyapi.nix
   ];
 
   options = with lib; {
