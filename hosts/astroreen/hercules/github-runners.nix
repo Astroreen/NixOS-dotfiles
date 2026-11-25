@@ -33,6 +33,7 @@ let
   reviewUser = "caspian-codex";
   statePath = user: "/var/lib/${user}-runner";
   reviewHome = statePath reviewUser;
+  reviewSocket = "/run/caspian-codex-review.sock";
   workRoot = "/var/lib/caspian-runner-work";
   # The existing workflow uses docker rm/run/exec and host networking.
   # Containers inherit the runner's cgroup. Podman needs no cgroup delegation.
@@ -44,14 +45,50 @@ let
     fi
     exec ${pkgs.podman}/bin/podman --cgroup-manager=cgroupfs "$@"
   '';
+  # Codex gets only the prompt: no shell, browser, apps/connectors of the
+  # ChatGPT account, plugins, subagents or web search, so text in a PR cannot
+  # make it read anything of the owner's. Only the final answer goes to stdout.
+  codexOff = [
+    "apps"
+    "browser_use"
+    "browser_use_external"
+    "browser_use_full_cdp_access"
+    "code_mode_host"
+    "computer_use"
+    "goals"
+    "hooks"
+    "image_generation"
+    "in_app_browser"
+    "in_app_local_automation"
+    "multi_agent"
+    "plugins"
+    "remote_plugin"
+    "shell_tool"
+    "skill_mcp_dependency_install"
+    "skill_search"
+    "sleep_tool"
+    "tool_suggest"
+    "unified_exec"
+    "view_image"
+    "workspace_dependencies"
+    "worktrees"
+  ];
   codexReview = pkgs.writeShellScriptBin "caspian-codex-review" ''
+    set -euo pipefail
     umask 077
     unset OPENAI_API_KEY CODEX_API_KEY OPENAI_IDENTITY_TOKEN_FILE OPENAI_TOKEN_AUDIENCE
     export CODEX_HOME=${reviewHome}/.codex
-    exec ${lib.getExe pkgs.codex} -a never exec --sandbox read-only --skip-git-repo-check \
+    tmp=$(mktemp -d)
+    trap 'rm -rf "$tmp"' EXIT
+    cd "$tmp"
+    ${lib.getExe pkgs.codex} -a never exec --ephemeral --ignore-user-config \
+      --sandbox read-only --skip-git-repo-check \
       -m gpt-6.2-sol -c model_reasoning_effort=high \
       -c forced_login_method=chatgpt -c cli_auth_credentials_store=file \
-      --disable shell_tool --disable unified_exec -
+      -c web_search=disabled \
+      ${lib.concatMapStringsSep " " (f: "--disable ${f}") codexOff} \
+      -o "$tmp/answer" - >&2
+    cat "$tmp/answer"
   '';
 
   # A backend gradle test takes ~3 GB; one e2e job ~5 GB at 2 workers.
@@ -85,8 +122,11 @@ in
   # Device login on the trusted host after isolating and validating CI:
   #   sudo -u caspian-codex -H env CODEX_HOME=/var/lib/caspian-codex-runner/.codex \
   #     sh -c 'umask 077; exec codex login --device-auth -c cli_auth_credentials_store=file'
-  # Keep this account off GitHub Actions until only a trusted workflow can
-  # target it. A repository runner label alone is not an access restriction.
+  # No runner runs as this account: a repository runner label is not an access
+  # restriction, and any PR could then read the login. Instead the CI account
+  # gets a socket (below): a job writes the review input to it and reads back
+  # Codex's answer; the login itself never leaves this account.
+  # From a caspian-ci job: socat -t 1800 - UNIX-CONNECT:${reviewSocket} < input.txt
   # Manual review: sudo -u caspian-codex -H caspian-codex-review < review-input.txt
   environment.systemPackages = [
     codexReview
@@ -123,6 +163,7 @@ in
           which
           unzip
           xz
+          socat # Codex review: talks to ${reviewSocket}
         ]
         ++ lib.optionals isE2e [
           podmanDocker
@@ -185,6 +226,47 @@ in
     caspian-ci-e2e.sliceConfig = {
       MemoryHigh = "12G"; # 3 jobs x ~5 GB at 2 workers; over it they slow down
       MemoryMax = "13G";
+    };
+  };
+
+  # Codex review for .github/workflows/codex-review.yml (Caspian). One connection
+  # = one review: the job writes the prompt and closes its side, the service
+  # runs caspian-codex-review as caspian-codex and writes the answer back.
+  # Only the caspian-ci group may connect; Codex itself has no shell and a
+  # read-only sandbox, so a PR can spend the subscription but not read it.
+  systemd.sockets.caspian-codex-review = {
+    wantedBy = [ "sockets.target" ];
+    socketConfig = {
+      ListenStream = reviewSocket;
+      Accept = true;
+      SocketUser = "root";
+      SocketGroup = ciUser;
+      SocketMode = "0660";
+      MaxConnections = 4;
+    };
+  };
+  systemd.services."caspian-codex-review@" = {
+    description = "Codex PR review for Caspian (one connection)";
+    serviceConfig = {
+      User = reviewUser;
+      Group = reviewUser;
+      Environment = [ "HOME=${reviewHome}" ];
+      WorkingDirectory = reviewHome;
+      ExecStart = lib.getExe codexReview;
+      StandardInput = "socket";
+      StandardOutput = "socket";
+      StandardError = "journal";
+      RuntimeMaxSec = "30min";
+      Slice = "caspian-ci.slice";
+      ReadWritePaths = [ reviewHome ];
+      ProtectSystem = "strict";
+      ProtectHome = true;
+      PrivateTmp = true;
+      NoNewPrivileges = true;
+      InaccessiblePaths = [
+        "-/run/docker.sock"
+        workRoot
+      ];
     };
   };
 
