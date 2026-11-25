@@ -5,6 +5,7 @@ _: {
 
     ./nvidia.nix # RTX 4080 SUPER for GPU services
     ./github-runners.nix # Caspian ERP CI runners (moved from aktkc)
+    ../profiles/server/cliproxyapi.nix # CLIProxyAPI subscription proxy (:8317, tailnet-only)
     ../profiles/server/services # Vaultwarden, Pi-hole, n8n, Actual, Nextcloud AIO (Docker)
   ];
 

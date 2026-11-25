@@ -31,10 +31,14 @@ _: {
     };
 
     # https://hercules.<tailnet>.ts.net:8443 for linking this T3 server from
-    # another T3 Code (plain http is refused), and the AstroTime dev server
+    # another T3 Code (plain http is refused), plus the AstroTime dev server
+    # and CLIProxyAPI (:8317, bound to 127.0.0.1 on the host).
     tailscaleServe = {
       enable = true;
-      extraProxies."5180" = "http://127.0.0.1:5180";
+      extraProxies = {
+        "5180" = "http://127.0.0.1:5180";
+        "8317" = "http://127.0.0.1:8317";
+      };
     };
   };
 }

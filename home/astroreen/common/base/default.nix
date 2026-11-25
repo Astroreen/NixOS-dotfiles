@@ -10,6 +10,7 @@ _: {
     ../../profiles/terminal/ai/claude # Claude Code
     ../../profiles/terminal/ai/antigravity # Google Antigravity CLI (agy)
     ../../profiles/terminal/ai/codex # OpenAI Codex CLI
+    ../../profiles/terminal/ai/cliproxyapi.nix # Route CLIs through hercules's CLIProxyAPI
 
     # Languages
     ../../profiles/lang/javascript.nix

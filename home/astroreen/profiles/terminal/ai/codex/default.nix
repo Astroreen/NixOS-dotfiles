@@ -43,16 +43,19 @@ in
   # projects, ...). Only the top-level `model` key is set; it must sit before
   # the first [table], so an existing one is replaced there or it is prepended.
   home.activation.codexDefaultModel = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    cfg="$HOME/.codex/config.toml"
-    mkdir -p "$HOME/.codex"
-    touch "$cfg"
-    ${lib.getExe pkgs.gawk} -v line='model = "${model}"' '
-      BEGIN { done = 0 }
-      !done && /^[[:space:]]*\[/ { print line; done = 1 }
-      !done && /^[[:space:]]*model[[:space:]]*=/ { print line; done = 1; next }
-      { print }
-      END { if (!done) print line }
-    ' "$cfg" > "$cfg.tmp"
-    mv "$cfg.tmp" "$cfg"
+    (
+      umask 077
+      cfg="$HOME/.codex/config.toml"
+      mkdir -p "$HOME/.codex"
+      touch "$cfg"
+      ${lib.getExe pkgs.gawk} -v line='model = "${model}"' '
+        BEGIN { done = 0 }
+        !done && /^[[:space:]]*\[/ { print line; done = 1 }
+        !done && /^[[:space:]]*model[[:space:]]*=/ { print line; done = 1; next }
+        { print }
+        END { if (!done) print line }
+      ' "$cfg" > "$cfg.tmp"
+      mv "$cfg.tmp" "$cfg"
+    )
   '';
 }

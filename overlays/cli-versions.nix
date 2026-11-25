@@ -5,5 +5,10 @@ let
   cliPkgs = import nixpkgs-cli { inherit (prev.stdenv.hostPlatform) system; };
 in
 {
-  inherit (cliPkgs) codex tailscale tailscale-nginx-auth;
+  inherit (cliPkgs)
+    cliproxyapi
+    codex
+    tailscale
+    tailscale-nginx-auth
+    ;
 }
