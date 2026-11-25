@@ -14,25 +14,28 @@
 #     /var/lib/secrets/cliproxyapi-api-key /home/astroreen/.config/cliproxyapi/api-key
 #
 # Sign in subscriptions (either via the Web UI over Tailscale at
-# http://hercules.tail15a705.ts.net:8317/management.html, or from the CLI):
+# https://hercules.tail15a705.ts.net:8317/management.html, or from the CLI):
 #   sudo -u cliproxyapi cliproxyapi -config /var/lib/cliproxyapi/config.yaml --claude-login --no-browser
-#   sudo -u cliproxyapi cliproxyapi -config /var/lib/cliproxyapi/config.yaml --codex-login --no-browser
+#   sudo -u cliproxyapi cliproxyapi -config /var/lib/cliproxyapi/config.yaml --codex-device-login
 #   sudo -u cliproxyapi cliproxyapi -config /var/lib/cliproxyapi/config.yaml --antigravity-login --no-browser
-# (or --codex-device-login for Codex device-code flow without localhost callback)
 { config, ... }:
 {
   services.cliproxyapi = {
     enable = true;
-    # Port 8317 stays closed on LAN (enp4s0); tailscale0 is in trustedInterfaces,
-    # so the proxy and its Web UI are reachable locally and over Tailscale only.
+    # Bind localhost only; Tailscale HTTPS (:8317 -> 127.0.0.1:8317) is served
+    # by `custom.t3code.tailscaleServe.extraProxies` in home/astroreen/hercules/home.nix.
     openFirewall = false;
 
     settings = {
       config-version = 8;
 
       server = {
-        host = "0.0.0.0";
+        host = "127.0.0.1";
         port = 8317;
+        trusted-proxies = [
+          "127.0.0.1"
+          "::1"
+        ];
       };
 
       access.api-keys = [

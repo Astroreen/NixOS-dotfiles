@@ -25,12 +25,12 @@ let
     text = cfg_path.read_text(encoding="utf-8") if cfg_path.exists() else ""
     lines = text.splitlines()
 
-    # 1. Remove any existing [model_providers.cliproxyapi] table.
+    # 1. Remove any existing [model_providers.cliproxy] / [model_providers.cliproxyapi] table.
     cleaned = []
     skipping = False
     for line in lines:
         stripped = line.strip()
-        if re.match(r"^\[model_providers\.cliproxyapi\]\s*(#.*)?$", stripped):
+        if re.match(r"^\[model_providers\.cliproxy(api)?\]\s*(#.*)?$", stripped):
             skipping = True
             continue
         if skipping and re.match(r"^\[", stripped):
@@ -38,21 +38,21 @@ let
         if not skipping:
             cleaned.append(line)
 
-    # 2. Ensure top-level `model_provider = "cliproxyapi"` appears before the first [table].
+    # 2. Ensure top-level `model_provider = "cliproxy"` appears before the first [table].
     out = []
     inserted = False
     for line in cleaned:
         stripped = line.strip()
         if not inserted and stripped.startswith("["):
-            out.append('model_provider = "cliproxyapi"')
+            out.append('model_provider = "cliproxy"')
             inserted = True
         if not inserted and re.match(r"^model_provider\s*=", stripped):
-            out.append('model_provider = "cliproxyapi"')
+            out.append('model_provider = "cliproxy"')
             inserted = True
             continue
         out.append(line)
     if not inserted:
-        out.append('model_provider = "cliproxyapi"')
+        out.append('model_provider = "cliproxy"')
 
     while out and out[-1] == "":
         out.pop()
@@ -60,14 +60,14 @@ let
     # json.dumps produces valid TOML basic strings for URLs and hex/ASCII keys.
     section = [
         "",
-        "[model_providers.cliproxyapi]",
-        'name = "OpenAI"',
+        "[model_providers.cliproxy]",
+        'name = "CLIProxyAPI"',
         f"base_url = {json.dumps(base_url + '/v1')}",
         'wire_api = "responses"',
-        f'http_headers = {{ "X-Api-Key" = {json.dumps(api_key)} }}',
-        "requires_openai_auth = true",
+        "requires_openai_auth = false",
         "supports_websockets = true",
         "supports_standalone_web_search = true",
+        f"experimental_bearer_token = {json.dumps(api_key)}",
     ]
 
     tmp_path = cfg_path.with_suffix(".toml.tmp")
@@ -108,13 +108,17 @@ in
       codex = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Configure [model_providers.cliproxyapi] in ~/.codex/config.toml.";
+        description = "Configure [model_providers.cliproxy] in ~/.codex/config.toml.";
       };
 
       opencode = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Point OpenCode's anthropic, openai and google providers at CLIProxyAPI.";
+        description = ''
+          Point OpenCode's openai and google providers at CLIProxyAPI.
+          Anthropic is deliberately excluded: Claude subscriptions must only be
+          used through Claude Code to avoid account bans.
+        '';
       };
     };
   };
@@ -176,11 +180,9 @@ in
       );
     };
 
+    # Deliberately omit `anthropic`: Claude OAuth subscriptions should only be
+    # used via Claude Code itself, never from third-party clients like OpenCode.
     programs.opencode.settings.provider = lib.mkIf cfg.clients.opencode {
-      anthropic.options = {
-        baseURL = "${baseUrl}/v1";
-        apiKey = "{file:${cfg.apiKeyFile}}";
-      };
       openai.options = {
         baseURL = "${baseUrl}/v1";
         apiKey = "{file:${cfg.apiKeyFile}}";
