@@ -27,5 +27,6 @@ _: {
   custom.ai.boat = {
     enable = true;
     proxyUrl = "https://hercules.bumblebee-parrotfish.ts.net:8318";
+    defaultSnapshot = "dev-base";
   };
 }

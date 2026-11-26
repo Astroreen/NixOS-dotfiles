@@ -17,7 +17,7 @@ For quick one-shot shell commands that do not need a T3 thread, you can use the 
 2. **Delegate.** Call `delegate_task` with:
    - `target: { environmentId: "<environmentId>", projectId: "<projectId>" }`
    - a self-contained prompt (the remote agent only sees the cloned repo on the sandbox).
-   - `target.model` set to a provider available on the sandbox (`claude` or `codex`; Antigravity `agy` is not installed on Boat VMs by default).
+   - `target.model` set to a provider available on the sandbox (`claudeAgent`, `codex`, `antigravity` for Gemini models via CLIProxyAPI, or `opencode` — all pre-installed in the `dev-base` saved snapshot with user skills, commands, and agents).
    - **Never** pass `isolation: "worktree"` — unsupported on linked environments; give parallel tasks separate branches or directories instead.
 3. **Destroy.** As soon as no more work is planned on the sandbox, call `boat_sandbox_destroy` with `environmentId`. Do not leave idle sandboxes running unnecessarily (even though `t3boat` auto-reaps idle sandboxes after `idleMinutes`, default 10 min, and Boat enforces a hard `ttlMinutes`, default 120 min).
 
