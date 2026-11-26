@@ -50,14 +50,19 @@ EXCLUDED_PATHS: dict[str, tuple[str, ...]] = {
         "browserProfiles",  # tied to this host's browser partitions
         "browserDefaultProfileId",
         "sidebarProjectGroupingOverrides",  # keyed by per-environment projects
+        "voiceMicrophone*",  # host-specific audio device IDs and labels
     ),
     "keybindings.json": (),
 }
 
 # Keys that may hold credentials. The server moves inline secrets into its own
-# store and leaves "" behind, so empty values are kept (they match the live
-# file); a non-empty value is dropped and reported.
-SECRET_KEY = re.compile(r"(password|token|secret|api_?key)$", re.IGNORECASE)
+# store and leaves "" or a bullet mask ("••••••") behind, so those placeholders
+# are kept (they match the live file); any other non-empty value is dropped and
+# reported.
+SECRET_KEY = re.compile(
+    r"(password|token|secret|(?:api_?|management_?)key)$", re.IGNORECASE
+)
+MASKED_SECRET = re.compile(r"^•+$")
 
 FILES = tuple(EXCLUDED_PATHS)
 THEMES_DIR = "themes"
@@ -90,7 +95,12 @@ def strip(
             if any(_matches(p, child) for p in excluded):
                 dropped.append(child)
                 continue
-            if SECRET_KEY.search(key) and isinstance(val, str) and val:
+            if (
+                SECRET_KEY.search(key)
+                and isinstance(val, str)
+                and val
+                and not MASKED_SECRET.match(val)
+            ):
                 dropped.append(f"{child} (secret)")
                 continue
             out[key] = strip(val, excluded, dropped, child)

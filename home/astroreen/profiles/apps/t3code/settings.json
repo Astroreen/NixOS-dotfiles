@@ -1,24 +1,24 @@
 {
   "favorites": [
     {
-      "provider": "claudeAgent",
-      "model": "claude-opus-5-5"
+      "model": "claude-opus-5-5",
+      "provider": "claudeAgent"
     },
     {
-      "provider": "codex",
-      "model": "gpt-6.2-sol"
+      "model": "gpt-6.2-sol",
+      "provider": "codex"
     },
     {
-      "provider": "antigravity",
-      "model": "gemini-4-neon-high"
+      "model": "gemini-4-neon-high",
+      "provider": "antigravity"
     }
   ],
   "storageCleanup": {
-    "worktreeAfterDays": 7,
-    "worktreeOnMerge": true,
-    "worktreeOnDelete": true,
     "browserArtifactsAfterDays": 8,
-    "logsAfterDays": 8
+    "logsAfterDays": 8,
+    "worktreeAfterDays": 7,
+    "worktreeOnDelete": true,
+    "worktreeOnMerge": true
   },
   "worktreesDirectory": "~/.gitworktrees",
   "previousWorktreesDirectories": [
@@ -51,47 +51,56 @@
     "model": "gpt-6-luna"
   },
   "providerInstances": {
-    "opencode": {
-      "driver": "opencode",
-      "enabled": false,
-      "config": {
-        "binaryPath": "opencode",
-        "serverUrl": "",
-        "serverPassword": "",
-        "customModels": []
-      }
-    },
-    "claudeAgent": {
-      "driver": "claudeAgent",
-      "enabled": true,
-      "config": {
-        "binaryPath": "claude",
-        "homePath": "",
-        "customModels": [],
-        "launchArgs": "",
-        "autoCompactWindow": ""
-      }
-    },
-    "codex": {
-      "driver": "codex",
-      "enabled": true,
-      "config": {
-        "binaryPath": "codex",
-        "homePath": "",
-        "shadowHomePath": "",
-        "launchArgs": "",
-        "customModels": []
-      }
-    },
     "antigravity": {
-      "driver": "antigravity",
-      "enabled": true,
       "config": {
-        "enabled": true,
         "authMethod": "oauth-personal",
         "binaryPath": "agy",
-        "customModels": []
-      }
+        "customModels": [],
+        "enabled": true
+      },
+      "driver": "antigravity",
+      "enabled": true
+    },
+    "claudeAgent": {
+      "config": {
+        "autoCompactWindow": "",
+        "binaryPath": "claude",
+        "customModels": [],
+        "homePath": "",
+        "launchArgs": ""
+      },
+      "driver": "claudeAgent",
+      "enabled": true
+    },
+    "codex": {
+      "config": {
+        "binaryPath": "codex",
+        "customModels": [],
+        "homePath": "",
+        "launchArgs": "",
+        "shadowHomePath": ""
+      },
+      "driver": "codex",
+      "enabled": true
+    },
+    "opencode": {
+      "config": {
+        "binaryPath": "opencode",
+        "customModels": [],
+        "serverPassword": "",
+        "serverUrl": ""
+      },
+      "driver": "opencode",
+      "enabled": false
+    }
+  },
+  "usageLimitSources": {
+    "cliproxy-hercules.bumblebee-parrotfish.ts.net-8317": {
+      "kind": "cliproxy",
+      "label": "Hercules Usage Hub",
+      "url": "https://hercules.bumblebee-parrotfish.ts.net:8317",
+      "managementKey": "••••••",
+      "enabled": true
     }
   }
 }
