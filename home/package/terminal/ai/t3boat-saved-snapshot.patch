@@ -1,0 +1,71 @@
+--- a/src/boat.ts
++++ b/src/boat.ts
+@@ -115,6 +115,7 @@ export class BoatClient {
+     labels?: Record<string, string>;
+     env?: Record<string, string>;
+     environment?: string;
++    from?: string;
+     idempotencyKey: string;
+   }): Promise<BoatSandbox> {
+     const { idempotencyKey, ...body } = input;
+--- a/src/sandboxes.ts
++++ b/src/sandboxes.ts
+@@ -54,6 +54,7 @@ export interface CreateOptions {
+   access?: LinkAccess;
+   size?: "small" | "medium" | "large";
+   boatEnvironment?: string;
++  from?: string;
+   env?: Record<string, string>;
+   keepAlive?: boolean;
+ }
+@@ -136,12 +137,16 @@ export class SandboxManager {
+         .map((k) => [k, process.env[k]!]),
+     );
+     const env = { ...forwarded, ...opts.env };
++    const from =
++      opts.from === "none" ? undefined : (opts.from ?? (process.env.T3BOAT_DEFAULT_SNAPSHOT || undefined));
++    const environment = opts.boatEnvironment ?? (from ? "base" : undefined);
+     const created = await this.boat.createSandbox({
+       name,
+       ttlSeconds: ttlMinutes * 60,
+       labels: { [LABEL]: "1", t3boatName: name },
+       idempotencyKey: randomUUID(),
+       ...(Object.keys(env).length ? { env } : {}),
+       ...(opts.size ? { type: opts.size } : {}),
+-      ...(opts.boatEnvironment ? { environment: opts.boatEnvironment } : {}),
++      ...(environment ? { environment } : {}),
++      ...(from ? { from } : {}),
+     });
+ 
+     const s: ManagedSandbox = {
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -88,6 +88,10 @@ server.registerTool(
+         .describe("Broadest runtime mode agents here may use there. Default full-access."),
+       size: z.enum(["small", "medium", "large"]).optional().describe("boat machine size."),
+       boatEnvironment: z.string().optional().describe("boat environment (repos/secrets/credentials preset). Default: the account's base."),
++      from: z
++        .string()
++        .optional()
++        .describe('Saved boat snapshot to boot from. Defaults to T3BOAT_DEFAULT_SNAPSHOT if set; pass "none" for the stock image.'),
+       keepAlive: z.boolean().optional().describe("Skip idle cleanup (TTL still applies)."),
+     },
+   },
+--- a/src/cli.ts
++++ b/src/cli.ts
+@@ -13,6 +13,7 @@ const { positionals, values } = parseArgs({
+     idle: { type: "string" },
+     ttl: { type: "string" },
+     access: { type: "string" },
++    from: { type: "string" },
+     "keep-alive": { type: "boolean" },
+   },
+ });
+@@ -46,6 +47,7 @@ switch (cmd) {
+           idleMinutes: values.idle ? Number(values.idle) : undefined,
+           ttlMinutes: values.ttl ? Number(values.ttl) : undefined,
+           access: values.access as any,
++          from: values.from,
+           keepAlive: values["keep-alive"],
+         },
+         log,

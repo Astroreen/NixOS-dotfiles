@@ -86,12 +86,42 @@ let
       : "''${T3BOAT_T3_HOME:=${t3Home}}"
       export T3BOAT_T3_HOME
     ''}
+    ${lib.optionalString (cfg.defaultSnapshot != null) ''
+      : "''${T3BOAT_DEFAULT_SNAPSHOT:=${cfg.defaultSnapshot}}"
+      export T3BOAT_DEFAULT_SNAPSHOT
+    ''}
     ${lib.optionalString (cfg.forwardEnv != [ ]) ''
       : "''${T3BOAT_FORWARD_ENV:=${lib.concatStringsSep "," cfg.forwardEnv}}"
       export T3BOAT_FORWARD_ENV
     ''}
 
     exec ${lib.getExe cfg.t3boatPackage} "$@"
+  '';
+
+  snapshotBuilderPath = lib.makeBinPath [
+    boatWrapped
+    pkgs.coreutils
+    pkgs.gnutar
+    pkgs.gzip
+    pkgs.jq
+  ];
+
+  boatRebuildSnapshot = pkgs.writeShellScriptBin "boat-rebuild-snapshot" ''
+    set -euo pipefail
+    export PATH=${lib.escapeShellArg snapshotBuilderPath}:"$PATH"
+    export BOAT_DEFAULT_SNAPSHOT=${lib.escapeShellArg (cfg.defaultSnapshot or "dev-base")}
+    export AGY_VERSION=${lib.escapeShellArg cfg.snapshot.agyVersion}
+    export AGY_URL=${lib.escapeShellArg "https://storage.googleapis.com/antigravity-public/antigravity-cli/${cfg.snapshot.agyWholeVersion}/linux-x64/cli_linux_x64.tar.gz"}
+    export AGY_SHA256_SRI=${lib.escapeShellArg cfg.snapshot.agySha256}
+    export OPENCODE_VERSION=${lib.escapeShellArg cfg.snapshot.opencodeVersion}
+    export OPENCODE_URL=${lib.escapeShellArg "https://github.com/anomalyco/opencode/releases/download/v${cfg.snapshot.opencodeVersion}/opencode-linux-x64.tar.gz"}
+    export OPENCODE_SHA256_HEX=${lib.escapeShellArg cfg.snapshot.opencodeSha256}
+    export CBM_VERSION=${lib.escapeShellArg cfg.snapshot.cbmVersion}
+    export GRAPHIFY_VERSION=${lib.escapeShellArg cfg.snapshot.graphifyVersion}
+    ${lib.optionalString hasT3Code ''
+      export T3_VERSION=${lib.escapeShellArg t3Package.version}
+    ''}
+    exec ${pkgs.bash}/bin/bash ${./boat-rebuild-snapshot.sh} "$@"
   '';
 
   boatShellFunction = ''
@@ -170,6 +200,60 @@ in
       description = "Local environment variable names forwarded to sandboxes via T3BOAT_FORWARD_ENV.";
     };
 
+    defaultSnapshot = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "dev-base";
+      description = ''
+        Default Boat saved snapshot passed to `t3boat` via `T3BOAT_DEFAULT_SNAPSHOT`
+        and targeted by `boat-rebuild-snapshot`. Pass `from: "none"` to bypass.
+      '';
+    };
+
+    snapshot = {
+      agyVersion = lib.mkOption {
+        type = lib.types.str;
+        default = "1.5.13";
+        description = "Pinned Antigravity CLI (`agy`) version installed in the Boat snapshot.";
+      };
+
+      agyWholeVersion = lib.mkOption {
+        type = lib.types.str;
+        default = "1.5.13-5999302598852608";
+        description = "Full GCS build version string for the pinned Antigravity CLI release.";
+      };
+
+      agySha256 = lib.mkOption {
+        type = lib.types.str;
+        default = "sha256-f6nMbfDQlWJpPWN8QGqGwbD1KrM2RxSx/S15zGBg1LI=";
+        description = "SRI SHA-256 hash of `cli_linux_x64.tar.gz` for `agyWholeVersion`.";
+      };
+
+      opencodeVersion = lib.mkOption {
+        type = lib.types.str;
+        default = "2.4.2";
+        description = "Pinned OpenCode v2 version installed in the Boat snapshot.";
+      };
+
+      opencodeSha256 = lib.mkOption {
+        type = lib.types.str;
+        default = "452912288f934d1771bd5bd0d8611ba3a6adc3db3ac3333c37facf373770ba66";
+        description = "Hex SHA-256 hash of `opencode-linux-x64.tar.gz` for `opencodeVersion`.";
+      };
+
+      cbmVersion = lib.mkOption {
+        type = lib.types.str;
+        default = "v0.12.1";
+        description = "Pinned codebase-memory-mcp version installed in the Boat snapshot.";
+      };
+
+      graphifyVersion = lib.mkOption {
+        type = lib.types.str;
+        default = "0.9.119";
+        description = "Pinned graphifyy PyPI version installed in the Boat snapshot.";
+      };
+    };
+
     enableShellIntegration = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -187,6 +271,7 @@ in
     home.packages = [
       boatWrapped
       t3boatMcp
+      boatRebuildSnapshot
     ];
 
     xdg.configFile."ascii/boat/config.json".text = builtins.toJSON {

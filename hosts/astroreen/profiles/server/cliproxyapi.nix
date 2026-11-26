@@ -68,7 +68,41 @@
         };
       };
 
-      oauth.providers.antigravity.antigravity-credits = true;
+      oauth = {
+        providers.antigravity.antigravity-credits = true;
+        # Antigravity CLI (`agy acp`) in `gemini-api-key` mode strips thinking
+        # suffixes from model IDs before calling `/v1beta/models/<id>:streamGenerateContent`
+        # (passing thinkingLevel in the request body). Alias the bare Gemini IDs
+        # to the Antigravity OAuth catalog entries with `fork = true` so both
+        # the original suffixed IDs and the bare IDs resolve through the pool.
+        model-alias.antigravity = [
+          {
+            name = "gemini-4-neon-xhigh";
+            alias = "gemini-4-neon";
+            fork = true;
+          }
+          {
+            name = "gemini-4-carbon-high";
+            alias = "gemini-4-carbon";
+            fork = true;
+          }
+          {
+            name = "gemini-4-hydrogen-xhigh";
+            alias = "gemini-4-hydrogen";
+            fork = true;
+          }
+          {
+            name = "gemini-4-argon-high";
+            alias = "gemini-4-argon";
+            fork = true;
+          }
+          {
+            name = "gemini-3.8-flash-high";
+            alias = "gemini-3.8-flash";
+            fork = true;
+          }
+        ];
+      };
     };
   };
 

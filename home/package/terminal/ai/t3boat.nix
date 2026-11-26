@@ -27,9 +27,13 @@ buildNpmPackage {
     hash = "sha256-9SvlcjSZGpL+wqjWwIWNy2FtHMBdXaRi9Q1ntfPkb54=";
   };
 
-  # When a Boat environment pre-clones the repo on its base branch, still fetch
-  # and switch to the requested `ref` instead of silently staying on `main`.
-  patches = [ ./t3boat-checkout-existing-ref.patch ];
+  # 1. When a Boat environment pre-clones the repo on its base branch, still
+  #    fetch and switch to the requested `ref` instead of staying on `main`.
+  # 2. Support booting sandboxes from a saved snapshot (`from` / T3BOAT_DEFAULT_SNAPSHOT).
+  patches = [
+    ./t3boat-checkout-existing-ref.patch
+    ./t3boat-saved-snapshot.patch
+  ];
 
   npmDepsHash = "sha256-rfrOSYucG/4g4wmaf87hSyUGXVGxe0vwt9taFyPEd/c=";
   nodejs = nodejs_24;
