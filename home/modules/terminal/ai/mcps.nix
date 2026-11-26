@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ lib, ... }:
 let
   servers = {
     context7 = {
@@ -8,16 +8,16 @@ let
       description = "For fetching relevant documentation";
     };
 
-    playwright = {
-      command = "docker";
-      args = [
-        "run"
-        "-i"
-        "--rm"
-        "mcp/playwright"
-      ];
-      description = "Browser automation for web interactions";
-    };
+    # playwright = {
+    #   command = "docker";
+    #   args = [
+    #     "run"
+    #     "-i"
+    #     "--rm"
+    #     "mcp/playwright"
+    #   ];
+    #   description = "Browser automation for web interactions";
+    # };
 
     youtube-transcript = {
       command = "docker";
@@ -93,14 +93,26 @@ let
       description = "Draw.io diagram interactions";
     };
 
-    rea = {
-      command = "pnpm";
-      args = [
-        "dlx"
-        "rea-agents@6.4.0"
-        "mcp"
-      ];
-      description = "Reverse engineering of binaries, APK, Electron, .NET";
+    # rea = {
+    #   command = "pnpm";
+    #   args = [
+    #     "dlx"
+    #     "rea-agents@6.4.0"
+    #     "mcp"
+    #   ];
+    #   description = "Reverse engineering of binaries, APK, Electron, .NET";
+    # };
+
+    boat-docs = {
+      type = "http";
+      url = "https://docs.boat.dev/mcp";
+      description = "Boat.dev cloud sandbox documentation search";
+    };
+
+    t3boat = {
+      command = "t3boat-mcp";
+      args = [ ];
+      description = "Boot ephemeral boat.dev sandboxes as linked T3 Code environments";
     };
   };
 in

@@ -9,6 +9,8 @@ _: {
     tailscale = {
       enable = true;
       openFirewall = true; # Automatically open necessary firewall ports for Tailscale
+      # Let astroreen manage `tailscale serve` (e.g. t3code-tailscale-serve) without sudo.
+      extraSetFlags = [ "--operator=astroreen" ];
     };
 
     tailscaleAuth = {

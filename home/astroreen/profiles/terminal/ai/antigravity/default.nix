@@ -34,7 +34,12 @@
 # runtime's profile token (<state>/providers/antigravity/<id>/antigravity-acp/
 # acp_token.json) while the CLI keeps its own under ~/.gemini. Sessions and
 # models work regardless.
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   # Default model for `agy` and T3 Code's Antigravity provider. agy matches the
   # model by its label (`agy models`, right column), not by the slug.
@@ -46,21 +51,91 @@ let
   # T3 Code >= 0.1.10 needs `agy` 1.5.0+ for `agy acp`; the pinned nixpkgs
   # release is 1.4.8.
   agy = (import ../../../../../../overlays/antigravity-cli.nix pkgs).antigravity-cli;
+
+  t3StateDir = config.custom.t3code.stateDir or "${config.home.homeDirectory}/.t3/userdata";
+
+  # Explicit T3 Code Antigravity provider instance IDs that should receive MCP
+  # servers. T3 computes each profile directory as sha256(instanceId) and
+  # disables Antigravity text generation on any profile with a non-empty
+  # mcp_config.json, so we only target the interactive chat instance declared
+  # in home/astroreen/profiles/apps/t3code/settings.json (text generation uses
+  # Codex) and pre-populate it before T3's first run.
+  t3AntigravityInstances = [ "antigravity" ];
+  t3AntigravityConfigDirs = map (
+    id: "${t3StateDir}/providers/antigravity/${builtins.hashString "sha256" id}/config"
+  ) t3AntigravityInstances;
+
+  enabledMcpServers = lib.filterAttrs (_: s: !(s.disabled or false) && (s.enabled or null) != false) (
+    config.programs.mcp.servers or { }
+  );
+
+  # Antigravity stores MCP servers in <GEMINI_HOME>/config/mcp_config.json and
+  # uses `serverUrl` (not `url`) for HTTP servers. Wrap `env.<KEY>.file` refs
+  # with HM's helper so secrets are read at launch instead of serialized as objects.
+  agyMcpPayload = pkgs.writeText "antigravity-mcp-servers.json" (
+    builtins.toJSON (
+      lib.mapAttrs (
+        name: rawServer:
+        let
+          s = lib.hm.mcp.wrapEnvFilesCommand {
+            inherit pkgs name;
+          } rawServer;
+        in
+        if (s.url or null) != null then
+          {
+            disabled = false;
+            serverUrl = s.url;
+          }
+          // lib.optionalAttrs ((s.headers or { }) != { }) {
+            inherit (s) headers;
+          }
+        else
+          {
+            disabled = false;
+            inherit (s) command;
+          }
+          // lib.optionalAttrs ((s.args or [ ]) != [ ]) {
+            inherit (s) args;
+          }
+          // lib.optionalAttrs ((s.env or { }) != { }) {
+            inherit (s) env;
+          }
+      ) enabledMcpServers
+    )
+  );
+
+  python = lib.getExe pkgs.python3;
 in
 {
   imports = [
     ../../../../../modules/terminal/ai # prompt/agents/commands/skills payload + custom.ai.* options
-    ../payload.nix # shared with opencode and claude-code
+    ../payload.nix # shared with opencode, claude-code and Antigravity
   ];
 
   home.packages = [ agy ];
 
-  # agy writes its own settings.json, so only the `model` key is merged in.
-  home.activation.antigravityDefaultModel = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    cfg="$HOME/.gemini/antigravity-cli/settings.json"
-    mkdir -p "$(dirname "$cfg")"
-    [ -s "$cfg" ] || echo '{}' > "$cfg"
-    ${lib.getExe pkgs.jq} --arg m ${lib.escapeShellArg model} '.model = $m' "$cfg" > "$cfg.tmp"
-    mv "$cfg.tmp" "$cfg"
-  '';
+  home.activation = {
+    # agy writes its own settings.json, so only the `model` key is merged in.
+    antigravityDefaultModel = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      cfg="$HOME/.gemini/antigravity-cli/settings.json"
+      mkdir -p "$(dirname "$cfg")"
+      [ -s "$cfg" ] || echo '{}' > "$cfg"
+      ${lib.getExe pkgs.jq} --arg m ${lib.escapeShellArg model} '.model = $m' "$cfg" > "$cfg.tmp"
+      mv "$cfg.tmp" "$cfg"
+    '';
+
+    # Sync enabled `programs.mcp.servers` into standalone ~/.gemini/config and
+    # the explicitly selected T3 Code Antigravity provider profile(s)
+    # (pre-created by deterministic sha256(instanceId) so fresh hosts have MCP
+    # ready on first launch without touching unrelated profiles).
+    antigravityMcpServers = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      (
+        umask 077
+        ${python} ${./sync-mcp-json.py} "$HOME/.gemini/config" ${agyMcpPayload}
+        ${lib.concatMapStringsSep "\n        " (
+          dir: "${python} ${./sync-mcp-json.py} ${lib.escapeShellArg dir} ${agyMcpPayload}"
+        ) t3AntigravityConfigDirs}
+      )
+    '';
+  };
 }

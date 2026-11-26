@@ -80,6 +80,9 @@ _: {
         "modernize"
         "sol-loop"
         "takeover"
+
+        # boat.dev ephemeral cloud sandbox orchestration via t3boat MCP
+        "orchestrate-boat-sandboxes"
       ];
 
       # Caveman — off (2026-11-12): nothing below is deployed while
