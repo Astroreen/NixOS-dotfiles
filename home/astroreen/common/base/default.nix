@@ -11,6 +11,7 @@ _: {
     ../../profiles/terminal/ai/antigravity # Google Antigravity CLI (agy)
     ../../profiles/terminal/ai/codex # OpenAI Codex CLI
     ../../profiles/terminal/ai/cliproxyapi.nix # Route CLIs through hercules's CLIProxyAPI
+    ../../profiles/terminal/ai/boat.nix # boat.dev CLI + t3boat MCP bridge
 
     # Languages
     ../../profiles/lang/javascript.nix

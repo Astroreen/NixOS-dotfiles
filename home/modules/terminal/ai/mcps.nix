@@ -1,22 +1,12 @@
 { config, lib, ... }:
 let
-  servers = {
+  # Enabled by default (overridable per host with `programs.mcp.servers.<name>.disabled = true`).
+  enabledServers = {
     context7 = {
       type = "http";
       url = "https://mcp.context7.com/mcp";
       headers = { };
       description = "For fetching relevant documentation";
-    };
-
-    playwright = {
-      command = "docker";
-      args = [
-        "run"
-        "-i"
-        "--rm"
-        "mcp/playwright"
-      ];
-      description = "Browser automation for web interactions";
     };
 
     youtube-transcript = {
@@ -29,45 +19,6 @@ let
       ];
       description = "Fetch YouTube video transcripts";
     };
-
-    # persistent-memory = {
-    #   command = "npx";
-    #   args = [
-    #     "-y"
-    #     "@modelcontextprotocol/server-memory"
-    #   ];
-    #   env = {
-    #     MEMORY_FILE_PATH = "${config.xdg.configHome}/mcp/memory.jsonl";
-    #   };
-    #   description = "Persistent memory across sessions";
-    # };
-
-    # sequential-thinking = {
-    #   command = "npx";
-    #   args = [
-    #     "-y"
-    #     "@modelcontextprotocol/server-sequential-thinking"
-    #   ];
-    #   description = "Chain-of-thought reasoning";
-    # };
-
-    # magic-ui-components = {
-    #   command = "npx";
-    #   args = [
-    #     "-y"
-    #     "@magicuidesign/mcp@latest"
-    #   ];
-    #   description = "React components";
-    # };
-
-    # token-optimizer = {
-    #   command = "npx";
-    #   args = [
-    #     "-y"
-    #     "token-optimizer-mcp"
-    #   ];
-    #   description = "Token optimization for 95%+ context reduction via content deduplication and compression in session";
-    # };
 
     cloudflare-docs = {
       type = "http";
@@ -93,6 +44,66 @@ let
       description = "Draw.io diagram interactions";
     };
 
+    boat-docs = {
+      type = "http";
+      url = "https://docs.boat.dev/mcp";
+      description = "Boat.dev cloud sandbox documentation search";
+    };
+  };
+
+  # Disabled by default (enable per host with `programs.mcp.servers.<name>.disabled = false`,
+  # or via its dedicated module such as `custom.ai.boat.enable = true` for `t3boat`).
+  disabledServers = {
+    playwright = {
+      command = "docker";
+      args = [
+        "run"
+        "-i"
+        "--rm"
+        "mcp/playwright"
+      ];
+      description = "Browser automation for web interactions";
+    };
+
+    persistent-memory = {
+      command = "npx";
+      args = [
+        "-y"
+        "@modelcontextprotocol/server-memory"
+      ];
+      env = {
+        MEMORY_FILE_PATH = "${config.xdg.configHome}/mcp/memory.jsonl";
+      };
+      description = "Persistent memory across sessions";
+    };
+
+    sequential-thinking = {
+      command = "npx";
+      args = [
+        "-y"
+        "@modelcontextprotocol/server-sequential-thinking"
+      ];
+      description = "Chain-of-thought reasoning";
+    };
+
+    magic-ui-components = {
+      command = "npx";
+      args = [
+        "-y"
+        "@magicuidesign/mcp@latest"
+      ];
+      description = "React components";
+    };
+
+    token-optimizer = {
+      command = "npx";
+      args = [
+        "-y"
+        "token-optimizer-mcp"
+      ];
+      description = "Token optimization for 95%+ context reduction via content deduplication and compression in session";
+    };
+
     rea = {
       command = "pnpm";
       args = [
@@ -102,11 +113,19 @@ let
       ];
       description = "Reverse engineering of binaries, APK, Electron, .NET";
     };
+
+    t3boat = {
+      command = "t3boat-mcp";
+      args = [ ];
+      description = "Boot ephemeral boat.dev sandboxes as linked T3 Code environments";
+    };
   };
 in
 {
   programs.mcp = {
     enable = true;
-    servers = lib.mapAttrs (_: v: { disabled = lib.mkDefault true; } // v) servers;
+    servers =
+      lib.mapAttrs (_: v: { disabled = lib.mkDefault false; } // v) enabledServers
+      // lib.mapAttrs (_: v: { disabled = lib.mkDefault true; } // v) disabledServers;
   };
 }

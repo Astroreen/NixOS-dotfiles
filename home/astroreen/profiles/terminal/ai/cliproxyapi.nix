@@ -1,6 +1,6 @@
 # Route astroreen's AI CLIs (Claude Code, Codex, OpenCode openai/google) through
 # the CLIProxyAPI server on hercules (127.0.0.1:8317, exposed over Tailscale
-# HTTPS via `tailscale serve` at https://hercules.tail15a705.ts.net:8317).
+# HTTPS via `tailscale serve` at https://hercules.bumblebee-parrotfish.ts.net:8317).
 #
 # Provision the client key once per host (mode 0600, never committed):
 #   On hercules:
@@ -13,7 +13,7 @@
 #   ~/.codex/config.toml.
 #
 # T3 Code Usage Hub (Settings -> Providers -> Usage providers -> Add hub):
-#   URL:            https://hercules.tail15a705.ts.net:8317
+#   URL:            https://hercules.bumblebee-parrotfish.ts.net:8317
 #   Management key: contents of /var/lib/secrets/cliproxyapi-management-key
 { host, lib, ... }:
 {
@@ -31,6 +31,6 @@
     );
     # Same Tailscale HTTPS URL on every host (including hercules) so Claude,
     # Codex and T3 Code's Usage Hub all match one canonical origin.
-    baseUrl = "https://hercules.tail15a705.ts.net:8317";
+    baseUrl = "https://hercules.bumblebee-parrotfish.ts.net:8317";
   };
 }

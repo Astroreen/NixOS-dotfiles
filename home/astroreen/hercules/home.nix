@@ -33,6 +33,8 @@ _: {
     # https://hercules.<tailnet>.ts.net:8443 for linking this T3 server from
     # another T3 Code (plain http is refused), plus the AstroTime dev server
     # and CLIProxyAPI (:8317, bound to 127.0.0.1 on the host).
+    # Note: boat-proxy (:8318) is served by its own root systemd unit over a
+    # private Unix socket so unprivileged local accounts cannot reach it.
     tailscaleServe = {
       enable = true;
       extraProxies = {

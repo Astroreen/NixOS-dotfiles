@@ -80,37 +80,46 @@
   # Wayland, X, etc. support for session vars
   systemd.user.sessionVariables = config.home.sessionVariables;
 
-  # Push-to-talk voice dictation (faster-whisper server + socket daemon + overlay).
-  # Transcribed locally by default; mode = "remote" sends recordings to the
-  # large-v3-turbo server on hercules instead (over the tailnet).
-  custom.dictation = {
-    enable = lib.mkDefault true;
-    host = lib.mkDefault "127.0.0.1";
-    mode = lib.mkDefault "local";
-    remote.host = lib.mkDefault "hercules.tail15a705.ts.net";
-  };
-
   wayland.windowManager.hyprland.settings = import ./hyprland/settings.nix { inherit lib; };
 
-  # Personal keyboard layout switching (not general Hyprland binds)
-  custom.keybinds.binds = lib.mapAttrs (_: lib.mapAttrs (_: lib.mkDefault)) {
-    layoutEnglish = {
-      description = "Keyboard layout: English";
-      key = "SHIFT + ALT + E";
-      exec = "hyprctl switchxkblayout all 0"; # us
-      locked = true;
+  custom = {
+    # Expose the local T3 Code server over tailnet-only HTTPS (:443 -> 127.0.0.1:3773)
+    # so other machines (hercules, laptop, pc) can link to this workstation as a peer.
+    t3code.tailscaleServe = {
+      enable = lib.mkDefault true;
+      port = lib.mkDefault 443;
     };
-    layoutRussian = {
-      description = "Keyboard layout: Russian";
-      key = "SHIFT + ALT + R";
-      exec = "hyprctl switchxkblayout all 1"; # ru
-      locked = true;
+
+    # Push-to-talk voice dictation (faster-whisper server + socket daemon + overlay).
+    # Transcribed locally by default; mode = "remote" sends recordings to the
+    # large-v3-turbo server on hercules instead (over the tailnet).
+    dictation = {
+      enable = lib.mkDefault true;
+      host = lib.mkDefault "127.0.0.1";
+      mode = lib.mkDefault "local";
+      remote.host = lib.mkDefault "hercules.bumblebee-parrotfish.ts.net";
     };
-    layoutLithuanian = {
-      description = "Keyboard layout: Lithuanian";
-      key = "SHIFT + ALT + L";
-      exec = "hyprctl switchxkblayout all 2"; # lt
-      locked = true;
+
+    # Personal keyboard layout switching (not general Hyprland binds)
+    keybinds.binds = lib.mapAttrs (_: lib.mapAttrs (_: lib.mkDefault)) {
+      layoutEnglish = {
+        description = "Keyboard layout: English";
+        key = "SHIFT + ALT + E";
+        exec = "hyprctl switchxkblayout all 0"; # us
+        locked = true;
+      };
+      layoutRussian = {
+        description = "Keyboard layout: Russian";
+        key = "SHIFT + ALT + R";
+        exec = "hyprctl switchxkblayout all 1"; # ru
+        locked = true;
+      };
+      layoutLithuanian = {
+        description = "Keyboard layout: Lithuanian";
+        key = "SHIFT + ALT + L";
+        exec = "hyprctl switchxkblayout all 2"; # lt
+        locked = true;
+      };
     };
   };
 }

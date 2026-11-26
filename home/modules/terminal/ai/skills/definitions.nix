@@ -193,4 +193,10 @@
     description = "Take over existing work. Use when the user asks to take over a PR, branch, or agent thread, or requests a takeover.";
     license = "MIT";
   };
+
+  # Adapted from github:trevize-dev/t3boat (Apache-2.0).
+  orchestrate-boat-sandboxes = {
+    description = "Use when a T3 Code orchestrator thread should run subagent work on a boat.dev cloud sandbox instead of this machine, through the t3boat MCP tools or boat CLI: booting an ephemeral sandbox, delegating tasks with delegate_task, running several tasks on one sandbox, and destroying it when done.";
+    license = "Apache-2.0";
+  };
 }

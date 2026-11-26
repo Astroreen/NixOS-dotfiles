@@ -14,7 +14,7 @@
 #     /var/lib/secrets/cliproxyapi-api-key /home/astroreen/.config/cliproxyapi/api-key
 #
 # Sign in subscriptions (either via the Web UI over Tailscale at
-# https://hercules.tail15a705.ts.net:8317/management.html, or from the CLI):
+# https://hercules.bumblebee-parrotfish.ts.net:8317/management.html, or from the CLI):
 #   sudo -u cliproxyapi cliproxyapi -config /var/lib/cliproxyapi/config.yaml --claude-login --no-browser
 #   sudo -u cliproxyapi cliproxyapi -config /var/lib/cliproxyapi/config.yaml --codex-device-login
 #   sudo -u cliproxyapi cliproxyapi -config /var/lib/cliproxyapi/config.yaml --antigravity-login --no-browser

@@ -4,6 +4,6 @@ _: {
     enable = true;
     environmentFile = "/var/lib/secrets/pihole.env"; # FTLCONF_webserver_api_password=...
     # Tailnet names (hercules, pc, ...) come from Tailscale MagicDNS.
-    forwardZones."tail15a705.ts.net" = "100.100.100.100";
+    forwardZones."bumblebee-parrotfish.ts.net" = "100.100.100.100";
   };
 }
