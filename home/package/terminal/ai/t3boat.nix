@@ -27,6 +27,10 @@ buildNpmPackage {
     hash = "sha256-9SvlcjSZGpL+wqjWwIWNy2FtHMBdXaRi9Q1ntfPkb54=";
   };
 
+  # When a Boat environment pre-clones the repo on its base branch, still fetch
+  # and switch to the requested `ref` instead of silently staying on `main`.
+  patches = [ ./t3boat-checkout-existing-ref.patch ];
+
   npmDepsHash = "sha256-rfrOSYucG/4g4wmaf87hSyUGXVGxe0vwt9taFyPEd/c=";
   nodejs = nodejs_24;
   npmBuildScript = "build";

@@ -1,0 +1,17 @@
+--- a/src/bootstrap.ts
++++ b/src/bootstrap.ts
+@@ -76,9 +76,13 @@ export const healthCommand = `curl -fsS -m 5 http://127.0.0.1:${T3_PORT}/.well-k
+ /** Clones the repo (with the same origin URL as locally, so T3 matches the project by repository identity) and registers it. */
+ export function projectSetupCommand(repo: string, ref: string | undefined, dir: string): string {
+   const checkout = ref ? ` && git -C ${sh(dir)} checkout ${sh(ref)}` : "";
++  const updateExisting = ref
++    ? ` else git -C ${sh(dir)} fetch --prune --tags origin && ` +
++      `if git -C ${sh(dir)} show-ref --verify --quiet -- ${sh(`refs/remotes/origin/${ref}`)}; then git -C ${sh(dir)} checkout -B ${sh(ref)} --track ${sh(`origin/${ref}`)}; else git -C ${sh(dir)} checkout ${sh(ref)}; fi;`
++    : "";
+   return [
+     `export PATH="$HOME/.local/bin:$PATH"`,
+-    `if [ ! -d ${sh(dir)}/.git ]; then git clone ${sh(repo)} ${sh(dir)}${checkout}; fi`,
++    `if [ ! -d ${sh(dir)}/.git ]; then git clone ${sh(repo)} ${sh(dir)}${checkout};${updateExisting} fi`,
+     // Prints "Added project <id> (<title>) at <path>."; an already-added path is not an error.
+     `{ t3 project add ${sh(dir)} --base-dir "$HOME/.t3" 2>&1 || true; }`,
+   ].join(" && ");
