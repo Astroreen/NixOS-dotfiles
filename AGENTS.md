@@ -141,7 +141,7 @@ hosts/
     laptop/configuration.nix   # GRUB, Intel+NVIDIA PRIME offload (custom.power.hybridGpu), conservation mode at boot (custom.power.chargeLimit, BAT1), PCIe ASPM powersupersave, NVIDIA S0ix, socket-activated Docker, Bluetooth off at boot, Plymouth
     pc/configuration.nix       # NVIDIA full, WoL, no sleep/suspend, Ollama, Minecraft
     aktkc/                     # VMware VM server (BIOS, /dev/sda): configuration.nix (hostName, disk), hardware config; being retired, nothing host-specific left on it
-    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), github-runners.nix (Caspian ERP CI and e2e, moved from aktkc), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
+    hercules/                  # Bare-metal home server (Z790, i7-14700KF, RTX 4080 SUPER; NixOS on the 980 PRO NVMe): configuration.nix, nvidia.nix (headless driver, container toolkit, docker enableNvidia for Nextcloud AIO), github-runners.nix (single light Caspian ERP runner `caspian-light-1`), hardware config, /mnt/nextcloud_storage (4TB USB, nofail)
     profiles/              # System-level profiles, preconfigured for astroreen
       apps/ lang/ style/ terminal/{shell,openvpn}/ wm/{hyprland,plasma}/
       server/              # services/ (Docker services, preconfigured for hercules), hardening, agent account, containers, restic backup (dormant, import commented out in common/server), uptime-kuma (per host)
@@ -195,17 +195,7 @@ rootless podman) for autonomous agents. Restic backups (`profiles/server/backup.
 backup target exists; when enabled, they read the repository URL and password from
 `/etc/restic/{repository,password}`, created by hand on the host (not in the repo).
 
-hercules runs the Caspian ERP GitHub Actions runners (`hosts/astroreen/hercules/github-runners.nix`: `caspian-ci-1..3`,
-`caspian-e2e-1..3`; counts are `ciRunners`/`e2eRunners`; the `caspian-pipeline` merge-queue runner was removed when the
-Pipeline workflow was switched off, 2026-11-07) under the unprivileged `caspian-ci` and `caspian-e2e` accounts. Their persistent HOME directories are
-`/var/lib/caspian-ci-runner` and `/var/lib/caspian-e2e-runner`; work directories live under the root-owned `/var/lib/caspian-runner-work`. E2E uses
-rootless Podman for PostgreSQL. Ordinary builds and Claude review share the CI account and its caches, so they
-share a trust boundary. All runners are in `caspian-ci.slice` (CPU/IO weight 50; memory and CPUs capped by its parent `caspian.slice`,
-MemoryHigh 14G, MemoryMax 15G, CPUs 0-22, in `configuration.nix`) so CI cannot starve the builder agents (T3, `user.slice`);
-the e2e runners in its child `caspian-ci-e2e.slice` (MemoryHigh 12G, MemoryMax 13G). hercules has zram at
-100% of RAM, `vm.swappiness = 150` and `system.slice` MemoryLow 3G (services reclaimed last). Server hosts keep minute-level `sar` history (sysstat, 7 days, `/var/log/sa`) from `profiles/server/monitoring.nix`.
-The registration token lives in `/var/lib/secrets/github-runner-caspian` (by hand, not in the repo; the
-command is in the file header). The Playwright Chromium libraries are added to `programs.nix-ld.libraries` there.
+hercules runs one light GitHub Actions runner for Caspian ERP (`hosts/astroreen/hercules/github-runners.nix`: `caspian-light-1`, labels `self-hosted, hercules, light`) for the seconds-long text/script checks; heavy builds, e2e and AI reviews run on Ubicloud Managed Runners. It runs under systemd `DynamicUser` with a tmpfs work directory (no persistent caches, no Docker/Podman) in `caspian-ci.slice` (CPU/IO weight 50; memory and CPUs capped by its parent `caspian.slice`, MemoryHigh 2G, MemoryMax 3G, CPUs 0-22, in `configuration.nix`) so CI cannot starve the builder agents (T3, `user.slice`) or LAN services. hercules has zram at 100% of RAM, `vm.swappiness = 150` and `system.slice` MemoryLow 3G (services reclaimed last). Server hosts keep minute-level `sar` history (sysstat, 7 days, `/var/log/sa`) from `profiles/server/monitoring.nix`. The registration token lives in `/var/lib/secrets/github-runner-caspian` (by hand, not in the repo; the command is in the file header).
 
 All hosts use Lix (`nix.package = pkgs.lixPackageSets.stable.lix`) instead of stock Nix.
 

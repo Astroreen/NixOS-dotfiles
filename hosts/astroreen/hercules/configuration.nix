@@ -4,6 +4,7 @@ _: {
     ../common/server # Server layer: disko, GRUB, hardening, agent, containers, backup
 
     ./nvidia.nix # RTX 4080 SUPER for GPU services
+    ./github-runners.nix # Light GitHub Actions runner for Caspian ERP text/script checks
     ../profiles/server/cliproxyapi.nix # CLIProxyAPI subscription proxy (:8317, tailnet-only)
     ../profiles/server/boat-proxy.nix # Boat.dev API key-injecting proxy (:8318, tailnet-only)
     ../profiles/server/services # Vaultwarden, Pi-hole, n8n, Actual, Nextcloud AIO (Docker)
@@ -39,29 +40,34 @@ _: {
 
   networking.hostName = "hercules";
 
-  # The builder agents are capped below (user.slice); the rest of
-  # the overflow goes to zram (zstd, ~3-4x). The zram device size is a cap on
-  # uncompressed data, not reserved memory.
+  # The builder agents (user.slice) and light CI runner (caspian.slice) are
+  # capped below; the rest of the overflow goes to zram (zstd, ~3-4x). The zram
+  # device size is a cap on uncompressed data, not reserved memory.
   zramSwap.memoryPercent = 100;
   boot.kernel.sysctl."vm.swappiness" = 150; # Swap to zram is cheap: prefer it to dropping page cache
 
-  # When the builder agents peak, the services (sshd, Pi-hole
+  # When the builder agents or CI peak, the services (sshd, Pi-hole
   # DNS for the LAN and exit-node clients, tailscaled, Docker services: ~2 GB
   # at rest) are reclaimed last (system MemoryLow below).
   #
   # Hard ceiling of the work load, so the host never runs at 100% and Pi-hole
   # keeps answering the LAN (load 270 on 28 threads took the LAN down,
-  # 2026-10-31). The builder agents (T3, user.slice) get CPUs 0-22 (23 of 28
-  # threads, ~82%); E-cores 23-27 stay for the services in system.slice.
-  # Over MemoryHigh work is throttled; over MemoryMax the OOM killer picks
-  # inside user.slice, never a service. user.slice keeps 3G between High and
-  # Max so the brake comes before a kill.
+  # 2026-10-31). The builder agents (T3, user.slice) and light CI runner
+  # (caspian.slice) share CPUs 0-22 (23 of 28 threads, ~82%); E-cores 23-27
+  # stay for the services in system.slice. Over MemoryHigh work is throttled;
+  # over MemoryMax the OOM killer picks inside that slice, never a service.
+  # user.slice keeps 3G between High and Max so the brake comes before a kill.
   systemd.slices = {
     system.sliceConfig.MemoryLow = "3G";
     user.sliceConfig = {
       AllowedCPUs = "0-22";
       MemoryHigh = "12G";
       MemoryMax = "15G";
+    };
+    caspian.sliceConfig = {
+      AllowedCPUs = "0-22";
+      MemoryHigh = "2G";
+      MemoryMax = "3G";
     };
   };
 
