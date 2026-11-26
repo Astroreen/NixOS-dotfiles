@@ -2,11 +2,13 @@
 # by OAuth subscription logins (Claude Code, ChatGPT Codex, Google Antigravity).
 #
 # Secrets (root:root, 0600 — created by hand on the host, never in the repo):
-#   /var/lib/secrets/cliproxyapi-api-key         client bearer / X-Api-Key
+#   /var/lib/secrets/cliproxyapi-api-key         client bearer / X-Api-Key (pc, laptop, hercules)
+#   /var/lib/secrets/cliproxyapi-boat-key        dedicated client key for ephemeral boat.dev VMs (independently revocable)
 #   /var/lib/secrets/cliproxyapi-management-key  management API & Web UI password
 #
-# Generate both keys once on the host:
+# Generate keys once on the host:
 #   python3 -c 'import secrets; print(secrets.token_hex(32), end="")' | sudo install -D -m 600 /dev/stdin /var/lib/secrets/cliproxyapi-api-key
+#   python3 -c 'import secrets; print(secrets.token_hex(32), end="")' | sudo install -D -m 600 /dev/stdin /var/lib/secrets/cliproxyapi-boat-key
 #   python3 -c 'import secrets; print(secrets.token_hex(32), end="")' | sudo install -D -m 600 /dev/stdin /var/lib/secrets/cliproxyapi-management-key
 #
 # Copy the client API key for astroreen's local CLI clients (and to laptop/pc):
@@ -40,6 +42,7 @@
 
       access.api-keys = [
         { _secret = "/var/lib/secrets/cliproxyapi-api-key"; }
+        { _secret = "/var/lib/secrets/cliproxyapi-boat-key"; }
       ];
 
       management = {
