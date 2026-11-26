@@ -10,8 +10,28 @@
     "when": "usagePageOpen"
   },
   {
-    "key": "f6",
-    "command": "workspace.focusNext"
+    "key": "cmd+shift+[",
+    "command": "terminal.previous",
+    "when": "terminalFocus && isMac"
+  },
+  {
+    "key": "cmd+shift+]",
+    "command": "terminal.next",
+    "when": "terminalFocus && isMac"
+  },
+  {
+    "key": "ctrl+alt+[",
+    "command": "terminal.previous",
+    "when": "terminalFocus && !isMac"
+  },
+  {
+    "key": "ctrl+alt+]",
+    "command": "terminal.next",
+    "when": "terminalFocus && !isMac"
+  },
+  {
+    "command": "workspace.focusNext",
+    "key": "f6"
   },
   {
     "command": "usage.limits",
@@ -192,8 +212,13 @@
     "when": "!terminalFocus && !previewFocus"
   },
   {
-    "key": "mod+f6",
-    "command": "workspace.focusNext"
+    "key": "mod+f",
+    "command": "preview.find",
+    "when": "previewFocus"
+  },
+  {
+    "command": "workspace.focusNext",
+    "key": "mod+f6"
   },
   {
     "command": "terminal.toggle",
@@ -292,6 +317,11 @@
     "when": "!terminalFocus"
   },
   {
+    "key": "mod+shift+d",
+    "command": "composer.dictation",
+    "when": "!terminalFocus"
+  },
+  {
     "command": "terminal.splitVertical",
     "key": "mod+shift+d",
     "when": "terminalFocus"
@@ -312,8 +342,8 @@
     "when": "!terminalFocus"
   },
   {
-    "key": "mod+shift+f6",
-    "command": "workspace.focusPrevious"
+    "command": "workspace.focusPrevious",
+    "key": "mod+shift+f6"
   },
   {
     "command": "composer.branch",
@@ -399,8 +429,8 @@
     "when": "!terminalFocus && !editableFocus"
   },
   {
-    "key": "shift+f6",
-    "command": "workspace.focusPrevious"
+    "command": "workspace.focusPrevious",
+    "key": "shift+f6"
   },
   {
     "command": "usage.tokens",

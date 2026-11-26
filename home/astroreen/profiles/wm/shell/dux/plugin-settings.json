@@ -4,7 +4,8 @@
     "trigger": "="
   },
   "dankActions": {
-    "enabled": true
+    "enabled": true,
+    "variants": []
   },
   "dankHyprlandWindows": {
     "enabled": true
@@ -34,12 +35,15 @@
     "enabled": true,
     "namedPlaylists": {
       "Default": []
-    }
+    },
+    "pauseOnBattery": true,
+    "pauseOnFullscreen": true
   },
   "nixPackageRunner": {
     "enabled": true
   },
   "quickCapture": {
+    "color_palette_preset": "custom",
     "enabled": true
   }
 }
