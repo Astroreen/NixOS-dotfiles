@@ -8,9 +8,51 @@
      idempotencyKey: string;
    }): Promise<BoatSandbox> {
      const { idempotencyKey, ...body } = input;
+--- a/src/bootstrap.ts
++++ b/src/bootstrap.ts
+@@ -87,6 +87,31 @@ export function pairingCommand(label: string): string {
+   return `export PATH="$HOME/.local/bin:$PATH" && t3 auth pairing create --base-dir "$HOME/.t3" --json --ttl 10m --label ${sh(label)}`;
+ }
+ 
++/** Warms up Antigravity's model catalog on t3 serve so orchestrator_capabilities lists models immediately. */
++export const warmupAntigravityCommand = `export PATH="$HOME/.local/bin:$HOME/.t3boat/node/bin:$PATH"
++settings="$HOME/.t3/userdata/settings.json"
++[ -s "$settings" ] && jq -e '.providerInstances.antigravity.enabled == true' "$settings" >/dev/null 2>&1 || exit 0
++if [ -s "$HOME/.config/tailscale/authkey" ]; then
++  for _ in $(seq 1 20); do tailscale status >/dev/null 2>&1 && break; sleep 1; done
++fi
++tok=$(t3 auth session issue --base-dir "$HOME/.t3" --ttl 2m --scope orchestration:read --label t3boat-warmup --token-only 2>/dev/null || true)
++[ -n "$tok" ] || exit 0
++ticket=$(curl -fsS -m 5 -X POST -H "Authorization: Bearer $tok" "http://127.0.0.1:${T3_PORT}/api/auth/websocket-ticket" | jq -r '.ticket // empty')
++[ -n "$ticket" ] || exit 0
++node - "$ticket" <<'NODE'
++const ws = new WebSocket(\`ws://127.0.0.1:${T3_PORT}/ws?orchestrationProtocol=2&wsTicket=\${encodeURIComponent(process.argv[2])}\`);
++const done = (code) => { try { ws.close(); } catch {} process.exit(code); };
++setTimeout(() => done(0), 40000).unref();
++ws.addEventListener("open", () => {
++  ws.send(JSON.stringify({ _tag: "Request", id: "1", tag: "server.refreshProviders", payload: { instanceId: "antigravity", refreshModels: true }, headers: [] }));
++});
++ws.addEventListener("message", (ev) => {
++  try { const m = JSON.parse(String(ev.data)); if (m.requestId === "1") done(0); } catch {}
++});
++ws.addEventListener("error", () => done(0));
++NODE
++`;
++
+ /** Thread statuses on the VM; busy ones keep the sandbox alive. */
+ export const threadListCommand = [
+   `export PATH="$HOME/.local/bin:$PATH";`,
 --- a/src/sandboxes.ts
 +++ b/src/sandboxes.ts
-@@ -54,6 +54,7 @@ export interface CreateOptions {
+@@ -16,6 +16,7 @@ import {
+   projectSetupCommand,
+   shellQuote,
+   startServerCommand,
++  warmupAntigravityCommand,
+   threadListCommand,
+ } from "./bootstrap.ts";
+ import { LocalT3 } from "./t3local.ts";
+@@ -54,6 +55,7 @@ export interface CreateOptions {
    access?: LinkAccess;
    size?: "small" | "medium" | "large";
    boatEnvironment?: string;
@@ -18,7 +60,7 @@
    env?: Record<string, string>;
    keepAlive?: boolean;
  }
-@@ -136,12 +137,16 @@ export class SandboxManager {
+@@ -136,14 +138,18 @@ export class SandboxManager {
          .map((k) => [k, process.env[k]!]),
      );
      const env = { ...forwarded, ...opts.env };
@@ -38,6 +80,16 @@
      });
  
      const s: ManagedSandbox = {
+@@ -214,6 +220,9 @@ export class SandboxManager {
+       this.update(s, { workspacePath: dir, ...(projectId ? { projectId } : {}) });
+     }
+ 
++    progress("warming up Antigravity provider");
++    await this.boat.exec(id, warmupAntigravityCommand, 60).catch(() => {});
++
+     progress("exposing port");
+     const url = new URL(await this.boat.host(id, T3_PORT, "T3 Code")).origin;
+     this.update(s, { url, phase: "linking" });
 --- a/src/index.ts
 +++ b/src/index.ts
 @@ -88,6 +88,10 @@ server.registerTool(
@@ -53,18 +105,22 @@
    },
 --- a/src/cli.ts
 +++ b/src/cli.ts
-@@ -13,6 +13,7 @@ const { positionals, values } = parseArgs({
+@@ -13,6 +13,9 @@ const { positionals, values } = parseArgs({
      idle: { type: "string" },
      ttl: { type: "string" },
      access: { type: "string" },
++    size: { type: "string" },
++    environment: { type: "string" },
 +    from: { type: "string" },
      "keep-alive": { type: "boolean" },
    },
  });
-@@ -46,6 +47,7 @@ switch (cmd) {
+@@ -46,6 +49,9 @@ switch (cmd) {
            idleMinutes: values.idle ? Number(values.idle) : undefined,
            ttlMinutes: values.ttl ? Number(values.ttl) : undefined,
            access: values.access as any,
++          size: values.size as any,
++          boatEnvironment: values.environment,
 +          from: values.from,
            keepAlive: values["keep-alive"],
          },
