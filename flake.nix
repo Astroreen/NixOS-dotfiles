@@ -71,17 +71,16 @@
     # deployed via home.activation into ~/.config/opencode/plugins.
     astrocode.url = "github:Astroreen/astrocode";
 
-    # Hyprland plugins — follow this flake's hyprland input so plugin ABI
-    # matches exactly what's actually running.
-    # NOTE: gloview was tried and dropped (2026-07-26) — its pinned source
+    # Hyprland plugins: none. A plugin input must follow this flake's hyprland
+    # input so its ABI matches the running compositor.
+    # NOTE: gloview was tried and dropped (2026-07-26): its pinned source
     # includes "hyprland/src/managers/PointerManager.hpp", but that header
     # was moved to "src/pointer/PointerManager.hpp" in our pinned Hyprland
-    # rev. Real upstream incompatibility, not a packaging issue. Revisit
-    # once upstream gloview catches up.
-    hypr-dynamic-cursors = {
-      url = "github:VirtCode/hypr-dynamic-cursors";
-      inputs.hyprland.follows = "hyprland";
-    };
+    # rev. Revisit once upstream gloview catches up.
+    # NOTE: hypr-dynamic-cursors was dropped (2026-11-27): it replaces the
+    # hardware cursor rendering with GL, which fails on NVIDIA, so the cursor
+    # falls back to software and Hyprland bakes it into every screenshot
+    # (even "without cursor").
 
     # HyprMod — GTK4 settings app for Hyprland. Writes to its own mutable
     # ~/.config/hypr/hyprland-gui.lua; the include is added declaratively in

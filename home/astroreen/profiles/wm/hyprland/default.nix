@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  inputs,
   lib,
   ...
 }:
@@ -30,8 +29,5 @@
     systemd.enable = true;
     systemd.variables = [ "--all" ];
     settings = import ./settings { inherit config lib pkgs; };
-    plugins = [
-      inputs.hypr-dynamic-cursors.packages.${pkgs.stdenv.hostPlatform.system}.hypr-dynamic-cursors
-    ];
   };
 }
